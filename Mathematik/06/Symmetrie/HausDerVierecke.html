@@ -1015,22 +1015,28 @@
 
         function getArrowAnchors(fromRect, toRect) {
           const fromCenterX = fromRect.left + fromRect.width / 2;
+          const fromCenterY = fromRect.top + fromRect.height / 2;
           const toCenterX = toRect.left + toRect.width / 2;
           const deltaX = toCenterX - fromCenterX;
           const centerTolerance = Math.max(10, fromRect.width * 0.08);
 
           let startX;
+          let startY;
+
           if (Math.abs(deltaX) <= centerTolerance) {
             startX = fromRect.left + fromRect.width / 2;
+            startY = fromRect.bottom;
           } else if (deltaX < 0) {
             startX = fromRect.left;
+            startY = fromCenterY;
           } else {
             startX = fromRect.right;
+            startY = fromCenterY;
           }
 
           return {
             startX: localX(startX),
-            startY: localY(fromRect.bottom),
+            startY: localY(startY),
             endX: localX(toRect.left + toRect.width / 2),
             endY: localY(toRect.top)
           };
