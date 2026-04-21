@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Haus der Vierecke – Drag & Drop</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-soft: #ffffff;
+      --panel: rgba(255, 248, 243, 0.8);
+      --panel-strong: rgba(255, 252, 249, 0.94);
+      --text: #302a28;
+      --muted: #7b6660;
+      --line: rgba(55, 43, 40, 0.18);
+      --accent: #ca3857;
+      --accent-soft: rgba(202, 56, 87, 0.14);
+      --shape-red: #ff3131;
+      --shape-dark: #2d3036;
+      --shape-fill: rgba(205, 227, 241, 0.9);
+      --shadow: 0 16px 36px rgba(61, 40, 31, 0.10);
+      --sidebar-width: clamp(112px, 16vw, 162px);
+      --info-height: clamp(92px, 14vh, 132px);
+      --safe-top: max(14px, env(safe-area-inset-top));
+      --safe-right: max(14px, env(safe-area-inset-right));
+      --safe-bottom: max(14px, env(safe-area-inset-bottom));
+      --safe-left: max(14px, env(safe-area-inset-left));
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      position: fixed;
+      inset: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: #ffffff;
+      touch-action: none;
+      overscroll-behavior: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body.dragging,
+    body.dragging * {
+      cursor: grabbing !important;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      position: absolute;
+      left: var(--safe-left);
+      top: var(--safe-top);
+      bottom: calc(var(--info-height) + var(--safe-bottom) + 12px);
+      width: var(--sidebar-width);
+      border: 1px solid rgba(88, 58, 46, 0.08);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 10px 18px;
+      gap: 10px;
+      z-index: 5;
+    }
+
+    .sidebar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .palette {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .palette-item {
+      position: relative;
+      flex: 1 1 0;
+      min-height: 0;
+      border: 1px solid rgba(74, 54, 46, 0.08);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.98);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+      touch-action: none;
+    }
+
+    .palette-item:active {
+      transform: scale(0.985);
+    }
+
+    .palette-item.selected {
+      box-shadow: 0 0 0 2px rgba(202, 56, 87, 0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+      border-color: rgba(202, 56, 87, 0.28);
+    }
+
+    .palette-item.is-hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .main {
+      position: absolute;
+      left: calc(var(--sidebar-width) + var(--safe-left) + 18px);
+      right: var(--safe-right);
+      top: var(--safe-top);
+      bottom: calc(var(--info-height) + var(--safe-bottom) + 12px);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: #ffffff;
+      border: 1px solid rgba(86, 62, 50, 0.08);
+    }
+
+    .board {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .board-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(94, 70, 60, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(94, 70, 60, 0.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .board-flash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 2;
+    }
+
+    .board-flash.success {
+      background: rgba(81, 171, 96, 0.24);
+      opacity: 1;
+    }
+
+    .board-flash.error {
+      background: rgba(220, 62, 62, 0.34);
+      animation: flashfade 10s ease forwards;
+    }
+
+    @keyframes flashfade {
+      0% { opacity: 0; }
+      6% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .topbar {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .title-block {
+      pointer-events: none;
+    }
+
+    .title {
+      font-size: clamp(20px, 2.2vw, 30px);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .check-btn {
+      pointer-events: auto;
+      appearance: none;
+      border: 1px solid rgba(69, 49, 40, 0.12);
+      border-radius: 16px;
+      min-width: 178px;
+      min-height: 52px;
+      padding: 12px 18px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(255, 251, 248, 0.92);
+      box-shadow: 0 12px 28px rgba(53, 39, 31, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .check-btn:active:not(:disabled) {
+      transform: scale(0.985);
+    }
+
+    .check-btn:disabled {
+      opacity: 0.82;
+    }
+
+    .workspace {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 86px;
+      bottom: 0;
+      z-index: 1;
+    }
+
+    .connections {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .connections .conn-line {
+      stroke: var(--accent);
+      stroke-width: 2.2;
+      fill: none;
+      opacity: 0.9;
+      filter: drop-shadow(0 1px 0 rgba(255,255,255,0.22));
+      stroke-linecap: round;
+    }
+
+    .connections .conn-head {
+      fill: var(--accent);
+      opacity: 0.9;
+      filter: drop-shadow(0 1px 0 rgba(255,255,255,0.22));
+    }
+
+    .connections .conn-text {
+      fill: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      paint-order: stroke;
+      stroke: rgba(255, 252, 249, 0.96);
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .slots {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+
+    .slot {
+      position: absolute;
+      width: clamp(110px, 14vw, 164px);
+      height: clamp(78px, 10vw, 114px);
+      transform: translate(-50%, -50%);
+      border-radius: 22px;
+      border: 2px dashed rgba(128, 96, 85, 0.28);
+      background: rgba(255, 251, 247, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+
+    .slot::before,
+    .slot::after {
+      content: "";
+      position: absolute;
+      background: rgba(145, 110, 98, 0.28);
+      border-radius: 999px;
+    }
+
+    .slot::before {
+      width: 20px;
+      height: 3px;
+    }
+
+    .slot::after {
+      width: 3px;
+      height: 20px;
+    }
+
+    .slot.has-shape::before,
+    .slot.has-shape::after {
+      display: none;
+    }
+
+    .slot.drop-target {
+      background: rgba(202, 56, 87, 0.10);
+      border-color: rgba(202, 56, 87, 0.45);
+      box-shadow: 0 0 0 4px rgba(202, 56, 87, 0.09);
+      transform: translate(-50%, -50%) scale(1.02);
+    }
+
+    .slot.correct {
+      background: rgba(88, 182, 104, 0.14);
+      border-color: rgba(88, 182, 104, 0.52);
+      box-shadow: 0 0 0 4px rgba(88, 182, 104, 0.10);
+    }
+
+    .slot.incorrect {
+      background: rgba(206, 97, 97, 0.13);
+      border-color: rgba(206, 97, 97, 0.48);
+      box-shadow: 0 0 0 4px rgba(206, 97, 97, 0.09);
+    }
+
+    .slot[data-slot="s1"] { left: 48%; top: 10%; }
+    .slot[data-slot="s2"] { left: 31%; top: 31%; }
+    .slot[data-slot="s3"] { left: 65%; top: 31%; }
+    .slot[data-slot="s4"] { left: 15%; top: 58%; }
+    .slot[data-slot="s5"] { left: 48%; top: 58%; }
+    .slot[data-slot="s6"] { left: 79%; top: 58%; }
+    .slot[data-slot="s7"] { left: 63.5%; top: 84%; }
+
+    .slot-name {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 8px);
+      transform: translateX(-50%);
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 252, 249, 0.88);
+      border: 1px solid rgba(88, 58, 46, 0.10);
+      box-shadow: 0 6px 14px rgba(61, 40, 31, 0.08);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .placed-shape {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+
+    .shape-svg {
+      width: 88%;
+      height: 88%;
+      overflow: visible;
+      filter: drop-shadow(0 7px 10px rgba(37, 28, 24, 0.11));
+      pointer-events: none;
+    }
+
+    .shape-svg .fill {
+      fill: var(--shape-fill);
+      stroke: none;
+    }
+
+    .shape-svg .edge-red {
+      fill: none;
+      stroke: var(--shape-dark);
+      stroke-width: 2.8;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .shape-svg .edge-dark {
+      fill: none;
+      stroke: var(--shape-dark);
+      stroke-width: 2.8;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .drag-ghost {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: clamp(96px, 12vw, 148px);
+      height: clamp(72px, 9vw, 110px);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+      opacity: 0.96;
+      filter: drop-shadow(0 16px 24px rgba(31, 22, 18, 0.22));
+    }
+
+    .info-panel {
+      position: absolute;
+      left: calc(var(--sidebar-width) + var(--safe-left) + 18px);
+      right: var(--safe-right);
+      bottom: var(--safe-bottom);
+      min-height: var(--info-height);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(88, 58, 46, 0.08);
+      padding: 16px 20px 18px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      z-index: 6;
+      overflow: hidden;
+    }
+
+    .info-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(202, 56, 87, 0.08);
+      border: 1px solid rgba(202, 56, 87, 0.12);
+    }
+
+    .info-copy {
+      min-width: 0;
+    }
+
+    .info-name {
+      font-size: clamp(18px, 2vw, 24px);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .info-text {
+      font-size: clamp(14px, 1.55vw, 20px);
+      line-height: 1.35;
+      color: #403734;
+    }
+
+    .info-placeholder {
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --sidebar-width: 106px;
+      }
+
+      .topbar {
+        top: 12px;
+      }
+
+      .title {
+        font-size: 18px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+      }
+
+      .check-btn {
+        min-width: 134px;
+        min-height: 46px;
+        font-size: 15px;
+        padding: 10px 14px;
+      }
+
+      .workspace {
+        top: 76px;
+      }
+
+      .slot {
+        border-radius: 18px;
+      }
+
+      .info-panel {
+        padding: 14px 16px 16px;
+        gap: 14px;
+      }
+
+      .info-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar" aria-label="Seitenleiste mit Vierecken">
+      <div class="sidebar-title">Vierecke</div>
+      <div class="palette" id="palette"></div>
+    </aside>
+
+    <main class="main">
+      <div class="board">
+        <div class="board-grid"></div>
+        <div class="board-flash" id="boardFlash"></div>
+
+        <div class="topbar">
+          <div class="title-block">
+            <h1 class="title">Haus der Vierecke</h1>
+            <div class="subtitle">Ziehe jedes Viereck in den passenden Slot.</div>
+          </div>
+          <button id="checkBtn" class="check-btn" type="button">Überprüfen</button>
+        </div>
+
+        <section class="workspace" id="workspace">
+          <svg class="connections" id="connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+          <div class="slots" id="slots">
+            <div class="slot" data-slot="s1" aria-label="Slot 1"></div>
+            <div class="slot" data-slot="s2" aria-label="Slot 2"></div>
+            <div class="slot" data-slot="s3" aria-label="Slot 3"></div>
+            <div class="slot" data-slot="s4" aria-label="Slot 4"></div>
+            <div class="slot" data-slot="s5" aria-label="Slot 5"></div>
+            <div class="slot" data-slot="s6" aria-label="Slot 6"></div>
+            <div class="slot" data-slot="s7" aria-label="Slot 7"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <section class="info-panel" id="infoPanel" aria-live="polite">
+      <div class="info-icon" id="infoIcon"></div>
+      <div class="info-copy">
+        <div class="info-name" id="infoName">Viereck auswählen</div>
+        <div class="info-text info-placeholder" id="infoText">Tippe auf ein Viereck oder ziehe es, um hier die Definition zu sehen.</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const SHAPES = {
+        quadrat: {
+          name: 'Quadrat',
+          definition: 'Ein Viereck mit vier gleich langen Seiten und vier rechten Winkeln heißt Quadrat.',
+          viewBox: '0 0 100 100',
+          fillPoints: '20,20 80,20 80,80 20,80',
+          redEdges: [['20,20 80,20'], ['80,80 20,80'], ['20,80 20,20']],
+          darkEdges: [['80,20 80,80']]
+        },
+        rechteck: {
+          name: 'Rechteck',
+          definition: 'Ein Viereck mit vier rechten Winkeln heißt Rechteck.',
+          viewBox: '0 0 100 100',
+          fillPoints: '10,28 90,28 90,72 10,72',
+          redEdges: [['10,72 10,28'], ['10,72 90,72']],
+          darkEdges: [['10,28 90,28'], ['90,28 90,72']]
+        },
+        raute: {
+          name: 'Raute',
+          definition: 'Ein Viereck mit vier gleich langen Seiten heißt Raute.',
+          viewBox: '0 0 100 100',
+          fillPoints: '50,8 84,50 50,92 16,50',
+          redEdges: [['50,8 84,50'], ['84,50 50,92'], ['50,92 16,50'], ['16,50 50,8']],
+          darkEdges: []
+        },
+        parallelogramm: {
+          name: 'Parallelogramm',
+          definition: 'Ein Viereck, bei dem gegenüberliegende Seiten parallel zueinander sind, heißt Parallelogramm.',
+          viewBox: '0 0 100 100',
+          fillPoints: '26,18 84,30 84,82 26,70',
+          redEdges: [['26,18 84,30'], ['26,18 26,70']],
+          darkEdges: [['84,30 84,82'], ['26,70 84,82']]
+        },
+        drachenviereck: {
+          name: 'Drachenviereck',
+          definition: 'Ein Viereck mit zwei Paaren aneinanderstoßender gleich langer Seiten heißt Drachenviereck.',
+          viewBox: '0 0 100 100',
+          fillPoints: '50,10 68,38 50,92 32,38',
+          redEdges: [['50,10 68,38'], ['68,38 50,92'], ['50,92 32,38'], ['32,38 50,10']],
+          darkEdges: []
+        },
+        trapez: {
+          name: 'Trapez',
+          definition: 'Ein Viereck mit zwei parallelen Seiten heißt Trapez.',
+          viewBox: '0 0 100 100',
+          fillPoints: '48,20 70,20 90,78 10,78',
+          redEdges: [['10,78 90,78']],
+          darkEdges: [['48,20 70,20'], ['70,20 90,78'], ['10,78 48,20']]
+        },
+        gleichschenkligesTrapez: {
+          name: 'gleichschenkliges Trapez',
+          definition: 'Ein Trapez mit gleich großen Basiswinkeln heißt gleichschenkliges Trapez.',
+          viewBox: '0 0 100 100',
+          fillPoints: '28,22 72,22 84,78 16,78',
+          redEdges: [['28,22 72,22'], ['16,78 84,78']],
+          darkEdges: [['16,78 28,22'], ['72,22 84,78']]
+        }
+      };
+
+      const PALETTE_ORDER = [
+        'raute',
+        'rechteck',
+        'drachenviereck',
+        'parallelogramm',
+        'gleichschenkligesTrapez',
+        'trapez',
+        'quadrat'
+      ];
+
+      const SOLUTION = {
+        s1: 'quadrat',
+        s2: 'raute',
+        s3: 'rechteck',
+        s4: 'drachenviereck',
+        s5: 'parallelogramm',
+        s6: 'gleichschenkligesTrapez',
+        s7: 'trapez'
+      };
+
+      const CONNECTIONS = [
+        ['s1', 's2'],
+        ['s1', 's3'],
+        ['s2', 's4'],
+        ['s2', 's5'],
+        ['s3', 's5'],
+        ['s3', 's6'],
+        ['s5', 's7'],
+        ['s6', 's7']
+      ];
+
+      const state = {
+        placements: {
+          s1: null,
+          s2: null,
+          s3: null,
+          s4: null,
+          s5: null,
+          s6: null,
+          s7: null
+        },
+        shapeToSlot: {
+          quadrat: null,
+          rechteck: null,
+          raute: null,
+          parallelogramm: null,
+          drachenviereck: null,
+          trapez: null,
+          gleichschenkligesTrapez: null
+        },
+        selectedShape: null,
+        wrongChecks: 0,
+        cooldownUntil: 0,
+        countdownTimer: null,
+        drag: null
+      };
+
+      const paletteEl = document.getElementById('palette');
+      const slotsEl = document.getElementById('slots');
+      const checkBtn = document.getElementById('checkBtn');
+      const boardFlash = document.getElementById('boardFlash');
+      const infoName = document.getElementById('infoName');
+      const infoText = document.getElementById('infoText');
+      const infoIcon = document.getElementById('infoIcon');
+      const workspace = document.getElementById('workspace');
+      const connectionsSvg = document.getElementById('connections');
+
+      function createShapeSVG(shapeId, extraClass = '') {
+        const shape = SHAPES[shapeId];
+        const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        wrapper.setAttribute('viewBox', shape.viewBox);
+        wrapper.setAttribute('class', `shape-svg ${extraClass}`.trim());
+        wrapper.setAttribute('aria-hidden', 'true');
+
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', shape.fillPoints);
+        poly.setAttribute('class', 'fill');
+        wrapper.appendChild(poly);
+
+        shape.redEdges.forEach((points) => {
+          const pl = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+          pl.setAttribute('points', points[0]);
+          pl.setAttribute('class', 'edge-red');
+          wrapper.appendChild(pl);
+        });
+
+        shape.darkEdges.forEach((points) => {
+          const pl = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+          pl.setAttribute('points', points[0]);
+          pl.setAttribute('class', 'edge-dark');
+          wrapper.appendChild(pl);
+        });
+
+        return wrapper;
+      }
+
+      function renderPalette() {
+        paletteEl.innerHTML = '';
+        PALETTE_ORDER.forEach((shapeId) => {
+          const item = document.createElement('div');
+          item.className = 'palette-item';
+          item.dataset.shape = shapeId;
+          item.setAttribute('role', 'button');
+          item.setAttribute('aria-label', SHAPES[shapeId].name);
+          item.appendChild(createShapeSVG(shapeId));
+          item.addEventListener('pointerdown', onPalettePointerDown);
+          item.addEventListener('click', () => showInfo(shapeId));
+          paletteEl.appendChild(item);
+        });
+      }
+
+      function renderSlots() {
+        [...slotsEl.querySelectorAll('.slot')].forEach((slot) => {
+          const slotId = slot.dataset.slot;
+          const shapeId = state.placements[slotId];
+          slot.innerHTML = '';
+          slot.classList.toggle('has-shape', Boolean(shapeId));
+
+          if (shapeId) {
+            const holder = document.createElement('div');
+            holder.className = 'placed-shape';
+            holder.dataset.shape = shapeId;
+            holder.dataset.originSlot = slotId;
+            holder.setAttribute('role', 'button');
+            holder.setAttribute('aria-label', SHAPES[shapeId].name);
+            holder.appendChild(createShapeSVG(shapeId));
+            holder.addEventListener('pointerdown', onPlacedPointerDown);
+            holder.addEventListener('click', () => showInfo(shapeId));
+            slot.appendChild(holder);
+
+            const label = document.createElement('div');
+            label.className = 'slot-name';
+            label.textContent = SHAPES[shapeId].name;
+            slot.appendChild(label);
+          }
+        });
+
+        paletteEl.querySelectorAll('.palette-item').forEach((item) => {
+          const shapeId = item.dataset.shape;
+          const isAssigned = Boolean(findCurrentSlotOfShape(shapeId));
+          item.classList.toggle('selected', shapeId === state.selectedShape && !isAssigned);
+          item.classList.toggle('is-hidden', isAssigned);
+        });
+      }
+
+      function showInfo(shapeId) {
+        state.selectedShape = shapeId;
+        const shape = SHAPES[shapeId];
+        infoName.textContent = shape.name;
+        infoText.textContent = shape.definition;
+        infoText.classList.remove('info-placeholder');
+        infoIcon.innerHTML = '';
+        infoIcon.appendChild(createShapeSVG(shapeId));
+        renderSlots();
+      }
+
+      function clearFlash() {
+        boardFlash.className = 'board-flash';
+      }
+
+      function clearMarks() {
+        document.querySelectorAll('.slot').forEach((slot) => {
+          slot.classList.remove('correct', 'incorrect', 'drop-target');
+        });
+      }
+
+      function findCurrentSlotOfShape(shapeId) {
+        return state.shapeToSlot[shapeId] || null;
+      }
+
+      function assignShapeToSlot(shapeId, slotId) {
+        const previousSlot = findCurrentSlotOfShape(shapeId);
+        const existingShape = state.placements[slotId];
+
+        if (previousSlot === slotId) {
+          return;
+        }
+
+        if (existingShape && existingShape !== shapeId) {
+          if (previousSlot) {
+            state.placements[previousSlot] = existingShape;
+            state.shapeToSlot[existingShape] = previousSlot;
+          } else {
+            state.shapeToSlot[existingShape] = null;
+          }
+        }
+
+        if (previousSlot) {
+          state.placements[previousSlot] = existingShape && existingShape !== shapeId ? existingShape : null;
+        }
+
+        state.placements[slotId] = shapeId;
+        state.shapeToSlot[shapeId] = slotId;
+        clearMarks();
+        clearFlash();
+        renderSlots();
+      }
+
+      function unassignShape(shapeId) {
+        const current = findCurrentSlotOfShape(shapeId);
+        if (!current) return;
+        state.placements[current] = null;
+        state.shapeToSlot[shapeId] = null;
+        clearMarks();
+        clearFlash();
+        renderSlots();
+      }
+
+      function createDragGhost(shapeId) {
+        const ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.appendChild(createShapeSVG(shapeId));
+        document.body.appendChild(ghost);
+        return ghost;
+      }
+
+      function beginDrag(shapeId, source, pointerId, startEvent) {
+        showInfo(shapeId);
+        clearMarks();
+        clearFlash();
+        const ghost = createDragGhost(shapeId);
+        state.drag = {
+          shapeId,
+          source,
+          pointerId,
+          ghost,
+          currentSlot: source === 'slot' ? findCurrentSlotOfShape(shapeId) : null,
+          hoveredSlot: null
+        };
+        updateDragGhost(startEvent.clientX, startEvent.clientY);
+        document.body.classList.add('dragging');
+        window.addEventListener('pointermove', onGlobalPointerMove, { passive: false });
+        window.addEventListener('pointerup', onGlobalPointerUp, { passive: false });
+        window.addEventListener('pointercancel', onGlobalPointerUp, { passive: false });
+      }
+
+      function endDrag() {
+        if (!state.drag) return;
+        state.drag.ghost.remove();
+        state.drag = null;
+        document.body.classList.remove('dragging');
+        clearHover();
+        window.removeEventListener('pointermove', onGlobalPointerMove);
+        window.removeEventListener('pointerup', onGlobalPointerUp);
+        window.removeEventListener('pointercancel', onGlobalPointerUp);
+      }
+
+      function clearHover() {
+        document.querySelectorAll('.slot').forEach((slot) => slot.classList.remove('drop-target'));
+      }
+
+      function updateDragGhost(clientX, clientY) {
+        if (!state.drag) return;
+        state.drag.ghost.style.left = `${clientX}px`;
+        state.drag.ghost.style.top = `${clientY}px`;
+      }
+
+      function getSlotFromPoint(clientX, clientY) {
+        const el = document.elementFromPoint(clientX, clientY);
+        if (!el) return null;
+        const slot = el.closest('.slot');
+        return slot ? slot.dataset.slot : null;
+      }
+
+      function isPointInSidebar(clientX, clientY) {
+        const sidebar = document.querySelector('.sidebar').getBoundingClientRect();
+        return clientX >= sidebar.left && clientX <= sidebar.right && clientY >= sidebar.top && clientY <= sidebar.bottom;
+      }
+
+      function onGlobalPointerMove(evt) {
+        if (!state.drag || evt.pointerId !== state.drag.pointerId) return;
+        evt.preventDefault();
+        updateDragGhost(evt.clientX, evt.clientY);
+        const slotId = getSlotFromPoint(evt.clientX, evt.clientY);
+        if (slotId !== state.drag.hoveredSlot) {
+          clearHover();
+          state.drag.hoveredSlot = slotId;
+          if (slotId) {
+            const slotEl = document.querySelector(`.slot[data-slot="${slotId}"]`);
+            if (slotEl) slotEl.classList.add('drop-target');
+          }
+        }
+      }
+
+      function onGlobalPointerUp(evt) {
+        if (!state.drag || evt.pointerId !== state.drag.pointerId) return;
+        evt.preventDefault();
+        const slotId = getSlotFromPoint(evt.clientX, evt.clientY);
+        if (slotId) {
+          assignShapeToSlot(state.drag.shapeId, slotId);
+        } else if (state.drag.source === 'slot' && isPointInSidebar(evt.clientX, evt.clientY)) {
+          unassignShape(state.drag.shapeId);
+        }
+        endDrag();
+      }
+
+      function onPalettePointerDown(evt) {
+        const shapeId = evt.currentTarget.dataset.shape;
+        beginDrag(shapeId, 'palette', evt.pointerId, evt);
+      }
+
+      function onPlacedPointerDown(evt) {
+        const shapeId = evt.currentTarget.dataset.shape;
+        beginDrag(shapeId, 'slot', evt.pointerId, evt);
+      }
+
+      function isCorrectPlacement() {
+        return Object.entries(SOLUTION).every(([slotId, shapeId]) => state.placements[slotId] === shapeId);
+      }
+
+      function showFlash(kind) {
+        boardFlash.className = 'board-flash';
+        void boardFlash.offsetWidth;
+        boardFlash.classList.add(kind);
+      }
+
+      function setHintMarks() {
+        clearMarks();
+        Object.entries(SOLUTION).forEach(([slotId, expectedShape]) => {
+          const slot = document.querySelector(`.slot[data-slot="${slotId}"]`);
+          const actualShape = state.placements[slotId];
+          if (!actualShape) return;
+          slot.classList.add(actualShape === expectedShape ? 'correct' : 'incorrect');
+        });
+      }
+
+      function buttonLabel() {
+        if (state.cooldownUntil > Date.now()) {
+          const remaining = Math.ceil((state.cooldownUntil - Date.now()) / 1000);
+          return `${remaining} s`;
+        }
+        return state.wrongChecks >= 3 ? 'Überprüfen mit Tipp' : 'Überprüfen';
+      }
+
+      function updateButton() {
+        const coolingDown = state.cooldownUntil > Date.now();
+        checkBtn.disabled = coolingDown;
+        checkBtn.textContent = buttonLabel();
+      }
+
+      function startCooldown() {
+        state.cooldownUntil = Date.now() + 45000;
+        updateButton();
+        if (state.countdownTimer) {
+          clearInterval(state.countdownTimer);
+        }
+        state.countdownTimer = setInterval(() => {
+          if (state.cooldownUntil <= Date.now()) {
+            clearInterval(state.countdownTimer);
+            state.countdownTimer = null;
+            state.cooldownUntil = 0;
+          }
+          updateButton();
+        }, 250);
+      }
+
+      function handleCheck() {
+        clearMarks();
+        const correct = isCorrectPlacement();
+
+        if (correct) {
+          state.wrongChecks = 0;
+          showFlash('success');
+        } else if (state.wrongChecks >= 3) {
+          setHintMarks();
+        } else {
+          state.wrongChecks += 1;
+          showFlash('error');
+        }
+
+        startCooldown();
+        updateButton();
+      }
+
+      function updateConnections() {
+        connectionsSvg.innerHTML = '';
+        const workspaceRect = workspace.getBoundingClientRect();
+        if (!workspaceRect.width || !workspaceRect.height) return;
+
+        connectionsSvg.setAttribute('viewBox', `0 0 ${workspaceRect.width} ${workspaceRect.height}`);
+
+        function localX(x) {
+          return x - workspaceRect.left;
+        }
+
+        function localY(y) {
+          return y - workspaceRect.top;
+        }
+
+        function getArrowAnchors(fromRect, toRect) {
+          const fromCenterX = fromRect.left + fromRect.width / 2;
+          const toCenterX = toRect.left + toRect.width / 2;
+          const deltaX = toCenterX - fromCenterX;
+          const centerTolerance = Math.max(10, fromRect.width * 0.08);
+
+          let startX;
+          if (Math.abs(deltaX) <= centerTolerance) {
+            startX = fromRect.left + fromRect.width / 2;
+          } else if (deltaX < 0) {
+            startX = fromRect.left;
+          } else {
+            startX = fromRect.right;
+          }
+
+          return {
+            startX: localX(startX),
+            startY: localY(fromRect.bottom),
+            endX: localX(toRect.left + toRect.width / 2),
+            endY: localY(toRect.top)
+          };
+        }
+
+        function drawArrow(startX, startY, endX, endY) {
+          const dx = endX - startX;
+          const dy = endY - startY;
+          const length = Math.hypot(dx, dy);
+          if (length < 1) return;
+
+          const ux = dx / length;
+          const uy = dy / length;
+          const perpX = -uy;
+          const perpY = ux;
+          const headLength = 12;
+          const headWidth = 10;
+
+          const lineEndX = endX - ux * (headLength * 0.82);
+          const lineEndY = endY - uy * (headLength * 0.82);
+
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('class', 'conn conn-line');
+          line.setAttribute('x1', startX);
+          line.setAttribute('y1', startY);
+          line.setAttribute('x2', lineEndX);
+          line.setAttribute('y2', lineEndY);
+          connectionsSvg.appendChild(line);
+
+          const baseX = endX - ux * headLength;
+          const baseY = endY - uy * headLength;
+          const leftX = baseX + perpX * (headWidth / 2);
+          const leftY = baseY + perpY * (headWidth / 2);
+          const rightX = baseX - perpX * (headWidth / 2);
+          const rightY = baseY - perpY * (headWidth / 2);
+
+          const head = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          head.setAttribute('class', 'conn conn-head');
+          head.setAttribute('points', `${endX},${endY} ${leftX},${leftY} ${rightX},${rightY}`);
+          connectionsSvg.appendChild(head);
+
+          const textPos = 0.56;
+          const textX = startX + dx * textPos + perpX * 2;
+          const textY = startY + dy * textPos + perpY * 2;
+          let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+          if (angle > 90 || angle < -90) angle += 180;
+
+          const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          label.setAttribute('class', 'conn conn-text');
+          label.setAttribute('x', textX);
+          label.setAttribute('y', textY);
+          label.setAttribute('transform', `rotate(${angle} ${textX} ${textY})`);
+          label.textContent = 'ist ein';
+          connectionsSvg.appendChild(label);
+        }
+
+        CONNECTIONS.forEach(([fromId, toId]) => {
+          const fromRect = document.querySelector(`.slot[data-slot="${fromId}"]`).getBoundingClientRect();
+          const toRect = document.querySelector(`.slot[data-slot="${toId}"]`).getBoundingClientRect();
+          const anchors = getArrowAnchors(fromRect, toRect);
+          drawArrow(anchors.startX, anchors.startY, anchors.endX, anchors.endY);
+        });
+      }
+
+      function installInteractionGuards() {
+        const prevent = (evt) => evt.preventDefault();
+        document.addEventListener('gesturestart', prevent, { passive: false });
+        document.addEventListener('gesturechange', prevent, { passive: false });
+        document.addEventListener('gestureend', prevent, { passive: false });
+        document.addEventListener('touchmove', prevent, { passive: false });
+        document.addEventListener('wheel', prevent, { passive: false });
+        document.addEventListener('dblclick', prevent, { passive: false });
+      }
+
+      function init() {
+        installInteractionGuards();
+        renderPalette();
+        renderSlots();
+        showInfo('quadrat');
+        updateButton();
+        updateConnections();
+        window.addEventListener('resize', updateConnections);
+        checkBtn.addEventListener('click', handleCheck);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
