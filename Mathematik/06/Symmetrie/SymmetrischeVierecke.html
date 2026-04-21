@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>Symmetrie-Viereck</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --text: #1f2a44;
+      --axis: #ef6c2f;
+      --center: #cf2d52;
+      --point: #1849b8;
+      --shadow: 0 10px 30px rgba(20, 31, 55, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(47, 111, 237, 0.05), transparent 22%),
+        radial-gradient(circle at 85% 15%, rgba(239, 108, 47, 0.04), transparent 22%),
+        linear-gradient(180deg, #fbfcff, #f4f7fb);
+      touch-action: none;
+    }
+
+    .controls {
+      position: absolute;
+      right: max(14px, env(safe-area-inset-right));
+      top: max(14px, env(safe-area-inset-top));
+      display: flex;
+      gap: 10px;
+      z-index: 5;
+      pointer-events: auto;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(27, 40, 67, 0.12);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      touch-action: manipulation;
+    }
+
+    button:active {
+      transform: scale(0.985);
+    }
+
+    @media (max-width: 760px) {
+      button {
+        font-size: 15px;
+        padding: 11px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="board" aria-label="Interaktive Symmetriefläche"></canvas>
+    <div class="controls">
+      <button id="randomizeBtn" type="button">Neu</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("board");
+      const ctx = canvas.getContext("2d");
+      const randomizeBtn = document.getElementById("randomizeBtn");
+
+      const TAU = Math.PI * 2;
+      const EPS = 1e-6;
+      const TOUCH_RADIUS_PX = 28;
+
+      let uidCounter = 0;
+      function makeId() {
+        uidCounter += 1;
+        return `p-${uidCounter}-${Math.random().toString(36).slice(2, 8)}`;
+      }
+
+      const state = {
+        dpr: Math.max(1, Math.min(3, window.devicePixelRatio || 1)),
+        width: 0,
+        height: 0,
+        layout: null,
+        points: [],
+        activePoint: null,
+        pointerId: null,
+        lastAnalysis: null
+      };
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function vec(x, y) {
+        return { x, y };
+      }
+
+      function add(a, b) {
+        return { x: a.x + b.x, y: a.y + b.y };
+      }
+
+      function sub(a, b) {
+        return { x: a.x - b.x, y: a.y - b.y };
+      }
+
+      function mul(a, s) {
+        return { x: a.x * s, y: a.y * s };
+      }
+
+      function dot(a, b) {
+        return a.x * b.x + a.y * b.y;
+      }
+
+      function cross(a, b) {
+        return a.x * b.y - a.y * b.x;
+      }
+
+      function len2(a) {
+        return dot(a, a);
+      }
+
+      function len(a) {
+        return Math.hypot(a.x, a.y);
+      }
+
+      function dist2(a, b) {
+        return len2(sub(a, b));
+      }
+
+      function midpoint(a, b) {
+        return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      }
+
+      function normalize(a) {
+        const l = len(a);
+        if (l < EPS) return null;
+        return { x: a.x / l, y: a.y / l };
+      }
+
+      function perp(a) {
+        return { x: -a.y, y: a.x };
+      }
+
+      function signedAngle(a, b) {
+        return Math.atan2(cross(a, b), dot(a, b));
+      }
+
+      function normalizeAnglePositive(angle) {
+        let a = angle % TAU;
+        if (a < 0) a += TAU;
+        return a;
+      }
+
+      function samePoint(a, b, tol = 1e-5) {
+        return dist2(a, b) <= tol * tol;
+      }
+
+      function lineDistance(point, line) {
+        return Math.abs(cross(sub(point, line.point), line.dir));
+      }
+
+      function sameLine(a, b, tol = 1e-5) {
+        return Math.abs(cross(a.dir, b.dir)) <= tol && lineDistance(b.point, a) <= tol;
+      }
+
+      function lineIntersection(line1, line2) {
+        const denom = cross(line1.dir, line2.dir);
+        if (Math.abs(denom) < EPS) return null;
+        const delta = sub(line2.point, line1.point);
+        const t = cross(delta, line2.dir) / denom;
+        return add(line1.point, mul(line1.dir, t));
+      }
+
+      function reflectPoint(point, line) {
+        const v = sub(point, line.point);
+        const proj = mul(line.dir, dot(v, line.dir));
+        const perpPart = sub(v, proj);
+        return add(line.point, sub(proj, perpPart));
+      }
+
+      function rotatePoint(point, center, angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        const v = sub(point, center);
+        return {
+          x: center.x + v.x * c - v.y * s,
+          y: center.y + v.x * s + v.y * c
+        };
+      }
+
+      function polygonSignedArea(points) {
+        let sum = 0;
+        for (let i = 0; i < points.length; i++) {
+          const p = points[i];
+          const q = points[(i + 1) % points.length];
+          sum += p.gx * q.gy - q.gx * p.gy;
+        }
+        return sum / 2;
+      }
+
+      function hasDuplicateGridPoint(points) {
+        const seen = new Set();
+        for (const p of points) {
+          const key = `${p.gx},${p.gy}`;
+          if (seen.has(key)) return true;
+          seen.add(key);
+        }
+        return false;
+      }
+
+      function centroid(points) {
+        let sx = 0;
+        let sy = 0;
+        for (const p of points) {
+          sx += p.gx;
+          sy += p.gy;
+        }
+        return { x: sx / points.length, y: sy / points.length };
+      }
+
+      function orderedPoints(points) {
+        const c = centroid(points);
+        const ordered = [...points].sort((p1, p2) => {
+          const a1 = Math.atan2(p1.gy - c.y, p1.gx - c.x);
+          const a2 = Math.atan2(p2.gy - c.y, p2.gx - c.x);
+          return a1 - a2;
+        });
+        if (polygonSignedArea(ordered) < 0) {
+          ordered.reverse();
+        }
+        return ordered;
+      }
+
+      function pointsAsGeometry(points) {
+        return points.map((p) => vec(p.gx, p.gy));
+      }
+
+      function buildPerpendicularBisector(a, b) {
+        const direction = normalize(perp(sub(b, a)));
+        if (!direction) return null;
+        return { point: midpoint(a, b), dir: direction };
+      }
+
+      function buildBisectorLine(prev, vertex, next) {
+        const u1 = normalize(sub(prev, vertex));
+        const u2 = normalize(sub(next, vertex));
+        if (!u1 || !u2) return [];
+        const bisectors = [];
+        const internal = normalize(add(u1, u2));
+        const external = normalize(sub(u1, u2));
+        if (internal) bisectors.push({ point: vertex, dir: internal });
+        if (external) bisectors.push({ point: vertex, dir: external });
+        return bisectors;
+      }
+
+      function addCandidateAxis(list, line, label) {
+        if (!line || !line.dir) return;
+        const normalizedDir = normalize(line.dir);
+        if (!normalizedDir) return;
+        const normalizedLine = { point: line.point, dir: normalizedDir };
+        for (const axis of list) {
+          if (sameLine(axis, normalizedLine)) {
+            axis.sources.add(label);
+            return;
+          }
+        }
+        normalizedLine.sources = new Set([label]);
+        list.push(normalizedLine);
+      }
+
+      function transformedMatchesReflectionOrder(transformed, original) {
+        const n = original.length;
+        for (let k = 0; k < n; k++) {
+          let ok = true;
+          for (let i = 0; i < n; i++) {
+            const target = original[(k - i + n) % n];
+            if (!samePoint(transformed[i], target, 1e-4)) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) return true;
+        }
+        return false;
+      }
+
+      function axisIsSymmetry(line, polygonPoints) {
+        const reflected = polygonPoints.map((p) => reflectPoint(p, line));
+        return transformedMatchesReflectionOrder(reflected, polygonPoints);
+      }
+
+      function detectReflectionSymmetries(pointsInFixedOrder) {
+        const pts = pointsAsGeometry(pointsInFixedOrder);
+        const labels = ["A", "B", "C", "D"];
+        const candidates = [];
+
+        addCandidateAxis(candidates, { point: pts[0], dir: sub(pts[2], pts[0]) }, "Diagonale AC");
+        addCandidateAxis(candidates, { point: pts[1], dir: sub(pts[3], pts[1]) }, "Diagonale BD");
+
+        const sidePairs = [
+          [0, 1, "Mittelsenkrechte von AB"],
+          [1, 2, "Mittelsenkrechte von BC"],
+          [2, 3, "Mittelsenkrechte von CD"],
+          [3, 0, "Mittelsenkrechte von DA"]
+        ];
+        for (const [i, j, label] of sidePairs) {
+          addCandidateAxis(candidates, buildPerpendicularBisector(pts[i], pts[j]), label);
+        }
+
+        addCandidateAxis(candidates, buildPerpendicularBisector(pts[0], pts[2]), "Mittelsenkrechte von AC");
+        addCandidateAxis(candidates, buildPerpendicularBisector(pts[1], pts[3]), "Mittelsenkrechte von BD");
+
+        for (let i = 0; i < 4; i++) {
+          const prev = pts[(i + 3) % 4];
+          const vertex = pts[i];
+          const next = pts[(i + 1) % 4];
+          const bisectors = buildBisectorLine(prev, vertex, next);
+          for (const line of bisectors) {
+            addCandidateAxis(candidates, line, `Winkelhalbierende bei ${labels[i]}`);
+          }
+        }
+
+        const axes = [];
+        for (const candidate of candidates) {
+          if (axisIsSymmetry(candidate, pts)) {
+            axes.push({
+              point: candidate.point,
+              dir: candidate.dir,
+              sources: [...candidate.sources].sort()
+            });
+          }
+        }
+        return axes;
+      }
+
+      function transformedMatchesRotationOrder(transformed, original, shift) {
+        const n = original.length;
+        for (let i = 0; i < n; i++) {
+          const target = original[(i + shift) % n];
+          if (!samePoint(transformed[i], target, 1e-4)) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function candidateCenterForShift(pts, shift) {
+        if (shift === 2) {
+          const bis1 = buildPerpendicularBisector(pts[0], pts[2]);
+          const bis2 = buildPerpendicularBisector(pts[1], pts[3]);
+          if (!bis1 || !bis2) return null;
+          const center = lineIntersection(bis1, bis2);
+          if (!center) return null;
+          return { center, angle: Math.PI };
+        }
+
+        const bis1 = buildPerpendicularBisector(pts[0], pts[(0 + shift) % 4]);
+        const bis2 = buildPerpendicularBisector(pts[1], pts[(1 + shift) % 4]);
+        if (!bis1 || !bis2) return null;
+
+        const center = lineIntersection(bis1, bis2);
+        if (!center) return null;
+
+        const v1 = sub(pts[0], center);
+        const v2 = sub(pts[(0 + shift) % 4], center);
+        if (len(v1) < EPS || len(v2) < EPS) return null;
+
+        const angle = signedAngle(v1, v2);
+        if (Math.abs(angle) < 1e-5) return null;
+
+        return { center, angle };
+      }
+
+      function detectRotationalSymmetries(pointsInFixedOrder) {
+        const pts = pointsAsGeometry(pointsInFixedOrder);
+        const results = [];
+
+        for (const shift of [1, 2, 3]) {
+          const candidate = candidateCenterForShift(pts, shift);
+          if (!candidate) continue;
+
+          const normalizedAngle = normalizeAnglePositive(candidate.angle);
+          if (normalizedAngle < 1e-5 || Math.abs(normalizedAngle - TAU) < 1e-5) continue;
+
+          const rotated = pts.map((p) => rotatePoint(p, candidate.center, candidate.angle));
+          if (!transformedMatchesRotationOrder(rotated, pts, shift)) {
+            continue;
+          }
+
+          let entry = results.find((item) => samePoint(item.center, candidate.center, 1e-4));
+          if (!entry) {
+            entry = { center: candidate.center, angles: [] };
+            results.push(entry);
+          }
+
+          const degrees = Math.round((normalizedAngle * 180) / Math.PI);
+          if (!entry.angles.includes(degrees)) {
+            entry.angles.push(degrees);
+            entry.angles.sort((a, b) => a - b);
+          }
+        }
+
+        return results;
+      }
+
+      function analyzeSymmetry() {
+        const fixed = state.points.slice();
+        const axes = detectReflectionSymmetries(fixed);
+        const rotations = detectRotationalSymmetries(fixed);
+        state.lastAnalysis = { fixed, axes, rotations };
+      }
+
+      function computeLayout() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        state.width = width;
+        state.height = height;
+
+        const dpr = state.dpr;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const reservedX = 28;
+        const reservedY = 28;
+        const cell = clamp(Math.min(width, height) / 13.5, 34, 68);
+        const cols = Math.max(10, Math.floor((width - reservedX) / cell));
+        const rows = Math.max(8, Math.floor((height - reservedY) / cell));
+        const marginX = (width - cols * cell) / 2;
+        const marginY = (height - rows * cell) / 2;
+
+        state.layout = { width, height, cell, cols, rows, marginX, marginY };
+      }
+
+      function gridToScreen(point) {
+        const { cell, marginX, marginY } = state.layout;
+        return {
+          x: marginX + point.gx * cell,
+          y: marginY + point.gy * cell
+        };
+      }
+
+      function geometryToScreen(point) {
+        const { cell, marginX, marginY } = state.layout;
+        return {
+          x: marginX + point.x * cell,
+          y: marginY + point.y * cell
+        };
+      }
+
+      function screenToGrid(x, y) {
+        const { cell, marginX, marginY, cols, rows } = state.layout;
+        return {
+          gx: clamp(Math.round((x - marginX) / cell), 0, cols),
+          gy: clamp(Math.round((y - marginY) / cell), 0, rows)
+        };
+      }
+
+      function pointerPosition(evt) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      }
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function orientation(a, b, c) {
+        return cross(sub(b, a), sub(c, a));
+      }
+
+      function onSegment(a, b, p, tol = 1e-9) {
+        return (
+          Math.min(a.x, b.x) - tol <= p.x && p.x <= Math.max(a.x, b.x) + tol &&
+          Math.min(a.y, b.y) - tol <= p.y && p.y <= Math.max(a.y, b.y) + tol
+        );
+      }
+
+      function segmentsIntersectOrOverlap(a, b, c, d) {
+        const o1 = orientation(a, b, c);
+        const o2 = orientation(a, b, d);
+        const o3 = orientation(c, d, a);
+        const o4 = orientation(c, d, b);
+
+        const s1 = Math.sign(o1);
+        const s2 = Math.sign(o2);
+        const s3 = Math.sign(o3);
+        const s4 = Math.sign(o4);
+
+        if (s1 !== s2 && s3 !== s4) {
+          return true;
+        }
+
+        if (Math.abs(o1) <= EPS && onSegment(a, b, c)) return true;
+        if (Math.abs(o2) <= EPS && onSegment(a, b, d)) return true;
+        if (Math.abs(o3) <= EPS && onSegment(c, d, a)) return true;
+        if (Math.abs(o4) <= EPS && onSegment(c, d, b)) return true;
+
+        return false;
+      }
+
+      function isSimpleFixedQuadrilateral(points) {
+        if (points.length !== 4) return false;
+        if (hasDuplicateGridPoint(points)) return false;
+
+        const pts = pointsAsGeometry(points);
+        const pairs = [
+          [0, 1, 2, 3],
+          [1, 2, 3, 0]
+        ];
+
+        for (const [i1, i2, j1, j2] of pairs) {
+          if (segmentsIntersectOrOverlap(pts[i1], pts[i2], pts[j1], pts[j2])) {
+            return false;
+          }
+        }
+
+        const area = Math.abs(polygonSignedArea(points));
+        return area > 0;
+      }
+
+
+      function createInitialCenteredSquare() {
+        const { cols, rows } = state.layout;
+        const size = 5;
+
+        const startX = Math.floor((cols - size) / 2);
+        const startY = Math.floor((rows - size) / 2);
+
+        state.points = [
+          { id: makeId(), gx: startX, gy: startY },
+          { id: makeId(), gx: startX + size, gy: startY },
+          { id: makeId(), gx: startX + size, gy: startY + size },
+          { id: makeId(), gx: startX, gy: startY + size }
+        ];
+
+        analyzeSymmetry();
+        render();
+      }
+
+      function createRandomQuadrilateral() {
+        const { cols, rows } = state.layout;
+        let attempts = 0;
+
+        while (attempts < 1000) {
+          attempts++;
+          const map = new Map();
+
+          while (map.size < 4) {
+            const gx = randomInt(1, Math.max(1, cols - 1));
+            const gy = randomInt(1, Math.max(1, rows - 1));
+            map.set(`${gx},${gy}`, { id: makeId(), gx, gy });
+          }
+
+          const ordered = orderedPoints([...map.values()]);
+          const area = Math.abs(polygonSignedArea(ordered));
+
+          if (area < 6) continue;
+          if (!isSimpleFixedQuadrilateral(ordered)) continue;
+
+          state.points = ordered;
+          analyzeSymmetry();
+          render();
+          return;
+        }
+
+        const fallback = [
+          { id: makeId(), gx: 2, gy: 2 },
+          { id: makeId(), gx: 8, gy: 2 },
+          { id: makeId(), gx: 7, gy: 7 },
+          { id: makeId(), gx: 3, gy: 8 }
+        ];
+        state.points = fallback;
+        analyzeSymmetry();
+        render();
+      }
+
+      function resize() {
+        computeLayout();
+        if (!state.points.length) {
+          createRandomQuadrilateral();
+        } else {
+          const { cols, rows } = state.layout;
+          for (const p of state.points) {
+            p.gx = clamp(p.gx, 0, cols);
+            p.gy = clamp(p.gy, 0, rows);
+          }
+          if (!isSimpleFixedQuadrilateral(state.points)) {
+            createRandomQuadrilateral();
+            return;
+          }
+          analyzeSymmetry();
+          render();
+        }
+      }
+
+      function drawGrid() {
+        const { cols, rows, cell, marginX, marginY } = state.layout;
+
+        ctx.save();
+
+        ctx.strokeStyle = "rgba(31, 42, 68, 0.08)";
+        ctx.lineWidth = 1;
+
+        for (let x = 0; x <= cols; x++) {
+          const sx = marginX + x * cell;
+          ctx.beginPath();
+          ctx.moveTo(sx, marginY);
+          ctx.lineTo(sx, marginY + rows * cell);
+          ctx.stroke();
+        }
+
+        for (let y = 0; y <= rows; y++) {
+          const sy = marginY + y * cell;
+          ctx.beginPath();
+          ctx.moveTo(marginX, sy);
+          ctx.lineTo(marginX + cols * cell, sy);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = "rgba(31, 42, 68, 0.16)";
+        for (let x = 0; x <= cols; x++) {
+          for (let y = 0; y <= rows; y++) {
+            const sx = marginX + x * cell;
+            const sy = marginY + y * cell;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 1.4, 0, TAU);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
+      }
+
+      function drawPolygon(fixed) {
+        const points = fixed.map(gridToScreen);
+        ctx.save();
+
+        ctx.beginPath();
+        points.forEach((p, i) => {
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.closePath();
+
+        ctx.fillStyle = "rgba(47, 111, 237, 0.12)";
+        ctx.strokeStyle = "rgba(47, 111, 237, 0.95)";
+        ctx.lineWidth = 3;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawAxes(axes) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(239, 108, 47, 0.95)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([12, 10]);
+
+        for (const axis of axes) {
+          const big = Math.max(state.layout.cols, state.layout.rows) * 2.5;
+          const a = geometryToScreen(add(axis.point, mul(axis.dir, big)));
+          const b = geometryToScreen(add(axis.point, mul(axis.dir, -big)));
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function drawRotationCenters(rotations) {
+        ctx.save();
+        for (const rot of rotations) {
+          const s = geometryToScreen(rot.center);
+
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(207, 45, 82, 0.14)";
+          ctx.arc(s.x, s.y, 20, 0, TAU);
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(207, 45, 82, 0.95)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, 9, 0, TAU);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(s.x - 13, s.y);
+          ctx.lineTo(s.x + 13, s.y);
+          ctx.moveTo(s.x, s.y - 13);
+          ctx.lineTo(s.x, s.y + 13);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawPoints() {
+        ctx.save();
+        for (const p of state.points) {
+          const s = gridToScreen(p);
+          const active = state.activePoint && state.activePoint.id === p.id;
+
+          ctx.beginPath();
+          ctx.fillStyle = active ? "rgba(24, 73, 184, 0.28)" : "rgba(24, 73, 184, 0.16)";
+          ctx.arc(s.x, s.y, active ? 22 : 18, 0, TAU);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(24, 73, 184, 0.98)";
+          ctx.arc(s.x, s.y, 11, 0, TAU);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.98)";
+          ctx.lineWidth = 3;
+          ctx.arc(s.x, s.y, 11, 0, TAU);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function render() {
+        const analysis = state.lastAnalysis || { fixed: state.points.slice(), axes: [], rotations: [] };
+
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawGrid();
+        drawAxes(analysis.axes);
+        drawPolygon(analysis.fixed);
+        drawRotationCenters(analysis.rotations);
+        drawPoints();
+      }
+
+      function findNearestPoint(screenX, screenY) {
+        let best = null;
+        let bestD2 = Infinity;
+        for (const p of state.points) {
+          const s = gridToScreen(p);
+          const d2 = (screenX - s.x) ** 2 + (screenY - s.y) ** 2;
+          if (d2 < bestD2) {
+            bestD2 = d2;
+            best = p;
+          }
+        }
+        return bestD2 <= TOUCH_RADIUS_PX ** 2 ? best : null;
+      }
+
+      function positionOccupiedByOther(point, gx, gy) {
+        return state.points.some((p) => p.id !== point.id && p.gx === gx && p.gy === gy);
+      }
+
+      function canMovePointTo(point, gx, gy) {
+        if (positionOccupiedByOther(point, gx, gy)) {
+          return false;
+        }
+
+        const trial = state.points.map((p) =>
+          p.id === point.id ? { ...p, gx, gy } : { ...p }
+        );
+
+        return isSimpleFixedQuadrilateral(trial);
+      }
+
+      function moveActivePointTo(screenX, screenY) {
+        if (!state.activePoint) return;
+        const snapped = screenToGrid(screenX, screenY);
+        if (!canMovePointTo(state.activePoint, snapped.gx, snapped.gy)) {
+          return;
+        }
+
+        state.activePoint.gx = snapped.gx;
+        state.activePoint.gy = snapped.gy;
+        analyzeSymmetry();
+        render();
+      }
+
+      function onPointerDown(evt) {
+        const pos = pointerPosition(evt);
+        const candidate = findNearestPoint(pos.x, pos.y);
+        if (!candidate) return;
+
+        state.activePoint = candidate;
+        state.pointerId = evt.pointerId;
+        canvas.setPointerCapture(evt.pointerId);
+        moveActivePointTo(pos.x, pos.y);
+        evt.preventDefault();
+      }
+
+      function onPointerMove(evt) {
+        if (!state.activePoint || evt.pointerId !== state.pointerId) return;
+        const pos = pointerPosition(evt);
+        moveActivePointTo(pos.x, pos.y);
+        evt.preventDefault();
+      }
+
+      function releasePointer(evt) {
+        if (evt.pointerId !== state.pointerId) return;
+        state.activePoint = null;
+        state.pointerId = null;
+        render();
+      }
+
+      function installInteractionGuards() {
+        const prevent = (e) => e.preventDefault();
+        document.addEventListener("gesturestart", prevent, { passive: false });
+        document.addEventListener("gesturechange", prevent, { passive: false });
+        document.addEventListener("gestureend", prevent, { passive: false });
+        document.addEventListener("touchmove", prevent, { passive: false });
+        document.addEventListener("wheel", prevent, { passive: false });
+        document.addEventListener("dblclick", prevent, { passive: false });
+      }
+
+      function init() {
+        installInteractionGuards();
+        computeLayout();
+        createInitialCenteredSquare();
+
+        window.addEventListener("resize", resize);
+
+        canvas.addEventListener("pointerdown", onPointerDown);
+        canvas.addEventListener("pointermove", onPointerMove);
+        canvas.addEventListener("pointerup", releasePointer);
+        canvas.addEventListener("pointercancel", releasePointer);
+
+        canvas.addEventListener("pointerleave", (evt) => {
+          if (evt.pointerId === state.pointerId && !canvas.hasPointerCapture(evt.pointerId)) {
+            releasePointer(evt);
+          }
+        });
+
+        randomizeBtn.addEventListener("click", () => {
+          createRandomQuadrilateral();
+          analyzeSymmetry();
+          render();
+        });
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
