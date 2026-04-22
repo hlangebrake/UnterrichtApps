@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title>iPad Koordinatensystem</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      touch-action: none;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="plot"></canvas>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("plot");
+      const ctx = canvas.getContext("2d");
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+
+        // Ursprung in Bildschirm-Pixeln
+        originX: 0,
+        originY: 0,
+
+        // Pixel pro Einheit
+        scaleX: 80,
+        scaleY: 80,
+
+        minScale: 10,
+        maxScale: 2500,
+
+        touches: new Map(),
+        gestureMode: "none"
+      };
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function resize() {
+        state.dpr = Math.max(1, window.devicePixelRatio || 1);
+        state.width = window.innerWidth;
+        state.height = window.innerHeight;
+
+        canvas.width = Math.round(state.width * state.dpr);
+        canvas.height = Math.round(state.height * state.dpr);
+        canvas.style.width = state.width + "px";
+        canvas.style.height = state.height + "px";
+
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+        if (state.originX === 0 && state.originY === 0) {
+          state.originX = state.width * 0.5;
+          state.originY = state.height * 0.5;
+        }
+
+        draw();
+      }
+
+      function worldToScreen(x, y) {
+        return {
+          x: state.originX + x * state.scaleX,
+          y: state.originY - y * state.scaleY
+        };
+      }
+
+      function screenToWorld(x, y) {
+        return {
+          x: (x - state.originX) / state.scaleX,
+          y: (state.originY - y) / state.scaleY
+        };
+      }
+
+      function niceStep(unitsPerPixel, targetPixels = 95) {
+        const raw = unitsPerPixel * targetPixels;
+        const exponent = Math.floor(Math.log10(raw || 1));
+        const base = Math.pow(10, exponent);
+        const candidates = [1, 2, 5, 10];
+        let best = candidates[0] * base;
+        let bestDiff = Infinity;
+
+        for (const c of candidates) {
+          const step = c * base;
+          const diff = Math.abs(step - raw);
+          if (diff < bestDiff) {
+            best = step;
+            bestDiff = diff;
+          }
+        }
+        return best;
+      }
+
+      function decimalsForStep(step) {
+        if (!isFinite(step) || step <= 0) return 0;
+        return Math.max(0, Math.min(10, Math.ceil(-Math.log10(step))));
+      }
+
+      function formatNumber(value, step) {
+        const decimals = decimalsForStep(step);
+        const rounded = Number(value.toFixed(decimals));
+        return rounded.toLocaleString("de-DE", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function drawLine(x1, y1, x2, y2, color, width) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+      }
+
+      function drawGrid() {
+        const xUnitsPerPixel = 1 / state.scaleX;
+        const yUnitsPerPixel = 1 / state.scaleY;
+
+        const majorStepX = niceStep(xUnitsPerPixel, 110);
+        const majorStepY = niceStep(yUnitsPerPixel, 110);
+        const minorStepX = majorStepX / 5;
+        const minorStepY = majorStepY / 5;
+
+        const leftWorld = screenToWorld(0, 0).x;
+        const rightWorld = screenToWorld(state.width, 0).x;
+        const topWorld = screenToWorld(0, 0).y;
+        const bottomWorld = screenToWorld(0, state.height).y;
+
+        ctx.save();
+
+        // Minor grid
+        ctx.strokeStyle = "rgba(40, 60, 90, 0.05)";
+        ctx.lineWidth = 1;
+
+        let startMinorX = Math.floor(leftWorld / minorStepX) * minorStepX;
+        for (let x = startMinorX; x <= rightWorld + minorStepX; x += minorStepX) {
+          if (Math.abs(x / majorStepX - Math.round(x / majorStepX)) < 1e-8) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, 0, sx, state.height, "rgba(40, 60, 90, 0.05)", 1);
+        }
+
+        let startMinorY = Math.floor(bottomWorld / minorStepY) * minorStepY;
+        for (let y = startMinorY; y <= topWorld + minorStepY; y += minorStepY) {
+          if (Math.abs(y / majorStepY - Math.round(y / majorStepY)) < 1e-8) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLine(0, sy, state.width, sy, "rgba(40, 60, 90, 0.05)", 1);
+        }
+
+        // Major grid
+        let startMajorX = Math.floor(leftWorld / majorStepX) * majorStepX;
+        for (let x = startMajorX; x <= rightWorld + majorStepX; x += majorStepX) {
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, 0, sx, state.height, "rgba(40, 60, 90, 0.11)", 1);
+        }
+
+        let startMajorY = Math.floor(bottomWorld / majorStepY) * majorStepY;
+        for (let y = startMajorY; y <= topWorld + majorStepY; y += majorStepY) {
+          const sy = worldToScreen(0, y).y;
+          drawLine(0, sy, state.width, sy, "rgba(40, 60, 90, 0.11)", 1);
+        }
+
+        // Axes
+        if (state.originY >= 0 && state.originY <= state.height) {
+          drawLine(0, state.originY, state.width, state.originY, "rgba(20, 28, 40, 0.70)", 1.5);
+        }
+
+        if (state.originX >= 0 && state.originX <= state.width) {
+          drawLine(state.originX, 0, state.originX, state.height, "rgba(20, 28, 40, 0.70)", 1.5);
+        }
+
+        // Ticks and labels
+        ctx.fillStyle = "rgba(20, 28, 40, 0.85)";
+        ctx.font = "12px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
+        ctx.textBaseline = "middle";
+
+        const xLabelY = clamp(state.originY, 16, state.height - 16);
+        const yLabelX = clamp(state.originX, 8, state.width - 44);
+
+        for (let x = startMajorX; x <= rightWorld + majorStepX; x += majorStepX) {
+          if (Math.abs(x) < 1e-10) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, xLabelY - 4, sx, xLabelY + 4, "rgba(20, 28, 40, 0.50)", 1);
+          ctx.textAlign = "center";
+          ctx.fillText(formatNumber(x, majorStepX), sx, xLabelY - 12);
+        }
+
+        for (let y = startMajorY; y <= topWorld + majorStepY; y += majorStepY) {
+          if (Math.abs(y) < 1e-10) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLine(yLabelX - 4, sy, yLabelX + 4, sy, "rgba(20, 28, 40, 0.50)", 1);
+          ctx.textAlign = "left";
+          ctx.fillText(formatNumber(y, majorStepY), yLabelX + 8, sy);
+        }
+
+        // Ursprung beschriften
+        if (
+          state.originX >= -20 &&
+          state.originX <= state.width + 20 &&
+          state.originY >= -20 &&
+          state.originY <= state.height + 20
+        ) {
+          ctx.textAlign = "left";
+          ctx.fillText("0", state.originX + 8, state.originY - 12);
+        }
+
+        // Achsen-Titel
+        ctx.textAlign = "right";
+        ctx.fillText("x", state.width - 12, xLabelY - 12);
+
+        ctx.textAlign = "left";
+        ctx.fillText("f(x)", yLabelX + 8, 16);
+
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawGrid();
+      }
+
+      function updateTouchFromEvent(e) {
+        state.touches.clear();
+        for (const t of e.touches) {
+          state.touches.set(t.identifier, { x: t.clientX, y: t.clientY });
+        }
+      }
+
+      function getTouchPoints() {
+        return Array.from(state.touches.values());
+      }
+
+      function handleOneFingerMove(prevTouches, currentTouches) {
+        const prev = prevTouches[0];
+        const curr = currentTouches[0];
+        const dx = curr.x - prev.x;
+        const dy = curr.y - prev.y;
+        state.originX += dx;
+        state.originY += dy;
+      }
+
+      function handleTwoFingerMove(prevTouches, currentTouches) {
+        const [p0a, p0b] = prevTouches;
+        const [p1a, p1b] = currentTouches;
+
+        const c0 = {
+          x: (p0a.x + p0b.x) * 0.5,
+          y: (p0a.y + p0b.y) * 0.5
+        };
+        const c1 = {
+          x: (p1a.x + p1b.x) * 0.5,
+          y: (p1a.y + p1b.y) * 0.5
+        };
+
+        const dx0 = p0b.x - p0a.x;
+        const dy0 = p0b.y - p0a.y;
+        const dx1 = p1b.x - p1a.x;
+        const dy1 = p1b.y - p1a.y;
+
+        const dist0 = Math.hypot(dx0, dy0);
+        const dist1 = Math.hypot(dx1, dy1);
+
+        const anchorWorld = screenToWorld(c0.x, c0.y);
+
+        let fx = 1;
+        let fy = 1;
+
+        const absDx0 = Math.abs(dx0);
+        const absDy0 = Math.abs(dy0);
+        const absDx1 = Math.abs(dx1);
+        const absDy1 = Math.abs(dy1);
+
+        if (absDx0 > 10 && absDx1 > 1) {
+          fx = clamp(absDx1 / absDx0, 0.6, 1.8);
+        }
+
+        if (absDy0 > 10 && absDy1 > 1) {
+          fy = clamp(absDy1 / absDy0, 0.6, 1.8);
+        }
+
+        // Fallback: Wenn die Finger eher diagonal/gleichmäßig skalieren,
+        // dann beide Achsen anhand der Gesamtdistanz anpassen.
+        if (absDx0 <= 10 && absDy0 <= 10 && dist0 > 8 && dist1 > 1) {
+          const f = clamp(dist1 / dist0, 0.6, 1.8);
+          fx = f;
+          fy = f;
+        }
+
+        state.scaleX = clamp(state.scaleX * fx, state.minScale, state.maxScale);
+        state.scaleY = clamp(state.scaleY * fy, state.minScale, state.maxScale);
+
+        // Ankerpunkt am alten Mittelpunkt festhalten, neuen Mittelpunkt aber mitbewegen
+        state.originX = c1.x - anchorWorld.x * state.scaleX;
+        state.originY = c1.y + anchorWorld.y * state.scaleY;
+      }
+
+      function copyTouches() {
+        return getTouchPoints().map(p => ({ x: p.x, y: p.y }));
+      }
+
+      let prevTouchPoints = [];
+
+      function onTouchStart(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        prevTouchPoints = copyTouches();
+
+        if (e.touches.length === 1) state.gestureMode = "pan";
+        else if (e.touches.length >= 2) state.gestureMode = "pinch";
+      }
+
+      function onTouchMove(e) {
+        e.preventDefault();
+
+        const previous = prevTouchPoints;
+        updateTouchFromEvent(e);
+        const current = copyTouches();
+
+        if (current.length === 1 && previous.length === 1) {
+          handleOneFingerMove(previous, current);
+        } else if (current.length >= 2 && previous.length >= 2) {
+          handleTwoFingerMove(previous.slice(0, 2), current.slice(0, 2));
+        }
+
+        prevTouchPoints = current;
+        draw();
+      }
+
+      function onTouchEnd(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        prevTouchPoints = copyTouches();
+
+        if (e.touches.length === 0) state.gestureMode = "none";
+        else if (e.touches.length === 1) state.gestureMode = "pan";
+        else state.gestureMode = "pinch";
+
+        draw();
+      }
+
+      function onTouchCancel(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        prevTouchPoints = copyTouches();
+        draw();
+      }
+
+      canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+      canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+      canvas.addEventListener("touchend", onTouchEnd, { passive: false });
+      canvas.addEventListener("touchcancel", onTouchCancel, { passive: false });
+
+      // iPad Safari: Browser-Gesten abfangen
+      document.addEventListener("gesturestart", e => e.preventDefault(), { passive: false });
+      document.addEventListener("gesturechange", e => e.preventDefault(), { passive: false });
+      document.addEventListener("gestureend", e => e.preventDefault(), { passive: false });
+
+      window.addEventListener("resize", resize);
+
+      resize();
+    })();
+  </script>
+</body>
+</html>
