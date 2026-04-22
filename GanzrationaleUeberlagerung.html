@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title>iPad Koordinatensystem mit Summenfunktion</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --sidebar-width: 300px;
+      --sidebar-bg: #f7f8fa;
+      --sidebar-border: rgba(20, 28, 40, 0.12);
+      --text: #1f2937;
+      --muted: #5b6472;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+      overscroll-behavior: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    #sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      max-width: var(--sidebar-width);
+      height: 100%;
+      box-sizing: border-box;
+      padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom)) 16px 16px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    #sidebar h1 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      line-height: 1.2;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    #sidebar p {
+      margin: 0 0 18px 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .section-title {
+      margin: 0 0 10px 0;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #4b5563;
+    }
+
+    .function-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .function-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(20, 28, 40, 0.07);
+      box-sizing: border-box;
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .function-item.active {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(37, 99, 235, 0.28);
+    }
+
+    .function-item input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin: 2px 0 0 0;
+      accent-color: #2563eb;
+      flex: 0 0 auto;
+    }
+
+    .function-item label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      margin-top: 6px;
+      flex: 0 0 auto;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+
+    .label-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .label-name {
+      font-weight: 600;
+    }
+
+    .label-formula {
+      font-size: 14px;
+      color: var(--muted);
+      word-break: break-word;
+    }
+
+    .label-factor {
+      font-size: 13px;
+      color: #374151;
+      margin-top: 2px;
+    }
+
+    #canvasWrap {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      background: #ffffff;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      background: #ffffff;
+    }
+
+    #sumFormula {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(14px, env(safe-area-inset-right));
+      max-width: min(62vw, 760px);
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(20, 28, 40, 0.10);
+      box-shadow: 0 4px 18px rgba(20, 28, 40, 0.06);
+      color: #111827;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 700;
+      pointer-events: none;
+      white-space: normal;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Funktionen">
+      <h1>Funktionen</h1>
+      <p>Checkbox antippen zum Ein- oder Ausblenden. Einen sichtbaren Graphen mit einem Finger ziehen, um seinen Faktor zu ändern. Die Summe aller aktiven Funktionen wird immer als <strong>f(x)</strong> dargestellt.</p>
+
+      <div class="section-title">Auswahl</div>
+
+      <div class="function-list">
+        <div class="function-item" id="item-cubic">
+          <input type="checkbox" id="fn-cubic" checked />
+          <label for="fn-cubic">
+            <span class="color-dot" style="background:#d946ef;"></span>
+            <span class="label-block">
+              <span class="label-name">Kubisch</span>
+              <span class="label-formula" id="formula-cubic">k(x) = 1,00 · x³</span>
+              <span class="label-factor" id="factor-cubic">Faktor: 1,00</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="function-item" id="item-quadratic">
+          <input type="checkbox" id="fn-quadratic" checked />
+          <label for="fn-quadratic">
+            <span class="color-dot" style="background:#2563eb;"></span>
+            <span class="label-block">
+              <span class="label-name">Quadratisch</span>
+              <span class="label-formula" id="formula-quadratic">q(x) = 1,00 · x²</span>
+              <span class="label-factor" id="factor-quadratic">Faktor: 1,00</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="function-item" id="item-linear">
+          <input type="checkbox" id="fn-linear" checked />
+          <label for="fn-linear">
+            <span class="color-dot" style="background:#16a34a;"></span>
+            <span class="label-block">
+              <span class="label-name">Linear</span>
+              <span class="label-formula" id="formula-linear">l(x) = 1,00 · x</span>
+              <span class="label-factor" id="factor-linear">Faktor: 1,00</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="function-item" id="item-constant">
+          <input type="checkbox" id="fn-constant" checked />
+          <label for="fn-constant">
+            <span class="color-dot" style="background:#ea580c;"></span>
+            <span class="label-block">
+              <span class="label-name">Konstant</span>
+              <span class="label-formula" id="formula-constant">c(x) = 1,00</span>
+              <span class="label-factor" id="factor-constant">Faktor: 1,00</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <div id="canvasWrap">
+      <canvas id="plot"></canvas>
+      <div id="sumFormula">f(x) = x³ + x² + x + 1</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("plot");
+      const canvasWrap = document.getElementById("canvasWrap");
+      const ctx = canvas.getContext("2d");
+      const sumFormulaEl = document.getElementById("sumFormula");
+
+      const toggles = {
+        cubic: document.getElementById("fn-cubic"),
+        quadratic: document.getElementById("fn-quadratic"),
+        linear: document.getElementById("fn-linear"),
+        constant: document.getElementById("fn-constant")
+      };
+
+      const itemEls = {
+        cubic: document.getElementById("item-cubic"),
+        quadratic: document.getElementById("item-quadratic"),
+        linear: document.getElementById("item-linear"),
+        constant: document.getElementById("item-constant")
+      };
+
+      const formulaEls = {
+        cubic: document.getElementById("formula-cubic"),
+        quadratic: document.getElementById("formula-quadratic"),
+        linear: document.getElementById("formula-linear"),
+        constant: document.getElementById("formula-constant")
+      };
+
+      const factorEls = {
+        cubic: document.getElementById("factor-cubic"),
+        quadratic: document.getElementById("factor-quadratic"),
+        linear: document.getElementById("factor-linear"),
+        constant: document.getElementById("factor-constant")
+      };
+
+      const functions = [
+        {
+          key: "cubic",
+          graphLabel: "k(x)",
+          color: "#d946ef",
+          powerLabel: "x³",
+          base: x => x * x * x
+        },
+        {
+          key: "quadratic",
+          graphLabel: "q(x)",
+          color: "#2563eb",
+          powerLabel: "x²",
+          base: x => x * x
+        },
+        {
+          key: "linear",
+          graphLabel: "l(x)",
+          color: "#16a34a",
+          powerLabel: "x",
+          base: x => x
+        },
+        {
+          key: "constant",
+          graphLabel: "c(x)",
+          color: "#ea580c",
+          powerLabel: "1",
+          base: _x => 1
+        }
+      ];
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        originX: 0,
+        originY: 0,
+        scaleX: 80,
+        scaleY: 80,
+        minScale: 10,
+        maxScale: 2500,
+        touches: new Map(),
+        mode: "none",
+        activeFunctionKey: null,
+        factors: {
+          cubic: 1,
+          quadratic: 1,
+          linear: 1,
+          constant: 1
+        }
+      };
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function roundTwo(value) {
+        return Math.round(value * 100) / 100;
+      }
+
+      function formatFactor(value) {
+        return roundTwo(value).toLocaleString("de-DE", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function factorToTermString(value, variablePart) {
+        const rounded = roundTwo(value);
+
+        if (variablePart === "1") {
+          return formatFactor(rounded);
+        }
+
+        if (rounded === 1) return variablePart;
+        if (rounded === -1) return "-" + variablePart;
+
+        return `${formatFactor(rounded)}·${variablePart}`;
+      }
+
+      function buildSumFormulaText() {
+        const parts = [];
+
+        for (const entry of functions) {
+          if (!toggles[entry.key].checked) continue;
+          const factor = state.factors[entry.key];
+          const variablePart = entry.powerLabel === "1" ? "1" : entry.powerLabel;
+          parts.push(factorToTermString(factor, variablePart));
+        }
+
+        if (parts.length === 0) {
+          return "f(x) = 0";
+        }
+
+        let formula = "f(x) = ";
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i];
+          if (i === 0) {
+            formula += part;
+          } else if (part.startsWith("-")) {
+            formula += " - " + part.slice(1);
+          } else {
+            formula += " + " + part;
+          }
+        }
+        return formula;
+      }
+
+      function resize() {
+        const rect = canvasWrap.getBoundingClientRect();
+
+        state.dpr = Math.max(1, window.devicePixelRatio || 1);
+        state.width = Math.round(rect.width);
+        state.height = Math.round(rect.height);
+
+        canvas.width = Math.round(state.width * state.dpr);
+        canvas.height = Math.round(state.height * state.dpr);
+        canvas.style.width = state.width + "px";
+        canvas.style.height = state.height + "px";
+
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+        if (state.originX === 0 && state.originY === 0) {
+          state.originX = state.width * 0.5;
+          state.originY = state.height * 0.5;
+        } else {
+          state.originX = clamp(state.originX, -state.width * 4, state.width * 5);
+          state.originY = clamp(state.originY, -state.height * 4, state.height * 5);
+        }
+
+        draw();
+      }
+
+      function worldToScreen(x, y) {
+        return {
+          x: state.originX + x * state.scaleX,
+          y: state.originY - y * state.scaleY
+        };
+      }
+
+      function screenToWorld(x, y) {
+        return {
+          x: (x - state.originX) / state.scaleX,
+          y: (state.originY - y) / state.scaleY
+        };
+      }
+
+      function niceStep(unitsPerPixel, targetPixels = 95) {
+        const raw = unitsPerPixel * targetPixels;
+        const exponent = Math.floor(Math.log10(raw || 1));
+        const base = Math.pow(10, exponent);
+        const candidates = [1, 2, 5, 10];
+        let best = candidates[0] * base;
+        let bestDiff = Infinity;
+
+        for (const c of candidates) {
+          const step = c * base;
+          const diff = Math.abs(step - raw);
+          if (diff < bestDiff) {
+            best = step;
+            bestDiff = diff;
+          }
+        }
+        return best;
+      }
+
+      function decimalsForStep(step) {
+        if (!isFinite(step) || step <= 0) return 0;
+        return Math.max(0, Math.min(10, Math.ceil(-Math.log10(step))));
+      }
+
+      function formatNumber(value, step) {
+        const decimals = decimalsForStep(step);
+        const rounded = Number(value.toFixed(decimals));
+        return rounded.toLocaleString("de-DE", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function drawLine(x1, y1, x2, y2, color, width) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+      }
+
+      function getFunctionFactor(key) {
+        return state.factors[key];
+      }
+
+      function functionValue(entry, x) {
+        return getFunctionFactor(entry.key) * entry.base(x);
+      }
+
+      function sumValue(x) {
+        let total = 0;
+        for (const entry of functions) {
+          if (!toggles[entry.key].checked) continue;
+          total += functionValue(entry, x);
+        }
+        return total;
+      }
+
+      function updateSidebarTexts() {
+        for (const entry of functions) {
+          const factor = getFunctionFactor(entry.key);
+          const factorText = formatFactor(factor);
+
+          if (entry.key === "constant") {
+            formulaEls[entry.key].textContent = `${entry.graphLabel} = ${factorText}`;
+          } else {
+            formulaEls[entry.key].textContent = `${entry.graphLabel} = ${factorText} · ${entry.powerLabel}`;
+          }
+
+          factorEls[entry.key].textContent = `Faktor: ${factorText}`;
+          itemEls[entry.key].classList.toggle("active", state.activeFunctionKey === entry.key);
+        }
+
+        sumFormulaEl.textContent = buildSumFormulaText();
+      }
+
+      function drawGrid() {
+        const xUnitsPerPixel = 1 / state.scaleX;
+        const yUnitsPerPixel = 1 / state.scaleY;
+
+        const majorStepX = niceStep(xUnitsPerPixel, 110);
+        const majorStepY = niceStep(yUnitsPerPixel, 110);
+        const minorStepX = majorStepX / 5;
+        const minorStepY = majorStepY / 5;
+
+        const leftWorld = screenToWorld(0, 0).x;
+        const rightWorld = screenToWorld(state.width, 0).x;
+        const topWorld = screenToWorld(0, 0).y;
+        const bottomWorld = screenToWorld(0, state.height).y;
+
+        ctx.save();
+
+        let startMinorX = Math.floor(leftWorld / minorStepX) * minorStepX;
+        for (let x = startMinorX; x <= rightWorld + minorStepX; x += minorStepX) {
+          if (Math.abs(x / majorStepX - Math.round(x / majorStepX)) < 1e-8) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, 0, sx, state.height, "rgba(40, 60, 90, 0.05)", 1);
+        }
+
+        let startMinorY = Math.floor(bottomWorld / minorStepY) * minorStepY;
+        for (let y = startMinorY; y <= topWorld + minorStepY; y += minorStepY) {
+          if (Math.abs(y / majorStepY - Math.round(y / majorStepY)) < 1e-8) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLine(0, sy, state.width, sy, "rgba(40, 60, 90, 0.05)", 1);
+        }
+
+        let startMajorX = Math.floor(leftWorld / majorStepX) * majorStepX;
+        for (let x = startMajorX; x <= rightWorld + majorStepX; x += majorStepX) {
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, 0, sx, state.height, "rgba(40, 60, 90, 0.11)", 1);
+        }
+
+        let startMajorY = Math.floor(bottomWorld / majorStepY) * majorStepY;
+        for (let y = startMajorY; y <= topWorld + majorStepY; y += majorStepY) {
+          const sy = worldToScreen(0, y).y;
+          drawLine(0, sy, state.width, sy, "rgba(40, 60, 90, 0.11)", 1);
+        }
+
+        if (state.originY >= 0 && state.originY <= state.height) {
+          drawLine(0, state.originY, state.width, state.originY, "rgba(20, 28, 40, 0.72)", 1.5);
+        }
+
+        if (state.originX >= 0 && state.originX <= state.width) {
+          drawLine(state.originX, 0, state.originX, state.height, "rgba(20, 28, 40, 0.72)", 1.5);
+        }
+
+        ctx.fillStyle = "rgba(20, 28, 40, 0.85)";
+        ctx.font = "12px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
+        ctx.textBaseline = "middle";
+
+        const xLabelY = clamp(state.originY, 16, state.height - 16);
+        const yLabelX = clamp(state.originX, 8, state.width - 44);
+
+        for (let x = startMajorX; x <= rightWorld + majorStepX; x += majorStepX) {
+          if (Math.abs(x) < 1e-10) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLine(sx, xLabelY - 4, sx, xLabelY + 4, "rgba(20, 28, 40, 0.50)", 1);
+          ctx.textAlign = "center";
+          ctx.fillText(formatNumber(x, majorStepX), sx, xLabelY - 12);
+        }
+
+        for (let y = startMajorY; y <= topWorld + majorStepY; y += majorStepY) {
+          if (Math.abs(y) < 1e-10) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLine(yLabelX - 4, sy, yLabelX + 4, sy, "rgba(20, 28, 40, 0.50)", 1);
+          ctx.textAlign = "left";
+          ctx.fillText(formatNumber(y, majorStepY), yLabelX + 8, sy);
+        }
+
+        if (
+          state.originX >= -20 &&
+          state.originX <= state.width + 20 &&
+          state.originY >= -20 &&
+          state.originY <= state.height + 20
+        ) {
+          ctx.textAlign = "left";
+          ctx.fillText("0", state.originX + 8, state.originY - 12);
+        }
+
+        ctx.textAlign = "right";
+        ctx.fillText("x", state.width - 12, xLabelY - 12);
+
+        ctx.textAlign = "left";
+        ctx.fillText("f(x)", yLabelX + 8, 16);
+
+        ctx.restore();
+      }
+
+      function traceGraph(getY) {
+        ctx.beginPath();
+
+        let activeSegment = false;
+        const offscreenMargin = 4000;
+
+        for (let sx = 0; sx <= state.width; sx += 1) {
+          const x = screenToWorld(sx, 0).x;
+          const y = getY(x);
+
+          if (!Number.isFinite(y)) {
+            activeSegment = false;
+            continue;
+          }
+
+          const sy = worldToScreen(0, y).y;
+          const visibleEnough = sy > -offscreenMargin && sy < state.height + offscreenMargin;
+
+          if (!visibleEnough) {
+            activeSegment = false;
+            continue;
+          }
+
+          if (!activeSegment) {
+            ctx.moveTo(sx, sy);
+            activeSegment = true;
+          } else {
+            ctx.lineTo(sx, sy);
+          }
+        }
+      }
+
+      function drawComponentFunction(entry) {
+        if (!toggles[entry.key].checked) return;
+
+        ctx.save();
+        traceGraph(x => functionValue(entry, x));
+
+        const isActive = state.activeFunctionKey === entry.key;
+        ctx.lineWidth = isActive ? 3.0 : 1.8;
+        ctx.strokeStyle = isActive ? entry.color : entry.color + "66";
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawSumFunction() {
+        ctx.save();
+        traceGraph(sumValue);
+        ctx.lineWidth = 4.2;
+        ctx.strokeStyle = "rgba(17, 24, 39, 0.96)";
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawFunctions() {
+        for (const entry of functions) {
+          drawComponentFunction(entry);
+        }
+        drawSumFunction();
+      }
+
+      function drawActiveTouchMarker() {
+        if (state.mode !== "adjust" || !state.activeFunctionKey) return;
+        const points = getTouchPointsRelativeToCanvas();
+        if (points.length !== 1) return;
+
+        const p = points[0];
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(20, 28, 40, 0.9)";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function draw() {
+        updateSidebarTexts();
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawGrid();
+        drawFunctions();
+        drawActiveTouchMarker();
+      }
+
+      function updateTouchFromEvent(e) {
+        state.touches.clear();
+        for (const t of e.touches) {
+          state.touches.set(t.identifier, { x: t.clientX, y: t.clientY });
+        }
+      }
+
+      function getTouchPointsRelativeToCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        return Array.from(state.touches.values()).map(p => ({
+          x: p.x - rect.left,
+          y: p.y - rect.top
+        }));
+      }
+
+      function setActiveFunction(key) {
+        state.activeFunctionKey = key;
+      }
+
+      function clearActiveFunction() {
+        state.activeFunctionKey = null;
+      }
+
+      function findFunctionNearPoint(screenX, screenY) {
+        const world = screenToWorld(screenX, screenY);
+        const pixelThreshold = 18;
+        let best = null;
+
+        for (const entry of functions) {
+          if (!toggles[entry.key].checked) continue;
+
+          const y = functionValue(entry, world.x);
+          if (!Number.isFinite(y)) continue;
+
+          const graphY = worldToScreen(world.x, y).y;
+          const distance = Math.abs(graphY - screenY);
+
+          if (distance <= pixelThreshold && (!best || distance < best.distance)) {
+            best = { entry, distance };
+          }
+        }
+
+        return best ? best.entry : null;
+      }
+
+      function tryAdjustActiveFunction(screenX, screenY) {
+        const key = state.activeFunctionKey;
+        if (!key) return false;
+
+        const entry = functions.find(f => f.key === key);
+        if (!entry) return false;
+
+        const world = screenToWorld(screenX, screenY);
+        const baseValue = entry.base(world.x);
+
+        if (Math.abs(baseValue) < 1e-8) {
+          return false;
+        }
+
+        let nextFactor = world.y / baseValue;
+        if (!Number.isFinite(nextFactor)) return false;
+
+        nextFactor = clamp(nextFactor, -9999, 9999);
+        state.factors[key] = roundTwo(nextFactor);
+        return true;
+      }
+
+      function handleOneFingerMove(prevTouches, currentTouches) {
+        const prev = prevTouches[0];
+        const curr = currentTouches[0];
+
+        if (state.mode === "adjust" && state.activeFunctionKey) {
+          tryAdjustActiveFunction(curr.x, curr.y);
+          return;
+        }
+
+        state.originX += curr.x - prev.x;
+        state.originY += curr.y - prev.y;
+      }
+
+      function handleTwoFingerMove(prevTouches, currentTouches) {
+        const [p0a, p0b] = prevTouches;
+        const [p1a, p1b] = currentTouches;
+
+        const c0 = {
+          x: (p0a.x + p0b.x) * 0.5,
+          y: (p0a.y + p0b.y) * 0.5
+        };
+        const c1 = {
+          x: (p1a.x + p1b.x) * 0.5,
+          y: (p1a.y + p1b.y) * 0.5
+        };
+
+        const dx0 = p0b.x - p0a.x;
+        const dy0 = p0b.y - p0a.y;
+        const dx1 = p1b.x - p1a.x;
+        const dy1 = p1b.y - p1a.y;
+
+        const dist0 = Math.hypot(dx0, dy0);
+        const dist1 = Math.hypot(dx1, dy1);
+
+        const anchorWorld = screenToWorld(c0.x, c0.y);
+
+        let fx = 1;
+        let fy = 1;
+
+        const absDx0 = Math.abs(dx0);
+        const absDy0 = Math.abs(dy0);
+        const absDx1 = Math.abs(dx1);
+        const absDy1 = Math.abs(dy1);
+
+        if (absDx0 > 10 && absDx1 > 1) {
+          fx = clamp(absDx1 / absDx0, 0.6, 1.8);
+        }
+
+        if (absDy0 > 10 && absDy1 > 1) {
+          fy = clamp(absDy1 / absDy0, 0.6, 1.8);
+        }
+
+        if (absDx0 <= 10 && absDy0 <= 10 && dist0 > 8 && dist1 > 1) {
+          const f = clamp(dist1 / dist0, 0.6, 1.8);
+          fx = f;
+          fy = f;
+        }
+
+        state.scaleX = clamp(state.scaleX * fx, state.minScale, state.maxScale);
+        state.scaleY = clamp(state.scaleY * fy, state.minScale, state.maxScale);
+
+        state.originX = c1.x - anchorWorld.x * state.scaleX;
+        state.originY = c1.y + anchorWorld.y * state.scaleY;
+      }
+
+      let prevTouchPoints = [];
+
+      function onTouchStart(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        const current = getTouchPointsRelativeToCanvas();
+        prevTouchPoints = current;
+
+        if (current.length === 1) {
+          const hit = findFunctionNearPoint(current[0].x, current[0].y);
+          if (hit) {
+            setActiveFunction(hit.key);
+            state.mode = "adjust";
+            tryAdjustActiveFunction(current[0].x, current[0].y);
+          } else {
+            clearActiveFunction();
+            state.mode = "pan";
+          }
+        } else if (current.length >= 2) {
+          clearActiveFunction();
+          state.mode = "pinch";
+        } else {
+          clearActiveFunction();
+          state.mode = "none";
+        }
+
+        draw();
+      }
+
+      function onTouchMove(e) {
+        e.preventDefault();
+
+        const previous = prevTouchPoints;
+        updateTouchFromEvent(e);
+        const current = getTouchPointsRelativeToCanvas();
+
+        if (current.length === 1 && previous.length === 1) {
+          handleOneFingerMove(previous, current);
+        } else if (current.length >= 2 && previous.length >= 2) {
+          state.mode = "pinch";
+          clearActiveFunction();
+          handleTwoFingerMove(previous.slice(0, 2), current.slice(0, 2));
+        }
+
+        prevTouchPoints = current;
+        draw();
+      }
+
+      function onTouchEnd(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        const current = getTouchPointsRelativeToCanvas();
+        prevTouchPoints = current;
+
+        if (current.length === 0) {
+          state.mode = "none";
+          clearActiveFunction();
+        } else if (current.length === 1) {
+          const hit = findFunctionNearPoint(current[0].x, current[0].y);
+          if (hit) {
+            setActiveFunction(hit.key);
+            state.mode = "adjust";
+            tryAdjustActiveFunction(current[0].x, current[0].y);
+          } else {
+            clearActiveFunction();
+            state.mode = "pan";
+          }
+        } else {
+          clearActiveFunction();
+          state.mode = "pinch";
+        }
+
+        draw();
+      }
+
+      function onTouchCancel(e) {
+        e.preventDefault();
+        updateTouchFromEvent(e);
+        prevTouchPoints = getTouchPointsRelativeToCanvas();
+        state.mode = "none";
+        clearActiveFunction();
+        draw();
+      }
+
+      canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+      canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+      canvas.addEventListener("touchend", onTouchEnd, { passive: false });
+      canvas.addEventListener("touchcancel", onTouchCancel, { passive: false });
+
+      document.addEventListener("gesturestart", e => e.preventDefault(), { passive: false });
+      document.addEventListener("gesturechange", e => e.preventDefault(), { passive: false });
+      document.addEventListener("gestureend", e => e.preventDefault(), { passive: false });
+
+      Object.values(toggles).forEach(el => {
+        el.addEventListener("change", () => {
+          if (state.activeFunctionKey && !toggles[state.activeFunctionKey].checked) {
+            clearActiveFunction();
+            state.mode = "none";
+          }
+          draw();
+        });
+      });
+
+      updateSidebarTexts();
+      window.addEventListener("resize", resize);
+      resize();
+    })();
+  </script>
+</body>
+</html>
