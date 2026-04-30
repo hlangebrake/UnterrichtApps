@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title>Lineare Funktion – Steigung und y-Achsenabschnitt</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: rgba(31, 41, 55, 0.72);
+      --line: #16a34a;
+      --triangle-main: rgba(37, 99, 235, 0.95);
+      --triangle-subtle: rgba(100, 116, 139, 0.28);
+      --panel-border: rgba(20, 28, 40, 0.12);
+      --panel-bg: #f8fafc;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+      overscroll-behavior: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    #mainArea {
+      position: relative;
+      flex: 7 1 0;
+      min-width: 0;
+      height: 100%;
+      background: #ffffff;
+    }
+
+    #canvasWrap {
+      position: absolute;
+      inset: 0;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      touch-action: none;
+    }
+
+    #hint {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      left: max(14px, env(safe-area-inset-left));
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 10px;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      max-width: min(78vw, 560px);
+      white-space: pre-line;
+      z-index: 2;
+    }
+
+    #equationDisplay {
+      position: absolute;
+      left: 50%;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      padding: 10px 18px;
+      font-size: 26px;
+      font-weight: 500;
+      color: rgba(21, 128, 61, 0.98);
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 12px;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    #equationDisplay.is-placeholder {
+      color: rgba(31, 41, 55, 0.78);
+    }
+
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      vertical-align: middle;
+      margin: 0 2px;
+      transform: translateY(1px);
+    }
+
+    .fraction .top,
+    .fraction .bottom {
+      display: block;
+      padding: 0 5px;
+      font-size: 0.78em;
+    }
+
+    .fraction .bar {
+      width: 100%;
+      min-width: 24px;
+      border-top: 2px solid currentColor;
+      margin: 2px 0;
+    }
+
+    #tablePanel {
+      flex: 1 1 0;
+      min-width: 140px;
+      height: 100%;
+      box-sizing: border-box;
+      border-left: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      padding: max(12px, env(safe-area-inset-top)) 10px max(12px, env(safe-area-inset-bottom)) 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #tableTitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(31, 41, 55, 0.92);
+      padding: 2px 4px 0 4px;
+      flex: 0 0 auto;
+    }
+
+    #tableScroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(20, 28, 40, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+      color: rgba(31, 41, 55, 0.95);
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(248, 250, 252, 0.98);
+      font-weight: 700;
+      border-bottom: 1px solid rgba(20, 28, 40, 0.08);
+    }
+
+    th, td {
+      padding: 7px 6px;
+      text-align: center;
+      border-bottom: 1px solid rgba(20, 28, 40, 0.06);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .col-x {
+      width: 38%;
+    }
+
+    .col-fx {
+      width: 62%;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="mainArea">
+      <div id="canvasWrap">
+        <canvas id="plot" aria-label="Koordinatensystem mit linearer Funktion"></canvas>
+      </div>
+      <div id="hint">Ziehe an dem Graphen der Funktion oder am y-Achsen Abschnitt
+Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
+      <div id="equationDisplay" class="is-placeholder">f(x) = klicken zum Anzeigen</div>
+    </div>
+
+    <aside id="tablePanel" aria-label="Wertetabelle">
+      <div id="tableTitle">Wertetabelle</div>
+      <div id="tableScroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-x">x</th>
+              <th class="col-fx">f(x)</th>
+            </tr>
+          </thead>
+          <tbody id="valueTableBody"></tbody>
+        </table>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("plot");
+      const canvasWrap = document.getElementById("canvasWrap");
+      const ctx = canvas.getContext("2d");
+      const valueTableBody = document.getElementById("valueTableBody");
+      const equationDisplay = document.getElementById("equationDisplay");
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        originX: 0,
+        originY: 0,
+        scale: 72,
+        line: {
+          m: 2,
+          b: 4,
+          mFraction: { numerator: 2, denominator: 1 }
+        },
+        dragMode: "none",
+        activePointerId: null,
+        equationVisible: false
+      };
+
+      const HANDLE_RADIUS = 9;
+      const HANDLE_HIT_RADIUS = 22;
+      const LINE_HIT_THRESHOLD = 18;
+      const MIN_X_FOR_SLOPE = 0.35;
+      const MIN_SLOPE = -10;
+      const MAX_SLOPE = 10;
+      const MIN_B = -10;
+      const MAX_B = 10;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function roundToTenth(value) {
+        return Math.round(value * 10) / 10;
+      }
+
+      function mod(n, m) {
+        return ((n % m) + m) % m;
+      }
+
+      function gcd(a, b) {
+        let x = Math.abs(a);
+        let y = Math.abs(b);
+        while (y !== 0) {
+          const temp = x % y;
+          x = y;
+          y = temp;
+        }
+        return x || 1;
+      }
+
+      function reduceFraction(numerator, denominator) {
+        if (denominator === 0) return { numerator: 0, denominator: 1 };
+        if (numerator === 0) return { numerator: 0, denominator: 1 };
+
+        const divisor = gcd(numerator, denominator);
+        let n = numerator / divisor;
+        let d = denominator / divisor;
+
+        if (d < 0) {
+          n = -n;
+          d = -d;
+        }
+
+        return { numerator: n, denominator: d };
+      }
+
+      function setSlopeFromFraction(numerator, denominator) {
+        const fraction = reduceFraction(numerator, denominator);
+        const numericValue = fraction.numerator / fraction.denominator;
+
+        if (!Number.isFinite(numericValue)) return;
+
+        if (numericValue < MIN_SLOPE) {
+          state.line.m = MIN_SLOPE;
+          state.line.mFraction = { numerator: MIN_SLOPE, denominator: 1 };
+          return;
+        }
+
+        if (numericValue > MAX_SLOPE) {
+          state.line.m = MAX_SLOPE;
+          state.line.mFraction = { numerator: MAX_SLOPE, denominator: 1 };
+          return;
+        }
+
+        state.line.m = numericValue;
+        state.line.mFraction = fraction;
+      }
+
+      function getSlopeFraction() {
+        return state.line.mFraction;
+      }
+
+      function getEquationParts() {
+        const fraction = getSlopeFraction();
+        const displayedIntercept = Math.round(state.line.b);
+
+        return {
+          slopeNumerator: fraction.numerator,
+          slopeDenominator: fraction.denominator,
+          interceptAbsText: String(Math.abs(displayedIntercept)),
+          interceptSign: displayedIntercept < 0 ? "-" : "+"
+        };
+      }
+
+      function updateEquationDisplay() {
+        if (!state.equationVisible) {
+          equationDisplay.classList.add("is-placeholder");
+          equationDisplay.textContent = "f(x) = klicken zum Anzeigen";
+          return;
+        }
+
+        const parts = getEquationParts();
+        equationDisplay.classList.remove("is-placeholder");
+
+        let slopeHtml = "";
+        if (parts.slopeNumerator === 0) {
+          slopeHtml = "0";
+        } else if (parts.slopeDenominator === 1) {
+          slopeHtml = String(parts.slopeNumerator);
+        } else {
+          slopeHtml =
+            `<span class="fraction">` +
+              `<span class="top">${parts.slopeNumerator}</span>` +
+              `<span class="bar"></span>` +
+              `<span class="bottom">${parts.slopeDenominator}</span>` +
+            `</span>`;
+        }
+
+        equationDisplay.innerHTML =
+          `f(x) = ${slopeHtml}x${parts.interceptSign}${parts.interceptAbsText}`;
+      }
+
+      function formatTableDecimal(value) {
+        return value.toLocaleString("de-DE", {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 3
+        });
+      }
+
+      function getFunctionValueFraction(x) {
+        const slopeFraction = getSlopeFraction();
+        const p = slopeFraction.numerator;
+        const q = slopeFraction.denominator;
+        const bInteger = Math.round(state.line.b);
+
+        const numerator = p * x + bInteger * q;
+        const denominator = q;
+        return reduceFraction(numerator, denominator);
+      }
+
+      function updateValueTable() {
+        const rows = [];
+        for (let x = -10; x <= 10; x += 1) {
+          const valueFraction = getFunctionValueFraction(x);
+          const valueDecimal = valueFraction.numerator / valueFraction.denominator;
+          rows.push(`<tr><td>${x}</td><td>${formatTableDecimal(valueDecimal)}</td></tr>`);
+        }
+        valueTableBody.innerHTML = rows.join("");
+      }
+
+      function drawRoundedRect(x, y, width, height, radius) {
+        const r = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + width - r, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+        ctx.lineTo(x + width, y + height - r);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+        ctx.lineTo(x + r, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function resize() {
+        const rect = canvasWrap.getBoundingClientRect();
+
+        state.dpr = Math.max(1, window.devicePixelRatio || 1);
+        state.width = Math.round(rect.width);
+        state.height = Math.round(rect.height);
+
+        canvas.width = Math.round(state.width * state.dpr);
+        canvas.height = Math.round(state.height * state.dpr);
+        canvas.style.width = state.width + "px";
+        canvas.style.height = state.height + "px";
+
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+        state.originX = state.width * 0.5;
+        state.originY = state.height * 0.5;
+
+        draw();
+      }
+
+      function worldToScreen(x, y) {
+        return {
+          x: state.originX + x * state.scale,
+          y: state.originY - y * state.scale
+        };
+      }
+
+      function screenToWorld(x, y) {
+        return {
+          x: (x - state.originX) / state.scale,
+          y: (state.originY - y) / state.scale
+        };
+      }
+
+      function getNearestIntegerGridPoint(screenX, screenY) {
+        const world = screenToWorld(screenX, screenY);
+        const x = Math.round(world.x);
+        const y = Math.round(world.y);
+        const screen = worldToScreen(x, y);
+        return { x, y, screen };
+      }
+
+      function drawLineSegment(x1, y1, x2, y2, color, width) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+      }
+
+      function drawGrid() {
+        const minorStep = 0.2;
+        const majorStep = 1.0;
+
+        const leftWorld = screenToWorld(0, 0).x;
+        const rightWorld = screenToWorld(state.width, 0).x;
+        const topWorld = screenToWorld(0, 0).y;
+        const bottomWorld = screenToWorld(0, state.height).y;
+
+        const startMinorX = Math.floor(leftWorld / minorStep) * minorStep;
+        for (let x = startMinorX; x <= rightWorld + minorStep; x += minorStep) {
+          if (Math.abs((x / majorStep) - Math.round(x / majorStep)) < 1e-8) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLineSegment(sx, 0, sx, state.height, "rgba(30, 41, 59, 0.05)", 1);
+        }
+
+        const startMinorY = Math.floor(bottomWorld / minorStep) * minorStep;
+        for (let y = startMinorY; y <= topWorld + minorStep; y += minorStep) {
+          if (Math.abs((y / majorStep) - Math.round(y / majorStep)) < 1e-8) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLineSegment(0, sy, state.width, sy, "rgba(30, 41, 59, 0.05)", 1);
+        }
+
+        const startMajorX = Math.floor(leftWorld / majorStep) * majorStep;
+        for (let x = startMajorX; x <= rightWorld + majorStep; x += majorStep) {
+          const sx = worldToScreen(x, 0).x;
+          drawLineSegment(sx, 0, sx, state.height, "rgba(30, 41, 59, 0.10)", 1);
+        }
+
+        const startMajorY = Math.floor(bottomWorld / majorStep) * majorStep;
+        for (let y = startMajorY; y <= topWorld + majorStep; y += majorStep) {
+          const sy = worldToScreen(0, y).y;
+          drawLineSegment(0, sy, state.width, sy, "rgba(30, 41, 59, 0.10)", 1);
+        }
+
+        drawLineSegment(0, state.originY, state.width, state.originY, "rgba(17, 24, 39, 0.72)", 1.5);
+        drawLineSegment(state.originX, 0, state.originX, state.height, "rgba(17, 24, 39, 0.72)", 1.5);
+
+        ctx.save();
+        ctx.fillStyle = "rgba(17, 24, 39, 0.82)";
+        ctx.font = "12px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
+        ctx.textBaseline = "middle";
+
+        const xLabelY = Math.min(Math.max(state.originY, 16), state.height - 16);
+        const yLabelX = Math.min(Math.max(state.originX, 8), state.width - 44);
+
+        for (let x = startMajorX; x <= rightWorld + majorStep; x += majorStep) {
+          if (Math.abs(x) < 1e-8) continue;
+          const sx = worldToScreen(x, 0).x;
+          drawLineSegment(sx, xLabelY - 4, sx, xLabelY + 4, "rgba(17, 24, 39, 0.50)", 1);
+          ctx.textAlign = "center";
+          ctx.fillText(String(Math.round(x)), sx, xLabelY - 12);
+        }
+
+        for (let y = startMajorY; y <= topWorld + majorStep; y += majorStep) {
+          if (Math.abs(y) < 1e-8) continue;
+          const sy = worldToScreen(0, y).y;
+          drawLineSegment(yLabelX - 4, sy, yLabelX + 4, sy, "rgba(17, 24, 39, 0.50)", 1);
+          ctx.textAlign = "left";
+          ctx.fillText(String(Math.round(y)), yLabelX + 8, sy);
+        }
+
+        ctx.textAlign = "left";
+        ctx.fillText("0", state.originX + 8, state.originY - 12);
+
+        ctx.textAlign = "right";
+        ctx.fillText("x", state.width - 12, xLabelY - 12);
+
+        ctx.textAlign = "left";
+        ctx.fillText("y", yLabelX + 8, 18);
+        ctx.restore();
+      }
+
+      function drawFunction() {
+        const color = state.dragMode === "slope" ? "rgba(21, 128, 61, 1)" : "rgba(22, 163, 74, 1)";
+        const width = state.dragMode === "slope" ? 4 : 3;
+
+        ctx.save();
+        ctx.beginPath();
+
+        let started = false;
+        for (let sx = 0; sx <= state.width; sx += 1) {
+          const world = screenToWorld(sx, 0);
+          const y = state.line.m * world.x + state.line.b;
+          const sy = worldToScreen(world.x, y).y;
+
+          if (!Number.isFinite(sy)) {
+            started = false;
+            continue;
+          }
+
+          if (!started) {
+            ctx.moveTo(sx, sy);
+            started = true;
+          } else {
+            ctx.lineTo(sx, sy);
+          }
+        }
+
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function isScreenPointVisible(point) {
+        return point.x >= -30 && point.x <= state.width + 30 && point.y >= -30 && point.y <= state.height + 30;
+      }
+
+      function getReadableGraphPoints() {
+        const fraction = getSlopeFraction();
+        const p = fraction.numerator;
+        const q = fraction.denominator;
+        const bInteger = Math.round(state.line.b);
+
+        const leftWorld = Math.floor(screenToWorld(0, 0).x) - q - 1;
+        const rightWorld = Math.ceil(screenToWorld(state.width, 0).x) + q + 1;
+        const points = [];
+
+        for (let x = leftWorld; x <= rightWorld; x += 1) {
+          const numerator = p * x + bInteger * q;
+          if (mod(numerator, q) !== 0) continue;
+
+          const y = numerator / q;
+          const screen = worldToScreen(x, y);
+          points.push({ x, y, screen });
+        }
+
+        points.sort((a, b) => a.x - b.x);
+        return points;
+      }
+
+      function getTriangleData() {
+        const visiblePoints = getReadableGraphPoints().filter(point => isScreenPointVisible(point.screen));
+        if (visiblePoints.length < 2) return null;
+
+        const sortedByCloseness = [...visiblePoints].sort((a, b) => {
+          const diffAbs = Math.abs(a.x) - Math.abs(b.x);
+          if (Math.abs(diffAbs) > 1e-8) return diffAbs;
+          return a.x - b.x;
+        });
+
+        const mainStart = sortedByCloseness[0];
+        let mainEnd = visiblePoints.find(point => point.x > mainStart.x);
+
+        if (!mainEnd) {
+          const leftCandidates = visiblePoints.filter(point => point.x < mainStart.x);
+          if (leftCandidates.length === 0) return null;
+          mainEnd = leftCandidates[leftCandidates.length - 1];
+        }
+
+        const dx = mainEnd.x - mainStart.x;
+        const dy = mainEnd.y - mainStart.y;
+
+        const pointMap = new Map(visiblePoints.map(point => [`${point.x}|${point.y}`, point]));
+        const triangles = [];
+
+        for (const start of visiblePoints) {
+          const end = pointMap.get(`${start.x + dx}|${start.y + dy}`);
+          if (!end) continue;
+
+          triangles.push({
+            start,
+            end,
+            elbow: worldToScreen(end.x, start.y),
+            isMain: start.x === mainStart.x && start.y === mainStart.y
+          });
+        }
+
+        if (!triangles.some(triangle => triangle.isMain)) {
+          triangles.push({
+            start: mainStart,
+            end: mainEnd,
+            elbow: worldToScreen(mainEnd.x, mainStart.y),
+            isMain: true
+          });
+        }
+
+        return { dx, dy, triangles };
+      }
+
+      function drawLabelAt(x, y, text) {
+        ctx.save();
+        ctx.font = "14px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const paddingX = 8;
+        const boxHeight = 24;
+        const boxWidth = ctx.measureText(text).width + paddingX * 2;
+
+        drawRoundedRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight, 8);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(37, 99, 235, 0.98)";
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
+
+      function drawTrianglePoint(screenPoint, subtle = false) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(screenPoint.x, screenPoint.y, subtle ? 4 : 6, 0, Math.PI * 2);
+        ctx.fillStyle = subtle ? "rgba(255, 255, 255, 0.68)" : "rgba(255, 255, 255, 0.96)";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(screenPoint.x, screenPoint.y, subtle ? 2.5 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = subtle ? "rgba(100, 116, 139, 0.42)" : "rgba(37, 99, 235, 0.98)";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawSubtleTriangles(data) {
+        if (!data) return;
+
+        for (const triangle of data.triangles) {
+          if (triangle.isMain) continue;
+
+          const start = triangle.start.screen;
+          const end = triangle.end.screen;
+          const elbow = triangle.elbow;
+
+          ctx.save();
+          ctx.setLineDash([6, 7]);
+          drawLineSegment(start.x, start.y, elbow.x, elbow.y, "rgba(100, 116, 139, 0.30)", 1.8);
+          drawLineSegment(elbow.x, elbow.y, end.x, end.y, "rgba(100, 116, 139, 0.30)", 1.8);
+          ctx.setLineDash([]);
+          ctx.restore();
+
+          drawTrianglePoint(start, true);
+          drawTrianglePoint(end, true);
+        }
+      }
+
+      function formatSignedInteger(value) {
+        const rounded = Math.round(value);
+        if (rounded > 0) return `+${rounded}`;
+        if (rounded < 0) return `${rounded}`;
+        return "0";
+      }
+
+      function drawMainTriangle(data) {
+        if (!data) return;
+
+        const triangle = data.triangles.find(item => item.isMain) || data.triangles[0];
+        if (!triangle) return;
+
+        const start = triangle.start.screen;
+        const end = triangle.end.screen;
+        const elbow = triangle.elbow;
+
+        ctx.save();
+        ctx.setLineDash([8, 6]);
+        drawLineSegment(start.x, start.y, elbow.x, elbow.y, "rgba(37, 99, 235, 0.95)", 2.5);
+        drawLineSegment(elbow.x, elbow.y, end.x, end.y, "rgba(37, 99, 235, 0.95)", 2.5);
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        drawTrianglePoint(start);
+        drawTrianglePoint(end);
+
+        const horizontalLabelY = start.y + (data.dy >= 0 ? 18 : -18);
+        const horizontalLabelX = (start.x + elbow.x) / 2;
+        const verticalLabelX = end.x + (data.dx >= 0 ? 24 : -24);
+        const verticalLabelY = (elbow.y + end.y) / 2;
+
+        drawLabelAt(horizontalLabelX, horizontalLabelY, formatSignedInteger(data.dx));
+        drawLabelAt(verticalLabelX, verticalLabelY, formatSignedInteger(data.dy));
+      }
+
+      function drawInterceptHandle() {
+        const p = worldToScreen(0, state.line.b);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, HANDLE_RADIUS + 3, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, HANDLE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = state.dragMode === "intercept" ? "rgba(21, 128, 61, 1)" : "rgba(22, 163, 74, 1)";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawGrid();
+        drawFunction();
+
+        const triangleData = getTriangleData();
+        drawSubtleTriangles(triangleData);
+        drawMainTriangle(triangleData);
+
+        drawInterceptHandle();
+        updateValueTable();
+        updateEquationDisplay();
+      }
+
+      function getPointerPosition(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      }
+
+      function distanceToInterceptHandle(screenX, screenY) {
+        const p = worldToScreen(0, state.line.b);
+        return Math.hypot(screenX - p.x, screenY - p.y);
+      }
+
+      function distanceToLine(screenX, screenY) {
+        const world = screenToWorld(screenX, screenY);
+        const graphY = state.line.m * world.x + state.line.b;
+        const graphScreenY = worldToScreen(world.x, graphY).y;
+        return Math.abs(graphScreenY - screenY);
+      }
+
+      function pickDragMode(screenX, screenY) {
+        if (distanceToInterceptHandle(screenX, screenY) <= HANDLE_HIT_RADIUS) {
+          return "intercept";
+        }
+
+        const world = screenToWorld(screenX, screenY);
+        if (Math.abs(world.x) < MIN_X_FOR_SLOPE) {
+          return "none";
+        }
+
+        if (distanceToLine(screenX, screenY) <= LINE_HIT_THRESHOLD) {
+          return "slope";
+        }
+
+        return "none";
+      }
+
+      function updateInterceptFromPointer(screenY) {
+        const worldY = screenToWorld(state.originX, screenY).y;
+        state.line.b = clamp(Math.round(worldY), MIN_B, MAX_B);
+      }
+
+      function updateSlopeFromPointer(screenX, screenY) {
+        const snapped = getNearestIntegerGridPoint(screenX, screenY);
+        if (Math.abs(snapped.x) < 1e-8) return;
+
+        const bInteger = Math.round(state.line.b);
+        const numerator = snapped.y - bInteger;
+        const denominator = snapped.x;
+        setSlopeFromFraction(numerator, denominator);
+      }
+
+      function onPointerDown(event) {
+        const p = getPointerPosition(event);
+        const mode = pickDragMode(p.x, p.y);
+
+        if (mode === "none") return;
+
+        state.dragMode = mode;
+        state.activePointerId = event.pointerId;
+
+        if (mode === "intercept") {
+          updateInterceptFromPointer(p.y);
+        } else if (mode === "slope") {
+          updateSlopeFromPointer(p.x, p.y);
+        }
+
+        canvas.setPointerCapture(event.pointerId);
+        draw();
+        event.preventDefault();
+      }
+
+      function onPointerMove(event) {
+        if (state.activePointerId !== event.pointerId) return;
+        if (state.dragMode === "none") return;
+
+        const p = getPointerPosition(event);
+
+        if (state.dragMode === "intercept") {
+          updateInterceptFromPointer(p.y);
+        } else if (state.dragMode === "slope") {
+          updateSlopeFromPointer(p.x, p.y);
+        }
+
+        draw();
+        event.preventDefault();
+      }
+
+      function finishInteraction(event) {
+        if (state.activePointerId !== event.pointerId) return;
+        state.dragMode = "none";
+        state.activePointerId = null;
+        draw();
+        event.preventDefault();
+      }
+
+      canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
+      canvas.addEventListener("pointermove", onPointerMove, { passive: false });
+      canvas.addEventListener("pointerup", finishInteraction, { passive: false });
+      canvas.addEventListener("pointercancel", finishInteraction, { passive: false });
+      canvas.addEventListener("lostpointercapture", () => {
+        state.dragMode = "none";
+        state.activePointerId = null;
+        draw();
+      });
+
+      equationDisplay.addEventListener("click", () => {
+        state.equationVisible = !state.equationVisible;
+        updateEquationDisplay();
+      });
+
+      updateEquationDisplay();
+      window.addEventListener("resize", resize);
+      resize();
+    })();
+  </script>
+</body>
+</html>
