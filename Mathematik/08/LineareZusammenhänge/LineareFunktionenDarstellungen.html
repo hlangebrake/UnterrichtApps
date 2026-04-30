@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
   />
-  <title>Lineare Funktion – Steigung und y-Achsenabschnitt</title>
+  <title>Lineare Funktion – Steigung, Wertetabelle und Forschungsaufträge</title>
   <style>
     :root {
       color-scheme: light;
@@ -16,6 +16,8 @@
       --triangle-subtle: rgba(100, 116, 139, 0.28);
       --panel-border: rgba(20, 28, 40, 0.12);
       --panel-bg: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(20, 28, 40, 0.08);
     }
 
     html, body {
@@ -44,9 +46,146 @@
       overflow: hidden;
     }
 
+    #taskPanel {
+      flex: 0 0 320px;
+      width: 320px;
+      max-width: 320px;
+      min-width: 280px;
+      height: 100%;
+      box-sizing: border-box;
+      border-right: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      padding: max(12px, env(safe-area-inset-top)) 10px max(12px, env(safe-area-inset-bottom)) 10px max(12px, env(safe-area-inset-left));
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #taskTitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(31, 41, 55, 0.92);
+      padding: 2px 4px 0 4px;
+      flex: 0 0 auto;
+    }
+
+    #taskScroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--card-border);
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .taskList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .taskItem {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+
+    .taskItem.hidden {
+      display: none;
+    }
+
+    .taskHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      color: rgba(31, 41, 55, 0.96);
+    }
+
+    .taskHeader:active {
+      background: rgba(20, 28, 40, 0.04);
+    }
+
+    .taskTitleText {
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 600;
+      flex: 1 1 auto;
+    }
+
+    .taskMeta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .taskStars {
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: rgba(180, 83, 9, 0.95);
+      white-space: nowrap;
+    }
+
+    .taskChevron {
+      font-size: 14px;
+      color: rgba(71, 85, 105, 0.88);
+      transition: transform 120ms ease;
+    }
+
+    .taskItem.expanded .taskChevron {
+      transform: rotate(90deg);
+    }
+
+    .taskBody {
+      display: none;
+      padding: 0 12px 12px 12px;
+      box-sizing: border-box;
+      color: rgba(51, 65, 85, 0.94);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .taskItem.expanded .taskBody {
+      display: block;
+    }
+
+    .taskText {
+      margin: 0 0 8px 0;
+      white-space: pre-line;
+    }
+
+    .taskDoneRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(51, 65, 85, 0.94);
+    }
+
+    .taskDoneRow input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #16a34a;
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
     #mainArea {
       position: relative;
-      flex: 7 1 0;
+      flex: 1 1 auto;
       min-width: 0;
       height: 100%;
       background: #ffffff;
@@ -137,8 +276,10 @@
     }
 
     #tablePanel {
-      flex: 1 1 0;
+      flex: 0 0 12.5vw;
+      width: 12.5vw;
       min-width: 140px;
+      max-width: 260px;
       height: 100%;
       box-sizing: border-box;
       border-left: 1px solid var(--panel-border);
@@ -164,7 +305,7 @@
       overflow-x: hidden;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(20, 28, 40, 0.08);
+      border: 1px solid var(--card-border);
     }
 
     table {
@@ -208,6 +349,13 @@
 </head>
 <body>
   <div id="app">
+    <aside id="taskPanel" aria-label="Forschungsaufträge">
+      <div id="taskTitle">Forschungsaufträge</div>
+      <div id="taskScroll">
+        <div class="taskList" id="taskList"></div>
+      </div>
+    </aside>
+
     <div id="mainArea">
       <div id="canvasWrap">
         <canvas id="plot" aria-label="Koordinatensystem mit linearer Funktion"></canvas>
@@ -240,6 +388,64 @@ Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
       const ctx = canvas.getContext("2d");
       const valueTableBody = document.getElementById("valueTableBody");
       const equationDisplay = document.getElementById("equationDisplay");
+      const taskList = document.getElementById("taskList");
+
+      const researchTasks = [
+        {
+          id: "easy-1",
+          stars: 1,
+          title: "Was ändert sich am Graphen?",
+          text: "Verändere nur den y-Achsenabschnitt. Beschreibe: Was bleibt gleich? Was verändert sich? Wie erkennt man die Änderung im Funktionsterm, im Graphen und in der Wertetabelle?"
+        },
+        {
+          id: "easy-2",
+          stars: 1,
+          title: "Was bedeutet die Steigung?",
+          text: "Verändere nur die Steigung der Funktion. Untersuche: Wann steigt der Graph? Wann fällt er? Wie sieht man das in der Wertetabelle?"
+        },
+        {
+          id: "easy-3",
+          stars: 1,
+          title: "Vom Graphen zum Term",
+          text: "Stelle eine Funktion ein und verstecke dann den Term. Bestimme den Funktionsterm nur mit Hilfe von Graph und Wertetabelle. Kontrolliere anschließend durch Einblenden."
+        },
+        {
+          id: "medium-1",
+          stars: 2,
+          title: "Steigungsdreieck und Wertetabelle",
+          text: "Untersuche mehrere Funktionen. Erkläre: Was bedeutet die waagerechte Seite des Steigungsdreiecks? Was bedeutet die senkrechte Seite? Wo findest du dieselbe Information in der Wertetabelle?"
+        },
+        {
+          id: "medium-2",
+          stars: 2,
+          title: "Eine Änderung in x – was passiert mit f(x)?",
+          text: "Suche Funktionen, bei denen sich f(x) bei einem Schritt nach rechts um 2 erhöht, um 3 verringert oder gar nicht verändert. Beschreibe jeweils den Zusammenhang zwischen Term, Tabelle und Graph."
+        },
+        {
+          id: "medium-3",
+          stars: 2,
+          title: "Von der Tabelle zum Graphen",
+          text: "Nutze nur die Wertetabelle und beschreibe, wie man daraus den Graphen zeichnen könnte. Welche Informationen braucht man zuerst? Welche danach?"
+        },
+        {
+          id: "hard-1",
+          stars: 3,
+          title: "Eigene Regel formulieren",
+          text: "Untersuche viele lineare Funktionen. Formuliere eine möglichst genaue Regel dazu, welche Rolle die Zahl vor dem x und welche Rolle die Zahl ohne x spielt – im Term, in der Tabelle und im Graphen."
+        },
+        {
+          id: "hard-2",
+          stars: 3,
+          title: "Steigung als Verhältnis",
+          text: "Beobachte die Steigungsdreiecke. Prüfe, ob verschiedene Steigungsdreiecke an derselben Geraden immer dieselbe Information liefern. Erkläre, warum das so ist oder nicht."
+        },
+        {
+          id: "hard-3",
+          stars: 3,
+          title: "Spiegeln an x- und y-Achse",
+          text: "Untersuche, was mit Funktionsterm, Graph und Wertetabelle passiert, wenn du dir die Funktion an der x-Achse oder an der y-Achse gespiegelt vorstellst. Beschreibe, welche Werte oder Vorzeichen sich jeweils ändern und welche Zusammenhänge du zwischen den drei Darstellungsformen erkennst."
+        }
+      ];
 
       const state = {
         width: 0,
@@ -267,12 +473,55 @@ Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
       const MIN_B = -10;
       const MAX_B = 10;
 
-      function clamp(value, min, max) {
-        return Math.max(min, Math.min(max, value));
+      function renderTasks() {
+        taskList.innerHTML = researchTasks.map(task => {
+          const stars = "★".repeat(task.stars);
+          return `
+            <div class="taskItem" data-task-id="${task.id}">
+              <button class="taskHeader" type="button" aria-expanded="false">
+                <span class="taskTitleText">${task.title}</span>
+                <span class="taskMeta">
+                  <span class="taskStars">${stars}</span>
+                  <span class="taskChevron">›</span>
+                </span>
+              </button>
+              <div class="taskBody">
+                <p class="taskText">${task.text}</p>
+                <label class="taskDoneRow">
+                  <input type="checkbox" class="taskDoneCheckbox" />
+                  <span>erledigt</span>
+                </label>
+              </div>
+            </div>
+          `;
+        }).join("");
       }
 
-      function roundToTenth(value) {
-        return Math.round(value * 10) / 10;
+      taskList.addEventListener("click", event => {
+        const header = event.target.closest(".taskHeader");
+        if (!header) return;
+
+        const item = header.closest(".taskItem");
+        if (!item) return;
+
+        item.classList.toggle("expanded");
+        header.setAttribute("aria-expanded", item.classList.contains("expanded") ? "true" : "false");
+      });
+
+      taskList.addEventListener("change", event => {
+        const checkbox = event.target.closest(".taskDoneCheckbox");
+        if (!checkbox) return;
+
+        const item = checkbox.closest(".taskItem");
+        if (!item) return;
+
+        if (checkbox.checked) {
+          item.classList.add("hidden");
+        }
+      });
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
       }
 
       function mod(n, m) {
@@ -368,8 +617,7 @@ Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
             `</span>`;
         }
 
-        equationDisplay.innerHTML =
-          `f(x) = ${slopeHtml}x${parts.interceptSign}${parts.interceptAbsText}`;
+        equationDisplay.innerHTML = `f(x) = ${slopeHtml}x${parts.interceptSign}${parts.interceptAbsText}`;
       }
 
       function formatTableDecimal(value) {
@@ -619,7 +867,6 @@ Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
 
         const dx = mainEnd.x - mainStart.x;
         const dy = mainEnd.y - mainStart.y;
-
         const pointMap = new Map(visiblePoints.map(point => [`${point.x}|${point.y}`, point]));
         const triangles = [];
 
@@ -879,6 +1126,7 @@ Klicke auf f(x), um den Term anzuzeigen oder zu verstecken</div>
         updateEquationDisplay();
       });
 
+      renderTasks();
       updateEquationDisplay();
       window.addEventListener("resize", resize);
       resize();
