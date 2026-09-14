@@ -1,0 +1,3 @@
+nerdamer 1.1.13 (MIT), https://nerdamer.com/
+katex 0.18.7 (MIT), https://katex.org/
+Hosted locally; no exercise answers leave the device.
