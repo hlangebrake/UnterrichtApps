@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Wurzeltraining</title>
+<style>
+:root{
+  --bg:#f4f6f7; --panel:#ffffff; --ink:#182026; --muted:#66737d; --line:#dce2e6;
+  --accent:#315d73; --good:#2f6b4f; --goodbg:#edf7f1; --warn:#8a5d19; --warnbg:#fff7e8;
+  --bad:#8a3d3d; --badbg:#fff0f0; --a:#9d5b57; --abg:#f8ecea; --b:#376b7b; --bbg:#eaf3f6;
+  --term:#695d8e; --termbg:#f0edf8; --shadow:0 8px 24px rgba(17,31,39,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;
+  -webkit-text-size-adjust:100%; user-select:none; -webkit-user-select:none; overscroll-behavior:none}
+button,input{font:inherit}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.app{height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px;padding:10px}
+.main{min-width:0;display:grid;grid-template-rows:48px 42px minmax(136px,1fr) 49px 126px 116px;gap:8px}
+.topbar,.letters,.taskcard,.answerbar,.keypad,.feedback,.laws{background:var(--panel);border:1px solid var(--line)}
+.topbar{border-radius:16px;display:flex;align-items:center;padding:6px 10px;gap:8px;box-shadow:var(--shadow)}
+.tasknums{display:flex;gap:5px;align-items:center;min-width:0}
+.seg,.letter,.key,.explain,.miniBtn,.closeBtn{border:0;background:transparent;color:var(--ink);border-radius:10px}
+.seg{width:37px;height:34px;font-weight:650}
+.seg.active{background:#e8eff2;color:#244b60}
+.page{margin-left:auto;color:var(--muted);font-size:14px;font-weight:650;white-space:nowrap}
+.goal{display:flex;align-items:center;gap:5px;margin-left:8px;padding-left:10px;border-left:1px solid var(--line)}
+.goalLabel{font-size:12px;color:var(--muted);font-weight:700}
+.prog{height:29px;min-width:38px;padding:0 7px;border-radius:9px;border:1px solid var(--line);background:#fafbfb;
+  display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.prog.done{border-color:#bdd7c8;background:var(--goodbg);color:var(--good)}
+.prog.tried:not(.done){border-color:#dccda9;background:#fffaf0;color:#735219}
+.letters{border-radius:14px;display:flex;align-items:center;padding:5px 8px;gap:5px;overflow:hidden}
+.letter{height:30px;min-width:32px;padding:0 9px;font-weight:650;color:#44515a}
+.letter.active{background:#253f4d;color:white}
+.letter.done::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#5a9b79;margin-left:5px;vertical-align:middle}
+.letter.tried:not(.done)::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#c79037;margin-left:5px;vertical-align:middle}
+.taskcard{border-radius:18px;padding:15px 18px;display:grid;grid-template-rows:auto 1fr;box-shadow:var(--shadow);min-height:0}
+.taskhead{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;font-weight:650}
+.taskid{color:var(--ink);font-size:18px;font-weight:760}
+.taskmath{display:flex;align-items:center;justify-content:center;min-height:0;font-size:clamp(28px,4.2vw,48px)}
+math{font-family:"STIX Two Math","Times New Roman",serif}
+.answerbar{border-radius:14px;display:grid;grid-template-columns:58px minmax(0,1fr) 94px;gap:7px;align-items:center;padding:6px 8px}
+.answerlabel{font-size:13px;font-weight:700;color:var(--muted);padding-left:5px}
+#answer{height:35px;border:1px solid #cfd7dc;border-radius:9px;background:#fbfcfc;padding:0 11px;font-size:20px;color:var(--ink);
+  outline:none;caret-color:var(--accent);min-width:0;user-select:none;-webkit-user-select:none}
+#answer:focus{border-color:#819fab;box-shadow:0 0 0 2px rgba(49,93,115,.10)}
+.check{height:35px;border:0;border-radius:9px;background:#294f62;color:#fff;font-weight:720}
+.keypad{border-radius:16px;padding:7px;display:grid;grid-template-rows:1fr 1fr 1fr;gap:5px}
+.keyrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(36px,1fr);gap:5px;min-width:0}
+.key{border:1px solid var(--line);background:#fafbfb;min-width:0;height:32px;font-weight:650;font-size:16px}
+.key:active,.seg:active,.letter:active,.miniBtn:active,.explain:active{transform:translateY(1px)}
+.key.op{background:#f1f5f6}
+.key.var{background:#f5f2f8;color:#574d76}
+.key.danger{color:#7d4343}
+.feedback{border-radius:16px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;overflow:hidden}
+.feedbackText{min-width:0}
+.feedbackTitle{font-weight:760;font-size:15px;margin-bottom:4px}
+.feedbackBody{font-size:13px;line-height:1.3;color:#4e5c65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.feedback.good{background:var(--goodbg);border-color:#c8ddcf}
+.feedback.warn{background:var(--warnbg);border-color:#ead8ae}
+.feedback.bad{background:var(--badbg);border-color:#edcaca}
+.feedback.idle{background:#fff}
+.actions{display:flex;gap:6px;align-items:center;max-width:230px}
+.miniBtn{height:34px;padding:0 10px;border:1px solid #cbd5da;background:white;color:#34464f;font-size:12px;font-weight:700;white-space:nowrap}
+.laws{border-radius:18px;padding:12px;display:grid;grid-template-rows:40px repeat(3,1fr);gap:8px;box-shadow:var(--shadow);min-height:0}
+.laws h2{font-size:16px;margin:0;display:flex;align-items:center;padding:0 4px}
+.law{border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;grid-template-rows:1fr 30px;align-items:center;min-height:0;background:#fcfdfd}
+.lawMath{font-size:22px;display:flex;align-items:center;justify-content:center;min-height:0;text-align:center}
+.explain{height:29px;border:1px solid var(--line);background:white;font-size:12px;font-weight:700;color:#4e5e67}
+.ca{color:var(--a)} .cb{color:var(--b)} .ct{color:var(--term)}
+.modal{position:fixed;inset:0;background:rgba(19,28,33,.28);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
+.modal.show{display:flex}
+.modalCard{width:min(610px,90vw);max-height:86dvh;overflow:hidden;background:white;border:1px solid #d8dfe3;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);padding:16px}
+.modalTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.modalTitle{font-weight:780;font-size:17px}
+.closeBtn{width:34px;height:34px;border:1px solid var(--line);background:#fafbfb;font-size:18px}
+.examples{display:grid;gap:10px;margin-top:12px}
+.example{border:1px solid var(--line);border-radius:13px;padding:11px 12px}
+.exampleTag{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--muted);margin-bottom:7px}
+.exampleMath{font-size:22px;min-height:32px;display:flex;align-items:center;flex-wrap:wrap;gap:2px}.mathEq{margin:0 9px;font-family:"STIX Two Math","Times New Roman",serif}
+.exampleNote{font-size:12px;color:var(--muted);margin-top:6px}
+.notice{position:absolute;left:18px;right:328px;bottom:12px;pointer-events:none;display:none}
+@media (max-width:1050px){
+  .app{grid-template-columns:minmax(0,1fr) 278px;padding:8px;gap:8px}
+  .main{grid-template-rows:46px 40px minmax(126px,1fr) 47px 122px 110px;gap:7px}
+  .laws{padding:10px}.lawMath{font-size:20px}
+  .goal{gap:3px;margin-left:4px;padding-left:7px}.prog{min-width:33px;padding:0 5px}
+}
+@media (max-height:740px){
+  .app{padding:6px}.main{grid-template-rows:44px 38px minmax(112px,1fr) 45px 112px 100px;gap:6px}
+  .taskcard{padding:10px 15px}.keypad{padding:5px}.key{height:30px}.feedback{padding:7px 10px}
+  .law{padding:7px}.laws{gap:6px}.lawMath{font-size:19px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="main">
+    <section class="topbar">
+      <div class="tasknums" id="tasknums"></div>
+      <div class="goal">
+        <span class="goalLabel" id="goalLabel">Ziel 0/5</span>
+        <div id="progress" style="display:flex;gap:4px"></div>
+      </div>
+      <div class="page" id="page">S. 23</div>
+    </section>
+
+    <section class="letters" id="letters"></section>
+
+    <section class="taskcard">
+      <div class="taskhead"><span class="taskid" id="taskid">6a</span><span id="tasktitle">Vereinfache.</span></div>
+      <div class="taskmath" id="taskmath"></div>
+    </section>
+
+    <section class="answerbar">
+      <div class="answerlabel">Lösung</div>
+      <input id="answer" inputmode="none" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Lösung">
+      <button class="check" id="check">Prüfen</button>
+    </section>
+
+    <section class="keypad" id="keypad"></section>
+
+    <section class="feedback idle" id="feedback">
+      <div class="feedbackText">
+        <div class="feedbackTitle" id="feedbackTitle"></div>
+        <div class="feedbackBody" id="feedbackBody"></div>
+      </div>
+      <div class="actions" id="actions"></div>
+    </section>
+  </main>
+
+  <aside class="laws">
+    <h2>Wurzelgesetze</h2>
+    <div class="law">
+      <div class="lawMath" id="law1"></div>
+      <button class="explain" data-law="1">Erklärung</button>
+    </div>
+    <div class="law">
+      <div class="lawMath" id="law2"></div>
+      <button class="explain" data-law="2">Erklärung</button>
+    </div>
+    <div class="law">
+      <div class="lawMath" id="law3"></div>
+      <button class="explain" data-law="3">Erklärung</button>
+    </div>
+  </aside>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modalCard">
+    <div class="modalTop">
+      <div class="modalTitle" id="modalTitle"></div>
+      <button class="closeBtn" id="modalClose">×</button>
+    </div>
+    <div class="examples" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const GROUPS = {
+  6:{title:"Vereinfache.",page:23,items:[
+    ["a","sqrt(y)*sqrt(y)","y",{y:"nonneg"}],
+    ["b","sqrt(y)*sqrt(y^3)","y^2",{y:"nonneg"}],
+    ["c","sqrt(x)*sqrt(x*y^2)","x*abs(y)",{x:"nonneg",y:"any"},true],
+    ["d","sqrt(5*y)*sqrt(20*y)","10*y",{y:"nonneg"}],
+    ["e","sqrt(3*b)*sqrt(3*a^2*b)","3*abs(a)*b",{a:"any",b:"nonneg"},true],
+    ["f","sqrt(45*z)*sqrt((16/5)*z)","12*z",{z:"pos"}],
+    ["g","sqrt(0.2*u)*sqrt(0.05*u)","0.1*u",{u:"nonneg"}],
+    ["h","sqrt(0.9*x^2)*sqrt(0.4*x^2)","0.6*x^2",{x:"any"}]
+  ]},
+  7:{title:"",page:23,items:[
+    ["a","sqrt(x^3)/sqrt(x)","x",{x:"pos"}],
+    ["b","sqrt(x^2*y)/sqrt(y)","abs(x)",{x:"any",y:"pos"},true],
+    ["c","sqrt(a)/sqrt(a*b^2)","1/abs(b)",{a:"pos",b:"nonzero"},true],
+    ["d","sqrt(u*v)/sqrt(u^3)","sqrt(v)/u",{u:"pos",v:"nonneg"}]
+  ]},
+  8:{title:"",page:23,items:[
+    ["a","sqrt(2*u)*sqrt(4*v)*sqrt(8*u*v)","8*u*v",{u:"nonneg",v:"nonneg"}],
+    ["b","sqrt(x^2)*sqrt(3*x)*sqrt(12*y)","6*x*sqrt(x*y)",{x:"nonneg",y:"nonneg"}],
+    ["c","sqrt(5*a)*sqrt(5*b^2)*sqrt(a)","5*a*abs(b)",{a:"nonneg",b:"any"},true],
+    ["d","sqrt(3*m)*sqrt(m*n)*sqrt(6*m*n)","3*sqrt(2)*m*sqrt(m)*n",{m:"nonneg",n:"nonneg"}],
+    ["e","sqrt(x^3)*sqrt(x*y)*sqrt(y^2)","x^2*y*sqrt(y)",{x:"nonneg",y:"nonneg"}],
+    ["f","sqrt(p^2*q)*sqrt(6*q^2*p)*sqrt(2*p*q)","2*sqrt(3)*p^2*q^2",{p:"nonneg",q:"nonneg"}]
+  ]},
+  9:{title:"Berechne die Wurzel.",page:24,items:[
+    ["a","sqrt(9*x^2)","3*abs(x)",{x:"any"},true],
+    ["b","sqrt(x^2*y^2)","abs(x*y)",{x:"any",y:"any"},true],
+    ["c","sqrt(36*a^4)","6*a^2",{a:"any"}],
+    ["d","sqrt(81*m^2*n^2)","9*abs(m*n)",{m:"any",n:"any"},true],
+    ["e","sqrt(p^2*q^2*r^2)","abs(p*q*r)",{p:"any",q:"any",r:"any"},true],
+    ["f","sqrt(9*m^4*n^4)","3*m^2*n^2",{m:"any",n:"any"}],
+    ["g","sqrt(1.96*x^2*y^4)","1.4*abs(x)*y^2",{x:"any",y:"any"},true],
+    ["h","sqrt(25*u^2*v^4*w^6)","5*abs(u)*v^2*abs(w^3)",{u:"any",v:"any",w:"any"},true]
+  ]},
+ 10:{title:"Ziehe teilweise die Wurzel.",page:24,items:[
+    ["a","sqrt(7*a^2)","abs(a)*sqrt(7)",{a:"any"},true],
+    ["b","sqrt(2*b^2)","abs(b)*sqrt(2)",{b:"any"},true],
+    ["c","sqrt(4*x)","2*sqrt(x)",{x:"nonneg"}],
+    ["d","sqrt(12*c^2)","2*sqrt(3)*abs(c)",{c:"any"},true],
+    ["e","sqrt(x^2*y)","abs(x)*sqrt(y)",{x:"any",y:"nonneg"},true],
+    ["f","sqrt(c*d^2)","abs(d)*sqrt(c)",{c:"nonneg",d:"any"},true],
+    ["g","sqrt(z^5)","z^2*sqrt(z)",{z:"nonneg"}],
+    ["h","sqrt(25*x^3)","5*x*sqrt(x)",{x:"nonneg"}],
+    ["i","sqrt(18*a*b^2)","3*abs(b)*sqrt(2*a)",{a:"nonneg",b:"any"},true],
+    ["j","sqrt(3*a^2*b^4)","abs(a)*b^2*sqrt(3)",{a:"any",b:"any"},true],
+    ["k","sqrt(10*a^3*b^2)","a*abs(b)*sqrt(10*a)",{a:"nonneg",b:"any"},true],
+    ["l","sqrt(0.81*x*z^3)","0.9*abs(z)*sqrt(x*z)",{x:"any",z:"any"},true,"xz_nonneg"],
+    ["m","sqrt((3*b^2)/(a^2))","sqrt(3)*abs(b)/abs(a)",{a:"nonzero",b:"any"},true],
+    ["n","sqrt(a/49)","sqrt(a)/7",{a:"nonneg"}],
+    ["o","sqrt((2*a^2)/(b^2))","abs(a/b)*sqrt(2)",{a:"any",b:"nonzero"},true],
+    ["p","sqrt(a/(b^4))","sqrt(a)/(b^2)",{a:"nonneg",b:"nonzero"}],
+    ["q","sqrt((a^3)/(b^4))","a*sqrt(a)/(b^2)",{a:"nonneg",b:"nonzero"}],
+    ["r","sqrt((8*r^4)/(s^3))","2*r^2*sqrt(2/s)/abs(s)",{r:"any",s:"pos"},true]
+  ]},
+ 11:{title:"Bringe den Vorfaktor unter das Wurzelzeichen.",page:24,items:[
+    ["a","a*sqrt(b)","sqrt(a^2*b)",{a:"nonneg",b:"nonneg"}],
+    ["b","2*c*sqrt(d^2)","sqrt(4*c^2*d^2)",{c:"nonneg",d:"any"}],
+    ["c","u*v*sqrt(u/v)","sqrt(u^3*v)",{u:"pos",v:"pos"}],
+    ["d","a*b*c*sqrt(a/(b*c))","sqrt(a^3*b*c)",{a:"pos",b:"pos",c:"pos"}],
+    ["e","x^2*y*sqrt(x/y)","sqrt(x^5*y)",{x:"pos",y:"pos"}],
+    ["f","(p/q)*sqrt(p/q)","sqrt(p^3/q^3)",{p:"pos",q:"pos"}]
+  ]},
+ 12:{title:"Vereinfache folgende Wurzelterme:",page:24,items:[
+    ["a","sqrt(20*a^2)","2*sqrt(5)*abs(a)",{a:"any"},true],
+    ["b","sqrt(4*x^2*y)","2*abs(x)*sqrt(y)",{x:"any",y:"nonneg"},true],
+    ["c","sqrt(x^2*y^6)","abs(x*y^3)",{x:"any",y:"any"},true],
+    ["d","sqrt(z^3)","z*sqrt(z)",{z:"nonneg"}],
+    ["e","sqrt(125*x^3)","5*x*sqrt(5*x)",{x:"nonneg"}],
+    ["f","sqrt((27*b^2)/(a^2))","3*sqrt(3)*abs(b)/abs(a)",{a:"nonzero",b:"any"},true],
+    ["g","sqrt((a^5)/25)","a^2*sqrt(a)/5",{a:"nonneg"}],
+    ["h","sqrt((x^2)/(b^4))","abs(x)/(b^2)",{x:"any",b:"nonzero"},true],
+    ["i","sqrt(0.25*r^2)","0.5*abs(r)",{r:"any"},true],
+    ["j","sqrt(8*a^2*b^4*c^6)","2*sqrt(2)*abs(a)*b^2*abs(c^3)",{a:"any",b:"any",c:"any"},true]
+  ]}
+};
+
+const supers = {"²":"^2","³":"^3","⁴":"^4","⁵":"^5","⁶":"^6"};
+function preprocess(s){
+  let z=(s||"").trim()
+    .replace(/[²³⁴⁵⁶]/g,m=>supers[m])
+    .replace(/,/g,".")
+    .replace(/[×·∙]/g,"*")
+    .replace(/[÷:]/g,"/")
+    .replace(/[−–]/g,"-");
+  let prev;
+  do{ prev=z; z=z.replace(/\|([^|]+)\|/g,"abs($1)"); }while(z!==prev);
+  return z.replace(/\s+/g,"");
+}
+function tokenize(s){
+  s=preprocess(s); const out=[]; let i=0;
+  while(i<s.length){
+    const ch=s[i];
+    if(/[0-9.]/.test(ch)){
+      let j=i+1; while(j<s.length && /[0-9.]/.test(s[j])) j++;
+      const raw=s.slice(i,j); if((raw.match(/\./g)||[]).length>1) throw Error("Zahl");
+      out.push({t:"num",v:parseFloat(raw)}); i=j; continue;
+    }
+    if(ch==="√"){ out.push({t:"func",v:"sqrt"}); i++; continue; }
+    if(/[a-zA-Z]/.test(ch)){
+      let j=i+1; while(j<s.length && /[a-zA-Z]/.test(s[j])) j++;
+      const word=s.slice(i,j);
+      if(word==="sqrt"||word==="abs"){ out.push({t:"func",v:word}); i=j; continue; }
+      for(const c of word) out.push({t:"var",v:c.toLowerCase()});
+      i=j; continue;
+    }
+    if("+-*/^()".includes(ch)){ out.push({t:ch,v:ch}); i++; continue; }
+    throw Error("Zeichen");
+  }
+  out.push({t:"eof"}); return out;
+}
+function parse(s){
+  const T=tokenize(s); let p=0;
+  const peek=()=>T[p], take=()=>T[p++];
+  function primary(){
+    const x=take();
+    if(x.t==="num") return {t:"num",v:x.v};
+    if(x.t==="var") return {t:"var",v:x.v};
+    if(x.t==="("){ const e=expr(); if(take().t!==")") throw Error("Klammer"); return e; }
+    if(x.t==="func"){
+      let a;
+      if(peek().t==="("){ take(); a=expr(); if(take().t!==")") throw Error("Klammer"); }
+      else a=unary();
+      return {t:x.v,a};
+    }
+    throw Error("Term");
+  }
+  function unary(){
+    if(peek().t==="+"){take();return unary();}
+    if(peek().t==="-"){take();return {t:"neg",a:unary()};}
+    return primary();
+  }
+  function power(){
+    let a=unary();
+    if(peek().t==="^"){take(); a={t:"bin",op:"^",a,b:power()};}
+    return a;
+  }
+  function startsPrimary(tok){ return tok.t==="num"||tok.t==="var"||tok.t==="("||tok.t==="func"; }
+  function term(){
+    let a=power();
+    while(true){
+      if(peek().t==="*"||peek().t==="/"){ const op=take().t; a={t:"bin",op,a,b:power()}; continue; }
+      if(startsPrimary(peek())){ a={t:"bin",op:"*",a,b:power()}; continue; }
+      break;
+    }
+    return a;
+  }
+  function expr(){
+    let a=term();
+    while(peek().t==="+"||peek().t==="-"){ const op=take().t; a={t:"bin",op,a,b:term()}; }
+    return a;
+  }
+  const ast=expr(); if(peek().t!=="eof") throw Error("Rest"); return ast;
+}
+function varsOf(a,set=new Set()){
+  if(!a)return set; if(a.t==="var")set.add(a.v);
+  if(a.a)varsOf(a.a,set); if(a.b)varsOf(a.b,set); return set;
+}
+function evalAst(a,e){
+  if(a.t==="num")return a.v;
+  if(a.t==="var")return e[a.v];
+  if(a.t==="neg")return -evalAst(a.a,e);
+  if(a.t==="sqrt"){ const v=evalAst(a.a,e); return v>=-1e-10?Math.sqrt(Math.max(0,v)):NaN; }
+  if(a.t==="abs")return Math.abs(evalAst(a.a,e));
+  const x=evalAst(a.a,e), y=evalAst(a.b,e);
+  if(!Number.isFinite(x)||!Number.isFinite(y))return NaN;
+  if(a.op==="+")return x+y; if(a.op==="-")return x-y; if(a.op==="*")return x*y;
+  if(a.op==="/")return Math.abs(y)<1e-10?NaN:x/y;
+  if(a.op==="^"){ const r=Math.pow(x,y); return Number.isFinite(r)?r:NaN; }
+  return NaN;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function prec(a){ if(!a)return 9; if(a.t==="bin"){if(a.op==="+"||a.op==="-")return 1;if(a.op==="*"||a.op==="/")return 2;if(a.op==="^")return 4;} return 5; }
+function mathML(a,opts={},parentP=0){
+  const cls=v=>opts.colors&&opts.colors[v]?` class="${opts.colors[v]}"`:"";
+  if(a.t==="num") return `<mn>${String(a.v).replace(".",",")}</mn>`;
+  if(a.t==="var") return `<mi${cls(a.v)}>${a.v}</mi>`;
+  if(a.t==="neg") return `<mrow><mo>−</mo>${mathML(a.a,opts,5)}</mrow>`;
+  if(a.t==="sqrt") return `<msqrt>${mathML(a.a,opts,0)}</msqrt>`;
+  if(a.t==="abs") return `<mrow><mo>|</mo>${mathML(a.a,opts,0)}<mo>|</mo></mrow>`;
+  if(a.op==="/") return `<mfrac>${mathML(a.a,opts,0)}${mathML(a.b,opts,0)}</mfrac>`;
+  if(a.op==="^"){
+    // Eine negative Basis muss sichtbar geklammert bleiben: (-5)^2, (-a)^2 usw.
+    // Ohne diese Klammern würde die Darstellung eine andere Rechenreihenfolge suggerieren.
+    let base=mathML(a.a,opts,4);
+    if(a.a && a.a.t==="neg") base=`<mrow><mo>(</mo>${mathML(a.a,opts,0)}<mo>)</mo></mrow>`;
+    return `<msup>${base}${mathML(a.b,opts,0)}</msup>`;
+  }
+  const p=prec(a), A=mathML(a.a,opts,p), B=mathML(a.b,opts,p+(a.op==="-"?1:0));
+  let op=a.op;
+  let opHtml="";
+  if(op==="*"){
+    const left=a.a,right=a.b;
+    const dot=(left.t==="sqrt"||right.t==="sqrt"||left.t==="abs"||right.t==="abs");
+    opHtml=dot?`<mo>·</mo>`:`<mo>&#x2062;</mo>`;
+  }else opHtml=`<mo>${op==="-"?"−":op}</mo>`;
+  let row=`<mrow>${A}${opHtml}${B}</mrow>`;
+  if(p<parentP) row=`<mrow><mo>(</mo>${row}<mo>)</mo></mrow>`;
+  return row;
+}
+function renderMath(str,colors){
+  try{return `<math display="inline">${mathML(parse(str),{colors})}</math>`;}
+  catch{return `<span>${esc(str)}</span>`;}
+}
+
+function currentData(){
+  const g=GROUPS[state.group], raw=g.items[state.index];
+  return {group:state.group,title:g.title,page:g.page,letter:raw[0],src:raw[1],sol:raw[2],signs:raw[3]||{},abs:!!raw[4],domain:raw[5]||""};
+}
+function taskKey(d=currentData()){return `${d.group}${d.letter}`;}
+
+const DEFAULT={group:6,index:0,records:{},drafts:{},firstTryCorrect:0,modalWarned:{}};
+let state;
+try{state=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem("wurzeltrainer9")||"{}"));}catch{state={...DEFAULT};}
+state.records=state.records||{}; state.drafts=state.drafts||{}; state.modalWarned=state.modalWarned||{};
+
+function save(){try{localStorage.setItem("wurzeltrainer9",JSON.stringify(state));}catch{}}
+
+function domainOK(d,e){
+  for(const [v,kind] of Object.entries(d.signs||{})){
+    const x=e[v];
+    if(kind==="nonneg" && x<0) return false;
+    if(kind==="pos" && x<=0) return false;
+    if(kind==="nonzero" && Math.abs(x)<1e-10) return false;
+  }
+  if(d.domain==="xz_nonneg" && (e.x*e.z)<0) return false;
+  return true;
+}
+function seeded(seed){ let x=seed>>>0; return ()=>((x=(x*1664525+1013904223)>>>0)/4294967296); }
+function sampleEnvs(d,vars){
+  const vals=[-5,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5];
+  const envs=[]; const base={}; for(const v of vars)base[v]=2;
+  for(const v of vars){
+    for(const n of [-3,-1,0,1,3]){const e={...base,[v]:n};if(domainOK(d,e))envs.push(e);}
+  }
+  const rnd=seeded((d.group*113+d.letter.charCodeAt(0)*29)>>>0);
+  let guard=0;
+  while(envs.length<42 && guard++<1000){
+    const e={}; for(const v of vars)e[v]=vals[Math.floor(rnd()*vals.length)];
+    if(domainOK(d,e))envs.push(e);
+  }
+  return envs;
+}
+function equivalent(d,studentAst){
+  const srcAst=parse(d.src), expectedVars=varsOf(srcAst), gotVars=varsOf(studentAst);
+  const extra=[...gotVars].filter(v=>!expectedVars.has(v));
+  if(extra.length)return {ok:false,extra};
+  const vars=[...expectedVars], envs=sampleEnvs(d,vars); let valid=0; const ratios=[];
+  for(const e of envs){
+    const a=evalAst(srcAst,e); if(!Number.isFinite(a))continue;
+    valid++;
+    const b=evalAst(studentAst,e); if(!Number.isFinite(b))return {ok:false,undefinedAt:e,valid};
+    const tol=1e-7*Math.max(1,Math.abs(a),Math.abs(b));
+    if(Math.abs(a-b)>tol){
+      if(Math.abs(b)>1e-9)ratios.push(a/b);
+      return {ok:false,ratios,valid,example:{e,a,b}};
+    }
+    if(Math.abs(b)>1e-9)ratios.push(a/b);
+  }
+  return {ok:valid>=4,valid,ratios};
+}
+function nodeCount(a){ if(!a)return 0; return 1+(a.a?nodeCount(a.a):0)+(a.b?nodeCount(a.b):0); }
+function countType(a,t){ if(!a)return 0; return (a.t===t?1:0)+(a.a?countType(a.a,t):0)+(a.b?countType(a.b,t):0); }
+function hasReducibleNumericSqrt(a){
+  if(!a)return false;
+  if(a.t==="sqrt"){
+    const v=evalAst(a.a,{a:1,b:1,c:1,d:1,e:1,f:1,m:1,n:1,p:1,q:1,r:1,s:1,u:1,v:1,w:1,x:1,y:1,z:1});
+    if(Number.isFinite(v) && v>0){
+      const n=Math.round(v);
+      if(Math.abs(v-n)<1e-10){
+        for(let k=2;k*k<=n;k++) if(n%(k*k)===0)return true;
+      }
+    }
+  }
+  return hasReducibleNumericSqrt(a.a)||hasReducibleNumericSqrt(a.b);
+}
+function partialCorrect(d,ast,input){
+  const solAst=parse(d.sol);
+  if(preprocess(input)===preprocess(d.src))return true;
+  if(hasReducibleNumericSqrt(ast))return true;
+  const rs=countType(ast,"sqrt"), re=countType(solAst,"sqrt");
+  if(rs>re+1)return true;
+  return nodeCount(ast)>nodeCount(solAst)+5;
+}
+function diagnosis(d,input,ast,eq){
+  const clean=preprocess(input);
+  if(eq.extra&&eq.extra.length)return `Die Variable ${eq.extra.join(", ")} kommt in der Aufgabe nicht vor.`;
+  if(d.abs && !/\||abs/i.test(input))
+    return "Prüfe den Betrag: Aus √(a²) wird |a|, solange das Vorzeichen von a nicht feststeht.";
+  if((clean.match(/\+/g)||[]).length && /sqrt/i.test(clean))
+    return "Wurzelgesetze für Produkt und Quotient darfst du nicht auf eine Summe übertragen.";
+  if(d.group===11)
+    return "Beim Hineinziehen unter die Wurzel wird der Vorfaktor quadriert.";
+  if(d.group===10||d.group===12)
+    return "Suche im Radikanden nach vollständigen Quadraten. Nur diese Faktoren dürfen ganz vor die Wurzel.";
+  if(d.group===7)
+    return "Beim Quotienten müssen Zähler und Nenner vollständig zusammengefasst werden. Prüfe außerdem, ob der Nenner null werden kann.";
+  if(d.group===6||d.group===8)
+    return "Beim Multiplizieren kannst du die Radikanden zusammenfassen. Prüfe danach Zahlenfaktoren und Potenzen.";
+  if(d.group===9)
+    return "Quadratische Faktoren kommen ohne Wurzel nach außen. Bei unbekanntem Vorzeichen brauchst du gegebenenfalls Betragsstriche.";
+  return "Die beiden Terme sind nicht gleichwertig. Prüfe deinen letzten Umformungsschritt.";
+}
+function renderMathChain(parts){
+  const chain=Array.isArray(parts)?parts:[parts];
+  return chain
+    .flatMap(x=>String(x).split("="))
+    .map(x=>renderMath(x.trim()))
+    .join('<span class="mathEq">=</span>');
+}
+function similarExample(d){
+  const ex={
+    6:["Ähnliches Beispiel","sqrt(2*t)*sqrt(8*t)","sqrt(16*t^2)=4*abs(t)","Zuerst die Radikanden multiplizieren."],
+    7:["Ähnliches Beispiel","sqrt(18*k^3)/sqrt(2*k)","sqrt(9*k^2)=3*abs(k)","Zähler und Nenner unter einer Wurzel zusammenfassen."],
+    8:["Ähnliches Beispiel","sqrt(2*s)*sqrt(8*s)*sqrt(s^2)","4*s*abs(s)","Mehrere Wurzeln schrittweise zusammenfassen."],
+    9:["Ähnliches Beispiel","sqrt(16*r^2)","4*abs(r)","Bei unbekanntem Vorzeichen wird ein Betrag benötigt."],
+    10:["Ähnliches Beispiel","sqrt(12*z^2)","2*abs(z)*sqrt(3)","Zerlege den Zahlenfaktor in ein vollständiges Quadrat und den Rest."],
+    11:["Ähnliches Beispiel","3*t*sqrt(u)","sqrt(9*t^2*u)","Der Vorfaktor wird unter der Wurzel quadriert."],
+    12:["Ähnliches Beispiel","sqrt(18*m^2)","3*abs(m)*sqrt(2)","Ziehe vollständige Quadrate vor die Wurzel und beachte den Betrag."]
+  }[d.group];
+  return `<div class="example"><div class="exampleTag">${ex[0]}</div><div class="exampleMath">${renderMathChain([ex[1],ex[2]])}</div><div class="exampleNote">${ex[3]}</div></div>`;
+}
+function nextSuggestion(d,mode){
+  const items=GROUPS[d.group].items, i=state.index;
+  if(mode==="hard"){
+    for(let j=Math.max(i+2,Math.ceil(items.length*.6));j<items.length;j++){
+      const k=`${d.group}${items[j][0]}`; if(!(state.records[k]&&state.records[k].correct))return k;
+    }
+    return `${d.group}${items[items.length-1][0]}`;
+  }
+  if(mode==="easier"){
+    const j=Math.max(0,i-2); return `${d.group}${items[j][0]}`;
+  }
+  const missing=[6,7,8,9,10].find(g=>!Object.keys(state.records).some(k=>k.startsWith(String(g))&&state.records[k].tries>0));
+  if(missing)return `${missing}a`;
+  for(const g of [6,7,8,9,10]){
+    const recs=Object.entries(state.records).filter(([k,r])=>k.startsWith(String(g))&&r.tries>0).length;
+    if(recs===0)return `${g}a`;
+  }
+  return `${d.group}${items[Math.min(i+1,items.length-1)][0]}`;
+}
+function showFeedback(kind,title,body,actions=[]){
+  const box=document.getElementById("feedback");
+  box.className=`feedback ${kind}`;
+  document.getElementById("feedbackTitle").textContent=title;
+  document.getElementById("feedbackBody").textContent=body;
+  const a=document.getElementById("actions"); a.innerHTML="";
+  for(const item of actions){
+    const b=document.createElement("button"); b.className="miniBtn"; b.textContent=item.label; b.onclick=item.fn; a.appendChild(b);
+  }
+}
+function openModal(title,html){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").innerHTML=html;
+  document.getElementById("modal").classList.add("show");
+}
+function closeModal(){document.getElementById("modal").classList.remove("show");}
+
+function checkAnswer(){
+  const d=currentData(), key=taskKey(d), input=document.getElementById("answer").value.trim();
+  if(!input){showFeedback("warn","Noch nichts eingegeben","Nutze die Mathe-Tasten für deinen Lösungsterm.");return;}
+  let ast; try{ast=parse(input);}catch{
+    showFeedback("warn","Eingabe unvollständig","Prüfe Klammern, Wurzelzeichen und Rechenzeichen.");return;
+  }
+  const rec=state.records[key]||{tries:0,wrong:0,correct:false,firstTry:false}; rec.tries++;
+  let eq;
+  try{eq=equivalent(d,ast);}catch{eq={ok:false};}
+  if(eq.ok){
+    const wasFresh=rec.tries===1 && !rec.correct;
+    rec.correct=true; rec.firstTry=rec.firstTry||wasFresh; if(wasFresh)state.firstTryCorrect=(state.firstTryCorrect||0)+1;
+    state.records[key]=rec; save();
+    const partial=partialCorrect(d,ast,input);
+    let body=partial ? "Der Term ist gleichwertig. Du kannst noch weiter vereinfachen." : "Der Term ist mathematisch gleichwertig und passend vereinfacht.";
+    let actions=[];
+    const easy=state.index<Math.ceil(GROUPS[d.group].items.length*.45);
+    if((state.firstTryCorrect||0)>=3 && easy){
+      const n=nextSuggestion(d,"hard"); body+=` Nächster Versuch: ${n}.`;
+    }
+    const uneven=unevenMessage();
+    if(uneven)body+=` ${uneven}`;
+    showFeedback(partial?"warn":"good",partial?"Richtig – noch ein Schritt möglich":"Richtig",body,actions);
+    renderTop(); renderLetters();
+  }else{
+    rec.wrong=(rec.wrong||0)+1; state.records[key]=rec; save();
+    let body=diagnosis(d,input,ast,eq);
+    const hard=state.index>=Math.ceil(GROUPS[d.group].items.length*.55);
+    if(hard && rec.wrong>=2)body+=` Versuche zuerst ${nextSuggestion(d,"easier")}.`;
+    const actions=[];
+    if(rec.wrong>=2){
+      actions.push({label:"Beispiel anschauen",fn:()=>openModal(`${key} · Beispiel`,similarExample(d))});
+      actions.push({label:"Hilfe holen",fn:()=>openModal("Hilfe holen",
+        `<div class="example"><div class="exampleMath" style="font-size:18px">Zeige ${key} und deinen letzten Versuch der Lehrkraft.</div><div class="exampleNote">Nächster sinnvoller Versuch: ${hard?nextSuggestion(d,"easier"):nextSuggestion(d,"balanced")}.</div></div>`)});
+    }
+    const uneven=unevenMessage(); if(uneven)body+=` ${uneven}`;
+    showFeedback("bad","Noch nicht gleichwertig",body,actions);
+    if(rec.wrong>=3 && !state.modalWarned[key]){
+      state.modalWarned[key]=true; save();
+      const n=hard?nextSuggestion(d,"easier"):nextSuggestion(d,"balanced");
+      openModal("Mehrfacher Fehlversuch",
+        `<div class="example"><div class="exampleMath" style="font-size:18px">Hol dir jetzt kurz Hilfe bei der Lehrkraft.</div><div class="exampleNote">Danach: ${n}.</div></div>${similarExample(d)}`);
+    }
+    renderTop(); renderLetters();
+  }
+}
+function unevenMessage(){
+  const counts={};
+  for(const g of [6,7,8,9,10]){
+    counts[g]=Object.entries(state.records).filter(([k,r])=>k.startsWith(String(g))&&r.tries>0).length;
+  }
+  const vals=Object.values(counts), max=Math.max(...vals), min=Math.min(...vals);
+  if(max>=2 && (max-min)>=2){
+    const g=Object.keys(counts).map(Number).sort((a,b)=>counts[a]-counts[b])[0];
+    return `Verteile deine Übung breiter: Nächster Versuch ${g}a.`;
+  }
+  const total=vals.reduce((a,b)=>a+b,0);
+  if(total>=4 && vals.some(x=>x===0)){
+    const g=Object.keys(counts).map(Number).find(g=>counts[g]===0);
+    return `Eine Aufgabengruppe fehlt noch: Versuche ${g}a.`;
+  }
+  return "";
+}
+function selectTaskCode(code){
+  const g=Number(code.match(/\d+/)[0]), l=code.replace(/\d+/g,"");
+  if(!GROUPS[g])return;
+  const i=GROUPS[g].items.findIndex(x=>x[0]===l); if(i<0)return;
+  storeDraft(); state.group=g; state.index=i; save(); renderAll(); document.getElementById("answer").focus();
+}
+function storeDraft(){ const d=currentData(); state.drafts[taskKey(d)]=document.getElementById("answer").value; save(); }
+
+function renderTop(){
+  const nums=document.getElementById("tasknums"); nums.innerHTML="";
+  Object.keys(GROUPS).forEach(n=>{
+    const b=document.createElement("button"); b.className="seg"+(+n===state.group?" active":""); b.textContent=n;
+    b.onclick=()=>{storeDraft();state.group=+n;state.index=0;save();renderAll();}; nums.appendChild(b);
+  });
+  document.getElementById("page").textContent=`S. ${GROUPS[state.group].page}`;
+  const progress=document.getElementById("progress"); progress.innerHTML=""; let goal=0;
+  for(const g of [6,7,8,9,10]){
+    const records=Object.entries(state.records).filter(([k])=>k.startsWith(String(g))).map(x=>x[1]);
+    const tried=records.some(r=>r.tries>0), done=records.some(r=>r.correct); if(tried)goal++;
+    const p=document.createElement("div"); p.className="prog"+(done?" done":tried?" tried":""); p.textContent=done?`${g} ✓`:tried?`${g} •`:`${g}`; progress.appendChild(p);
+  }
+  document.getElementById("goalLabel").textContent=`Ziel ${goal}/5`;
+}
+function renderLetters(){
+  const el=document.getElementById("letters"); el.innerHTML="";
+  GROUPS[state.group].items.forEach((it,i)=>{
+    const key=`${state.group}${it[0]}`,r=state.records[key]||{};
+    const b=document.createElement("button"); b.className="letter"+(i===state.index?" active":"")+(r.correct?" done":r.tries?" tried":"");
+    b.textContent=it[0]; b.onclick=()=>{storeDraft();state.index=i;save();renderAll();}; el.appendChild(b);
+  });
+}
+function renderTask(){
+  const d=currentData();
+  document.getElementById("taskid").textContent=taskKey(d);
+  document.getElementById("tasktitle").textContent=d.title;
+  document.getElementById("taskmath").innerHTML=renderMath(d.src);
+  const inp=document.getElementById("answer"); inp.value=state.drafts[taskKey(d)]||"";
+  showFeedback("idle","","");
+}
+function renderKeypad(){
+  const d=currentData(), vars=[...varsOf(parse(d.src))];
+  const root=document.getElementById("keypad"); root.innerHTML="";
+  const rows=[
+    ["√","²","³","| |","(",")","·",":","+","−","⌫","C"],
+    ["7","8","9","4","5","6","1","2","3","0",",",...vars],
+    vars.length<4?["√","²","| |","(",")",...vars,"·",":","+","−","⌫"]:["√","²","| |","(",")","·",":","+","−","⌫"]
+  ];
+  rows.forEach((arr,ri)=>{
+    const row=document.createElement("div"); row.className="keyrow";
+    arr.forEach(k=>{
+      const b=document.createElement("button"); b.className="key"+("√²³| |()·:+−⌫C".includes(k)?" op":"")+(vars.includes(k)?" var":"")+(k==="C"?" danger":"");
+      b.textContent=k; b.onclick=()=>pressKey(k); row.appendChild(b);
+    });
+    root.appendChild(row);
+  });
+}
+function pressKey(k){
+  const inp=document.getElementById("answer"); inp.focus();
+  let s=inp.selectionStart??inp.value.length, e=inp.selectionEnd??s, text=inp.value, ins=k, cursor=null;
+  if(k==="⌫"){
+    if(s!==e){inp.value=text.slice(0,s)+text.slice(e);cursor=s;}
+    else if(s>0){inp.value=text.slice(0,s-1)+text.slice(e);cursor=s-1;}
+  }else if(k==="C"){inp.value="";cursor=0;
+  }else{
+    if(k==="√"){ins="√()";cursor=s+2;}
+    else if(k==="| |"){ins="||";cursor=s+1;}
+    else if(k==="−")ins="−";
+    inp.value=text.slice(0,s)+ins+text.slice(e);
+    if(cursor===null)cursor=s+ins.length;
+  }
+  inp.setSelectionRange(cursor,cursor); storeDraft();
+}
+function renderLaws(){
+  document.getElementById("law1").innerHTML=
+    `${renderMath("sqrt(a)",{a:"ca"})}<span style="margin:0 5px">·</span>${renderMath("sqrt(b)",{b:"cb"})}<span style="margin:0 5px">=</span>${renderMath("sqrt(a*b)",{a:"ca",b:"cb"})}`;
+  document.getElementById("law2").innerHTML=
+    `${renderMath("sqrt(a)",{a:"ca"})}<span style="margin:0 4px">:</span>${renderMath("sqrt(b)",{b:"cb"})}<span style="margin:0 5px">=</span>${renderMath("sqrt(a/b)",{a:"ca",b:"cb"})}`;
+  document.getElementById("law3").innerHTML=
+    `${renderMath("sqrt(a^2)",{a:"ca"})}<span style="margin:0 5px">=</span>${renderMath("abs(a)",{a:"ca"})}<span style="margin:0 5px">;</span>${renderMath("sqrt(a^2)",{a:"ca"})}<span style="margin:0 5px">=</span>${renderMath("a",{a:"ca"})}<span style="font-size:12px;margin-left:4px">für <span class="ca">a</span> ≥ 0</span>`;
+}
+function lawExamples(n){
+  if(n===1)return `
+    <div class="example"><div class="exampleTag">Zahlen</div><div class="exampleMath"><span class="ca">${renderMath("sqrt(2)")}</span> · <span class="cb">${renderMath("sqrt(8)")}</span> = <span class="ct">${renderMath("sqrt(16)")}</span> = <span class="ct">4</span></div></div>
+    <div class="example"><div class="exampleTag">Andere Buchstaben</div><div class="exampleMath">${renderMath("sqrt(m)",{m:"ca"})} · ${renderMath("sqrt(n)",{n:"cb"})} = ${renderMath("sqrt(m*n)",{m:"ca",n:"cb"})}</div></div>
+    <div class="example"><div class="exampleTag">Term einsetzen</div><div class="exampleMath"><span class="ca">a = 3x</span><span style="margin:0 8px">,</span><span class="cb">b = 12x</span></div><div class="exampleMath"><span class="ca">${renderMath("sqrt(3*x)")}</span> · <span class="cb">${renderMath("sqrt(12*x)")}</span> = <span class="ct">${renderMath("sqrt(36*x^2)")}</span></div></div>`;
+  if(n===2)return `
+    <div class="example"><div class="exampleTag">Zahlen</div><div class="exampleMath"><span class="ca">${renderMath("sqrt(18)")}</span> : <span class="cb">${renderMath("sqrt(2)")}</span> = <span class="ct">${renderMath("sqrt(9)")}</span> = <span class="ct">3</span></div></div>
+    <div class="example"><div class="exampleTag">Andere Buchstaben</div><div class="exampleMath">${renderMath("sqrt(m)",{m:"ca"})} : ${renderMath("sqrt(n)",{n:"cb"})} = ${renderMath("sqrt(m/n)",{m:"ca",n:"cb"})}</div></div>
+    <div class="example"><div class="exampleTag">Term einsetzen</div><div class="exampleMath"><span class="ca">a = 8x²</span><span style="margin:0 8px">,</span><span class="cb">b = 2</span></div><div class="exampleMath"><span class="ca">${renderMath("sqrt(8*x^2)")}</span> : <span class="cb">${renderMath("sqrt(2)")}</span> = <span class="ct">${renderMath("sqrt(4*x^2)")}</span></div></div>`;
+  return `
+    <div class="example"><div class="exampleTag">Zahl</div><div class="exampleMath"><span class="ca">${renderMath("sqrt((-5)^2)")}</span> = <span class="ct">5</span></div></div>
+    <div class="example"><div class="exampleTag">Anderer Buchstabe</div><div class="exampleMath">${renderMath("sqrt(t^2)",{t:"ca"})} = ${renderMath("abs(t)",{t:"ca"})}</div></div>
+    <div class="example"><div class="exampleTag">Term einsetzen</div><div class="exampleMath"><span class="ca">a = 3x</span></div><div class="exampleMath"><span class="ca">${renderMath("sqrt((3*x)^2)")}</span> = <span class="ct">${renderMath("abs(3*x)")}</span> = <span class="ct">3${renderMath("abs(x)")}</span></div></div>`;
+}
+function renderAll(){renderTop();renderLetters();renderTask();renderKeypad();}
+
+document.getElementById("check").onclick=checkAnswer;
+document.getElementById("answer").addEventListener("input",storeDraft);
+document.getElementById("answer").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checkAnswer();}});
+document.querySelectorAll(".explain").forEach(b=>b.onclick=()=>{const n=+b.dataset.law;openModal(`Wurzelgesetz ${n}`,lawExamples(n));});
+document.getElementById("modalClose").onclick=closeModal;
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")closeModal();};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+renderLaws();
+renderAll();
+</script>
+</body>
+</html>
