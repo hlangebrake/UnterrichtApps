@@ -5363,6 +5363,20 @@ body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn.selected sp
   color:#866a1c!important;
 }
 
+
+/* Heller Modus: primäre Aktionsbuttons immer kontrastreich */
+body:not(.reward-theme-dark):not(.reward-theme-nebula) button.primary,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) #deepCheckBtn{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) button.primary:disabled,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) #deepCheckBtn:disabled{
+  color:rgba(255,255,255,.72)!important;
+  opacity:.72;
+}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -6221,8 +6235,8 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Zwischen zwei verschiedenen Dezimalzahlen liegt immer noch eine weitere Dezimalzahl.</strong>",
       answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel an: zwei verschiedene Dezimalzahlen und eine Dezimalzahl, die genau dazwischen liegt.",
-      evidenceLabels:["1. Zahl","2. Zahl","Zahl dazwischen"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Zahl","2. Zahl","3. Zahl"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]-v[1])>1e-9 && v[2]>Math.min(v[0],v[1]) && v[2]<Math.max(v[0],v[1]),
       solution:"Die Aussage ist richtig. Du kannst zum Beispiel die Zahl genau in der Mitte bilden. Zwischen −2,4 und −2,3 liegt etwa −2,35."},
     {id:"K31-06",level:2,kind:"Fehler finden",title:"Links oder rechts?",
@@ -6282,7 +6296,7 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Die Gegenzahl einer rationalen Zahl ist immer negativ.</strong>",
       answer:"Falsch",
-      evidencePrompt:"Gib ein Gegenbeispiel an: Wähle eine negative Zahl und trage ihre positive Gegenzahl ein.",
+      evidencePrompt:"",
       evidenceLabels:["Zahl","Gegenzahl"],
       evidenceCheck:(v)=>v.length===2 && v[0]<0 && v[1]>0 && Math.abs(v[1]+v[0])<1e-9,
       solution:"Die Aussage ist falsch. Die Gegenzahl einer negativen Zahl ist positiv. Außerdem ist die Gegenzahl von 0 wieder 0."},
@@ -6290,7 +6304,7 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Zahl und Gegenzahl sind stets verschieden.</strong>",
       answer:"Falsch",
-      evidencePrompt:"Gib das Gegenbeispiel an, bei dem Zahl und Gegenzahl gleich sind.",
+      evidencePrompt:"",
       evidenceLabels:["Zahl","Gegenzahl"],
       evidenceCheck:(v)=>v.length===2 && Math.abs(v[0])<1e-9 && Math.abs(v[1])<1e-9,
       solution:"Ein Gegenbeispiel ist <strong>0</strong>. Die Gegenzahl von 0 ist wieder 0."},
@@ -6342,16 +6356,16 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Jede negative Zahl ist kleiner als jede positive Zahl.</strong>",
       answer:"Richtig",
-      evidencePrompt:"Gib ein passendes Beispiel mit einer negativen und einer positiven Zahl an.",
-      evidenceLabels:["Negative Zahl","Positive Zahl"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Zahl","2. Zahl"],
       evidenceCheck:(v)=>v.length===2 && v[0]<0 && v[1]>0 && v[0]<v[1],
       solution:"Die Aussage ist richtig. Jede negative Zahl liegt links von 0, jede positive Zahl rechts von 0."},
     {id:"K33-05",level:2,kind:"Gegenbeispiel",title:"Positive Zahlen und Betrag",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Von zwei positiven Zahlen ist diejenige kleiner, die den größeren Betrag hat.</strong>",
       answer:"Falsch",
-      evidencePrompt:"Gib ein Gegenbeispiel mit zwei positiven Zahlen an: Die kleinere Zahl soll auch den kleineren Betrag haben.",
-      evidenceLabels:["Kleinere positive Zahl","Größere positive Zahl"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Zahl","2. Zahl"],
       evidenceCheck:(v)=>v.length===2 && v[0]>0 && v[1]>0 && v[0]<v[1] && Math.abs(v[0])<Math.abs(v[1]),
       solution:"Bei positiven Zahlen stimmt die Reihenfolge mit den Beträgen überein. Zum Beispiel ist 3 &lt; 5, aber |3| &lt; |5|."},
     {id:"K33-06",level:2,kind:"Ordnen",title:"Ausdrücke vergleichen",
@@ -6368,7 +6382,7 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn r &lt; s, dann gilt immer |r| &lt; |s|.</strong>",
       answer:"Falsch",
-      evidencePrompt:"Gib ein Gegenbeispiel an: Es soll r < s gelten, aber |r| soll nicht kleiner als |s| sein.",
+      evidencePrompt:"",
       evidenceLabels:["r","s"],
       evidenceCheck:(v)=>v.length===2 && v[0]<v[1] && Math.abs(v[0])>=Math.abs(v[1])-1e-9,
       solution:"Ein Gegenbeispiel ist r = −10 und s = −2. Es gilt −10 &lt; −2, aber |−10| = 10 &gt; 2 = |−2|."},
@@ -6376,8 +6390,8 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn r &lt; s, dann ist die Gegenzahl von r größer als die Gegenzahl von s.</strong>",
       answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel an und trage anschließend auch beide Gegenzahlen ein.",
-      evidenceLabels:["r","s","Gegenzahl von r","Gegenzahl von s"],
+      evidencePrompt:"",
+      evidenceLabels:["r","s","−r","−s"],
       evidenceCheck:(v)=>v.length===4 && v[0]<v[1] && Math.abs(v[2]+v[0])<1e-9 && Math.abs(v[3]+v[1])<1e-9 && v[2]>v[3],
       solution:"Die Aussage ist richtig. Beim Spiegeln an 0 kehrt sich die Reihenfolge um: Aus r &lt; s folgt −r &gt; −s."},
     {id:"K33-09",level:2,kind:"Lösungsweg",title:"−3,08 oder −3,8?",
@@ -6499,7 +6513,7 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn eine Änderung positiv ist, ist auch der Endzustand positiv.</strong>",
       answer:"Falsch",
-      evidencePrompt:"Gib ein Gegenbeispiel an. Trage Ausgangszustand, positive Änderung und Endzustand ein.",
+      evidencePrompt:"",
       evidenceLabels:["Ausgangszustand","Änderung","Endzustand"],
       evidenceCheck:(v)=>v.length===3 && v[1]>0 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]<=0,
       solution:"Ein Gegenbeispiel: Start −10, Änderung +3. Der Endzustand ist −7 und damit weiterhin negativ."},
@@ -6507,7 +6521,7 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Eine negative Änderung führt immer zu einem kleineren Endwert als dem Startwert.</strong>",
       answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel an. Die Änderung muss negativ sein und der Endzustand kleiner als der Ausgangszustand.",
+      evidencePrompt:"",
       evidenceLabels:["Ausgangszustand","Änderung","Endzustand"],
       evidenceCheck:(v)=>v.length===3 && v[1]<0 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]<v[0],
       solution:"Eine negative Änderung bedeutet, dass zum Startwert eine negative Zahl addiert wird. Dadurch bewegt man sich auf der Zahlengeraden nach links."},
@@ -6560,14 +6574,14 @@ const deepExercises = {
       solution:"Innerhalb des Betrags: −2,4 + 7,9 = 5,5. Also −3,5 + |5,5| = −3,5 + 5,5 = <strong>2</strong>."},
     {id:"K41A-08",level:2,kind:"Gegenbeispiel",title:"Keine Null – also Summe nicht null?",
       type:"judge",prompt:"Beurteile: <strong>Wenn keine der addierten Zahlen 0 ist, kann das Ergebnis der Addition nicht 0 sein.</strong>",answer:"Falsch",
-      evidencePrompt:"Gib ein Gegenbeispiel aus zwei von 0 verschiedenen Zahlen an, deren Summe 0 ist.",
-      evidenceLabels:["1. Zahl","2. Zahl","Summe"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Zahl","2. Zahl","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[0])>1e-9 && Math.abs(v[1])>1e-9 && Math.abs(v[0]+v[1])<1e-9 && Math.abs(v[2])<1e-9,
       solution:"Gegenbeispiel: <strong>5 + (−5) = 0</strong>. Beide Zahlen sind von 0 verschieden."},
     {id:"K41A-09",level:2,kind:"Begründen",title:"Wann kann eine Summe positiv sein?",
       type:"judge",prompt:"Beurteile: <strong>Damit das Ergebnis einer Addition positiv ist, muss mindestens eine der addierten Zahlen positiv sein.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel mit zwei Summanden und einem positiven Ergebnis an.",
-      evidenceLabels:["1. Zahl","2. Zahl","Summe"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Zahl","2. Zahl","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]>0 && (v[0]>0 || v[1]>0),
       solution:"Sind alle Zahlen negativ oder 0, kann die Summe nicht positiv werden. Also muss mindestens ein Zahl positiv sein."},
     {id:"K41A-10",level:3,kind:"Knobeln",title:"Zwei besondere Zahlen",
@@ -6611,7 +6625,7 @@ const deepExercises = {
       solution:"6,8 − 2,3 − 1,5 = 3,0. In die Lücke gehört <strong>−3,0</strong>."},
     {id:"K41B-07",level:2,kind:"Begründen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Addition darfst du die Zahlen vertauschen, wenn das Vorzeichen bei der jeweiligen Zahl bleibt.</strong>",answer:"Richtig",
-      evidencePrompt:"Beispiel: Ordne die vorzeichenbehafteten Zahlen +4, −7 und +2 in eine andere Reihenfolge.",
+      evidencePrompt:"",
       evidenceLabels:["1. Zahl","2. Zahl","3. Zahl"],
       evidenceCheck:(v)=>{if(v.length!==3)return false;const a=[...v].sort((x,y)=>x-y);const same=a.every((x,i)=>Math.abs(x-[-7,2,4][i])<1e-9);const unchanged=Math.abs(v[0]-4)<1e-9&&Math.abs(v[1]+7)<1e-9&&Math.abs(v[2]-2)<1e-9;return same&&!unchanged;},
       solution:"Das ist genau die Regel zum Vertauschen bei vorzeichenbehafteten Zahlen."},
@@ -6650,14 +6664,14 @@ const deepExercises = {
       solution:"2,8 − (−6,7) = 2,8 + 6,7 = <strong>9,5 °C</strong> Unterschied."},
     {id:"K42-05",level:2,kind:"Aussage prüfen",title:"Positive Zahl subtrahieren",
       type:"judge",prompt:"Beurteile: <strong>Subtrahiert man von einer Zahl eine positive Zahl, wird das Ergebnis kleiner als die Ausgangszahl.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel an und rechne die Differenz aus.",
-      evidenceLabels:["Ausgangszahl","Subtrahierte positive Zahl","Ergebnis"],
+      evidencePrompt:"",
+      evidenceLabels:["Ausgangszahl","Subtrahierte Zahl","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && v[1]>0 && Math.abs(v[0]-v[1]-v[2])<1e-9 && v[2]<v[0],
       solution:"Eine positive Zahl zu subtrahieren bedeutet, auf der Zahlengeraden nach links zu gehen."},
     {id:"K42-06",level:2,kind:"Aussage prüfen",title:"Negative Zahl subtrahieren",
       type:"judge",prompt:"Beurteile: <strong>Subtrahiert man von einer Zahl eine negative Zahl, wird das Ergebnis größer als die Ausgangszahl.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel an, bei dem eine negative Zahl subtrahiert wird.",
-      evidenceLabels:["Ausgangszahl","Subtrahierte negative Zahl","Ergebnis"],
+      evidencePrompt:"",
+      evidenceLabels:["Ausgangszahl","Subtrahierte Zahl","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && v[1]<0 && Math.abs(v[0]-v[1]-v[2])<1e-9 && v[2]>v[0],
       solution:"a − (−b) = a + b für b &gt; 0. Man addiert also eine positive Zahl."},
     {id:"K42-07",level:2,kind:"Fehler finden",title:"Minus minus verwechselt",
@@ -6670,7 +6684,7 @@ const deepExercises = {
       solution:"Zuerst: −3,2 + 8,7 = 5,5. Der Betrag ist 5,5. Danach: 5,5 − 6,1 = <strong>−0,6</strong>."},
     {id:"K42-09",level:2,kind:"Begründen",title:"Wann ergibt eine Differenz null?",
       type:"judge",prompt:"Beurteile: <strong>a − b = 0 gilt genau dann, wenn a und b gleich sind.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel für a − b = 0 an.",
+      evidencePrompt:"",
       evidenceLabels:["a","b","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]-v[1])<1e-9 && Math.abs(v[0]-v[1]-v[2])<1e-9 && Math.abs(v[2])<1e-9,
       solution:"Ist a = b, dann ist a − b = 0. Umgekehrt muss bei a − b = 0 die subtrahierte Zahl genauso groß wie die Ausgangszahl sein."},
@@ -6706,8 +6720,8 @@ const deepExercises = {
       solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre positive Gegenzahl zu addieren."},
     {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Minus vor negativer Zahl",
       type:"judge",prompt:"Beurteile: <strong>Steht ein Minus vor einer negativen Zahlklammer, wird beim Auflösen daraus ein Plus.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein eigenes Beispiel mit einer negativen Zahl in der Klammer an.",
-      evidenceLabels:["Negative Zahl in der Klammer","Ergebnis von −( … )"],
+      evidencePrompt:"",
+      evidenceLabels:["Zahl in der Klammer","Ergebnis"],
       evidenceCheck:(v)=>v.length===2 && v[0]<0 && Math.abs(v[1]+v[0])<1e-9 && v[1]>0,
       solution:"Für eine negative Zahl −a gilt: −(−a) = +a."},
     {id:"K43A-08",level:2,kind:"Betrag",title:"Rechnung mit Betrag",
@@ -6763,7 +6777,7 @@ const deepExercises = {
       solution:"Schreibe die Rechnung als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + 3 + (−2) + 7</strong>. Beim Umordnen bleiben <strong>−8</strong> und <strong>−2</strong> negativ."},
     {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Vorzeichen gehören zur Zahl",
       type:"judge",prompt:"Beurteile: <strong>Beim vorteilhaften Umordnen eines Additions- und Subtraktionsterms muss das Vorzeichen zusammen mit der Zahl verschoben werden.</strong>",answer:"Richtig",
-      evidencePrompt:"Beispiel: Ordne die vorzeichenbehafteten Zahlen −5, +3, −2 und +7 in eine andere Reihenfolge.",
+      evidencePrompt:"",
       evidenceLabels:["1. Zahl","2. Zahl","3. Zahl","4. Zahl"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const a=[...v].sort((x,y)=>x-y);const target=[-5,-2,3,7];const same=a.every((x,i)=>Math.abs(x-target[i])<1e-9);const unchanged=Math.abs(v[0]+5)<1e-9&&Math.abs(v[1]-3)<1e-9&&Math.abs(v[2]+2)<1e-9&&Math.abs(v[3]-7)<1e-9;return same&&!unchanged;},
       solution:"Nach dem Umschreiben als Summe vorzeichenbehafteter Zahlen ist jeder Zahl eine Einheit aus Zahl und Vorzeichen."},
@@ -6805,14 +6819,14 @@ const deepExercises = {
       solution:"Zum Beispiel <strong>−6 und +4</strong>. Viele weitere Paare sind möglich."},
     {id:"K44A-05",level:2,kind:"Aussage prüfen",title:"Ungerade Zahl negativer Zahlen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine ungerade Anzahl davon negativ ist, ist das Ergebnis negativ.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib drei von 0 verschiedene Faktoren mit einer ungeraden Anzahl negativer Faktoren an und berechne das Produkt.",
-      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg%2===1&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]<0;},
       solution:"Jedes Paar negativer Zahlen liefert ein positives Teilprodukt. Bei ungerader Anzahl bleibt ein negativer Zahl übrig."},
     {id:"K44A-06",level:2,kind:"Aussage prüfen",title:"Gerade Zahl negativer Zahlen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine gerade Anzahl davon negativ ist, ist das Ergebnis positiv.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib drei von 0 verschiedene Faktoren an, von denen genau zwei negativ sind, und berechne das Produkt.",
-      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg===2&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]>0;},
       solution:"Die negativen Zahlen können paarweise zusammengefasst werden. Jedes Paar ergibt beim Multiplizieren eine positive Zahl."},
     {id:"K44A-07",level:2,kind:"Fehler finden",title:"Drei Minuszeichen",
@@ -6870,8 +6884,8 @@ const deepExercises = {
       solution:"(−2,5) · 4 = −10. In die Lücke gehört <strong>−10</strong>."},
     {id:"K44B-08",level:2,kind:"Aussage prüfen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Multiplikation darfst du die Zahlen vertauschen und anders zusammenfassen, ohne das Ergebnis zu verändern.</strong>",answer:"Richtig",
-      evidencePrompt:"Beispiel: Ordne die Faktoren −2, +5 und −3 anders an und gib zusätzlich das Produkt an.",
-      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidencePrompt:"",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const a=[...f].sort((x,y)=>x-y);const same=a.every((x,i)=>Math.abs(x-[-3,-2,5][i])<1e-9);const unchanged=Math.abs(f[0]+2)<1e-9&&Math.abs(f[1]-5)<1e-9&&Math.abs(f[2]+3)<1e-9;return same&&!unchanged&&Math.abs(v[3]-30)<1e-9;},
       solution:"Das folgt aus Regeln zum Vertauschen und geschickten Zusammenfassen der Multiplikation."},
     {id:"K44B-09",level:3,kind:"Strategie",title:"Geschickt multiplizieren",
@@ -6900,8 +6914,8 @@ const deepExercises = {
       solution:"7,2 : 0,6 = 12 und Minus durch Plus ergibt Minus: <strong>−12</strong>."},
     {id:"K45A-05",level:2,kind:"Aussage prüfen",title:"Gleiche Vorzeichen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Division ist die zweite Zahl nicht 0. Haben beide Zahlen dasselbe Vorzeichen, ist das Ergebnis positiv.</strong>",answer:"Richtig",
-      evidencePrompt:"Gib ein Beispiel mit zwei Zahlen gleichen Vorzeichens an und berechne den Quotienten.",
-      evidenceLabels:["Dividend","Divisor","Quotient"],
+      evidencePrompt:"",
+      evidenceLabels:["Dividend","Divisor","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[1])>1e-9 && Math.abs(v[0])>1e-9 && ((v[0]>0&&v[1]>0)||(v[0]<0&&v[1]<0)) && Math.abs(v[0]/v[1]-v[2])<1e-9 && v[2]>0,
       solution:"Plus durch Plus und Minus durch Minus ergeben jeweils ein positives Ergebnis."},
     {id:"K45A-06",level:2,kind:"Knobeln",title:"Durch 0,5 teilen",
@@ -8556,7 +8570,7 @@ function startMeteorGame(){
     <div class="meteor-stars"></div>
     <div class="meteor-ship" id="meteorShip">🛸</div>
     <div class="enemy-warning" id="enemyWarning">⚠ Gegnerisches Schiff</div>
-    <div class="meteor-hint">Bewegen – später kommen lenkende Meteore und ein Gegner!</div>`;
+    <div class="meteor-hint">Tippen: UFO gleitet zum Ziel · Ziehen: UFO folgt direkt</div>`;
 
   const ship=$("#meteorShip");
   const enemyWarning=$("#enemyWarning");
@@ -8564,6 +8578,18 @@ function startMeteorGame(){
   let shipX=20;
   let shipY=0;
   let shipAlive=true;
+
+  // Tap-Ziel: bei einfachem Tippen gleitet das UFO dorthin.
+  let glideTargetX=null;
+  let glideTargetY=null;
+  const glideSpeed=310; // px/s
+
+  // Drag-Zustand: bei echtem Ziehen folgt das UFO direkt dem Finger.
+  let activePointerId=null;
+  let pointerStartX=0;
+  let pointerStartY=0;
+  let dragging=false;
+  const dragThreshold=8;
 
   let meteors=[];
   let enemyShots=[];
@@ -8577,32 +8603,119 @@ function startMeteorGame(){
   let last=performance.now();
   let invulnerableUntil=0;
   let stopped=false;
-  const startedAt=performance.now();
+  let startedAt=performance.now();
 
   const elapsedSeconds=()=>Math.max(0,(performance.now()-startedAt)/1000);
 
-  const positionShip=(clientX,clientY)=>{
-    if(!shipAlive)return;
+  const clampShipPoint=(clientX,clientY)=>{
     const rect=stage.getBoundingClientRect();
-    shipX=Math.max(0,Math.min(rect.width-54,clientX-rect.left-27));
-    shipY=Math.max(0,Math.min(rect.height-54,clientY-rect.top-27));
+    return {
+      x:Math.max(0,Math.min(rect.width-54,clientX-rect.left-27)),
+      y:Math.max(0,Math.min(rect.height-54,clientY-rect.top-27))
+    };
+  };
+
+  const setShipPosition=(x,y)=>{
+    const rect=stage.getBoundingClientRect();
+    shipX=Math.max(0,Math.min(rect.width-54,x));
+    shipY=Math.max(0,Math.min(rect.height-54,y));
     ship.style.left=shipX+"px";
     ship.style.top=shipY+"px";
   };
 
-  const move=(e)=>{
-    e.preventDefault();
-    positionShip(e.clientX,e.clientY);
+  const positionShipDirect=(clientX,clientY)=>{
+    if(!shipAlive)return;
+    const p=clampShipPoint(clientX,clientY);
+    glideTargetX=null;
+    glideTargetY=null;
+    setShipPosition(p.x,p.y);
   };
-  stage.addEventListener("pointerdown",move);
-  stage.addEventListener("pointermove",move);
+
+  const setGlideTarget=(clientX,clientY)=>{
+    if(!shipAlive)return;
+    const p=clampShipPoint(clientX,clientY);
+    glideTargetX=p.x;
+    glideTargetY=p.y;
+  };
+
+  const pointerDown=(e)=>{
+    if(!shipAlive)return;
+    e.preventDefault();
+
+    activePointerId=e.pointerId;
+    pointerStartX=e.clientX;
+    pointerStartY=e.clientY;
+    dragging=false;
+
+    if(stage.setPointerCapture){
+      try{ stage.setPointerCapture(e.pointerId); }catch{}
+    }
+  };
+
+  const pointerMove=(e)=>{
+    if(activePointerId!==e.pointerId || !shipAlive)return;
+    e.preventDefault();
+
+    const dist=Math.hypot(e.clientX-pointerStartX,e.clientY-pointerStartY);
+    if(!dragging && dist>=dragThreshold){
+      dragging=true;
+      glideTargetX=null;
+      glideTargetY=null;
+    }
+
+    if(dragging){
+      positionShipDirect(e.clientX,e.clientY);
+    }
+  };
+
+  const pointerUp=(e)=>{
+    if(activePointerId!==e.pointerId)return;
+    e.preventDefault();
+
+    if(!dragging && shipAlive){
+      // Kein Teleport: ein Tap setzt nur das Ziel. Die Bewegung erfolgt im Frame-Loop.
+      setGlideTarget(e.clientX,e.clientY);
+    }
+
+    if(stage.hasPointerCapture && stage.hasPointerCapture(e.pointerId)){
+      try{ stage.releasePointerCapture(e.pointerId); }catch{}
+    }
+
+    activePointerId=null;
+    dragging=false;
+  };
+
+  const pointerCancel=(e)=>{
+    if(activePointerId!==e.pointerId)return;
+
+    if(stage.hasPointerCapture && stage.hasPointerCapture(e.pointerId)){
+      try{ stage.releasePointerCapture(e.pointerId); }catch{}
+    }
+
+    activePointerId=null;
+    dragging=false;
+  };
+
+  stage.addEventListener("pointerdown",pointerDown);
+  stage.addEventListener("pointermove",pointerMove);
+  stage.addEventListener("pointerup",pointerUp);
+  stage.addEventListener("pointercancel",pointerCancel);
 
   const resetShip=()=>{
     const rect=stage.getBoundingClientRect();
-    shipX=rect.width/2-27;
-    shipY=rect.height/2-27;
-    ship.style.left=shipX+"px";
-    ship.style.top=shipY+"px";
+    glideTargetX=null;
+    glideTargetY=null;
+    setShipPosition(rect.width/2-27,rect.height/2-27);
+  };
+
+  const clearHazards=()=>{
+    meteors.forEach(m=>m.el.remove());
+    meteors=[];
+
+    enemyShots.forEach(s=>s.el.remove());
+    enemyShots=[];
+
+    removeEnemy();
   };
 
   const showShipExplosion=()=>{
@@ -8621,22 +8734,51 @@ function startMeteorGame(){
     setTimeout(()=>fx.remove(),680);
   };
 
-  const damageShip=(label="Treffer! −3")=>{
+  const restartRoundAfterCrash=()=>{
+    clearTimeout(spawnTimer);
+    clearTimeout(enemyTimer);
+    clearTimeout(enemyShotTimer);
+
+    clearHazards();
+
+    // Wirklich von vorne: Score UND Schwierigkeitszeit zurücksetzen.
+    setGameScore(0);
+    startedAt=performance.now();
+
+    glideTargetX=null;
+    glideTargetY=null;
+    activePointerId=null;
+    dragging=false;
+
+    resetShip();
+
+    // Neue Runde beginnt zunächst wieder ruhig.
+    spawnTimer=setTimeout(spawnMeteor,650);
+    enemyTimer=setTimeout(spawnEnemy,5000);
+  };
+
+  const damageShip=(label="Treffer! Neustart")=>{
     const now=performance.now();
     if(stopped || !shipAlive || now<invulnerableUntil)return;
 
     shipAlive=false;
-    invulnerableUntil=now+1500;
-    setGameScore(Math.max(0,currentGameScore-3));
+    invulnerableUntil=now+1550;
+    setGameScore(0);
     $("#gameMiniStatus").textContent=label;
 
     showShipExplosion();
     ship.style.opacity="0";
 
-    // Kurze sichtbare Explosion, danach wird das Schiff wieder eingesetzt.
+    // Während der Explosion sofort alle Gefahren entfernen.
+    clearTimeout(spawnTimer);
+    clearTimeout(enemyTimer);
+    clearTimeout(enemyShotTimer);
+    clearHazards();
+
     setTimeout(()=>{
       if(stopped)return;
-      resetShip();
+
+      restartRoundAfterCrash();
       ship.style.opacity=".42";
       shipAlive=true;
 
@@ -8664,9 +8806,6 @@ function startMeteorGame(){
 
     const elapsed=elapsedSeconds();
 
-    // Spezialmeteore erscheinen erst nach einer Weile.
-    // Ihre Flugbahn lenkt begrenzt zum aktuellen UFO nach,
-    // sodass man sie weiterhin ausmanövrieren kann.
     const specialChance=
       elapsed<8 ? 0 :
       Math.min(.48,.16+(elapsed-8)*.012+currentGameScore*.004);
@@ -8711,13 +8850,13 @@ function startMeteorGame(){
     return Math.hypot(sx-shot.x,sy-shot.y)<25;
   };
 
-  const removeEnemy=()=>{
+  function removeEnemy(){
     clearTimeout(enemyShotTimer);
     enemyShotTimer=0;
     if(enemy?.el) enemy.el.remove();
     enemy=null;
     enemyWarning.classList.remove("show");
-  };
+  }
 
   const fireEnemyShot=()=>{
     if(stopped || !enemy || !shipAlive)return;
@@ -8725,7 +8864,6 @@ function startMeteorGame(){
     const targetX=shipX+27;
     const targetY=shipY+27;
 
-    // Leichte Ungenauigkeit: gezielt, aber ausweichbar.
     const aimX=targetX+(Math.random()-.5)*36;
     const aimY=targetY+(Math.random()-.5)*36;
     const dx=aimX-(enemy.x+29);
@@ -8757,10 +8895,9 @@ function startMeteorGame(){
     enemyShotTimer=setTimeout(enemyFireLoop,delay);
   };
 
-  const spawnEnemy=()=>{
+  function spawnEnemy(){
     if(stopped)return;
 
-    // Der Gegner kommt erst später und bleibt nur einige Sekunden.
     if(elapsedSeconds()<14){
       enemyTimer=setTimeout(spawnEnemy,2600);
       return;
@@ -8794,14 +8931,32 @@ function startMeteorGame(){
     $("#gameMiniStatus").textContent="⚠ Gegnerisches Schiff!";
     enemyFireLoop();
 
-    // Nächster Gegner erst nach einer Pause.
     enemyTimer=setTimeout(spawnEnemy,16500);
-  };
+  }
 
   const loop=(now)=>{
     const dt=Math.min(.05,(now-last)/1000);
     last=now;
     const rect=stage.getBoundingClientRect();
+
+    // Bei einem Tap gleitet das UFO mit begrenzter Geschwindigkeit zum Ziel.
+    if(shipAlive && glideTargetX!==null && glideTargetY!==null && activePointerId===null){
+      const dx=glideTargetX-shipX;
+      const dy=glideTargetY-shipY;
+      const dist=Math.hypot(dx,dy);
+
+      if(dist<=2){
+        setShipPosition(glideTargetX,glideTargetY);
+        glideTargetX=null;
+        glideTargetY=null;
+      }else{
+        const step=Math.min(dist,glideSpeed*dt);
+        setShipPosition(
+          shipX+(dx/dist)*step,
+          shipY+(dy/dist)*step
+        );
+      }
+    }
 
     // Meteore
     for(let i=meteors.length-1;i>=0;i--){
@@ -8811,11 +8966,9 @@ function startMeteorGame(){
         const targetAngle=Math.atan2((shipY+27)-m.y,(shipX+27)-m.x);
         let diff=targetAngle-m.angle;
 
-        // Winkel auf -π..π normalisieren.
         while(diff>Math.PI)diff-=Math.PI*2;
         while(diff<-Math.PI)diff+=Math.PI*2;
 
-        // Begrenzte Kurvenfähigkeit: kein "magisches" exaktes Folgen.
         const maxTurn=m.turnRate*dt;
         m.angle+=Math.max(-maxTurn,Math.min(maxTurn,diff));
 
@@ -8830,7 +8983,7 @@ function startMeteorGame(){
       m.el.style.top=m.y+"px";
 
       if(now>invulnerableUntil && meteorHit(m)){
-        damageShip(m.special?"Spezialmeteor! −3":"Treffer! −3");
+        damageShip(m.special?"Spezialmeteor! Neustart":"Treffer! Neustart");
         m.el.remove();
         meteors.splice(i,1);
         continue;
@@ -8853,7 +9006,6 @@ function startMeteorGame(){
       }else if(leaving){
         enemy.x+=enemy.vx*1.65*dt;
       }else{
-        // Leichtes Patrouillieren, aber kein direktes Rammen.
         enemy.x+=Math.sin(age/720)*10*dt;
         enemy.y+=Math.sin(age/510)*5*dt;
       }
@@ -8875,7 +9027,7 @@ function startMeteorGame(){
       shot.el.style.top=(shot.y-5)+"px";
 
       if(now>invulnerableUntil && shotHit(shot)){
-        damageShip("Getroffen! −3");
+        damageShip("Getroffen! Neustart");
         shot.el.remove();
         enemyShots.splice(i,1);
         continue;
@@ -8911,8 +9063,10 @@ function startMeteorGame(){
     clearInterval(scoreTimer);
     cancelAnimationFrame(raf);
 
-    stage.removeEventListener("pointerdown",move);
-    stage.removeEventListener("pointermove",move);
+    stage.removeEventListener("pointerdown",pointerDown);
+    stage.removeEventListener("pointermove",pointerMove);
+    stage.removeEventListener("pointerup",pointerUp);
+    stage.removeEventListener("pointercancel",pointerCancel);
 
     meteors.forEach(m=>m.el.remove());
     enemyShots.forEach(s=>s.el.remove());
@@ -10480,7 +10634,7 @@ function renderDeepControl(ex){
       </div>
 
       <div class="judge-evidence">
-        <div class="judge-evidence-title">${ex.evidencePrompt || "Gib ein mathematisch passendes Beispiel oder Gegenbeispiel an."}</div>
+        <div class="judge-evidence-title" id="deepJudgeEvidenceTitle">Beispiel oder Gegenbeispiel</div>
         <div class="deep-multi">
           ${evidenceLabels.map((label,i)=>`
             <div class="deep-multi-field">
@@ -10492,8 +10646,15 @@ function renderDeepControl(ex){
       </div>
 
       <label class="deep-reason-label" for="deepReasonText">Optional: Deine Begründung</label>
-      <textarea id="deepReasonText" placeholder="Du kannst zusätzlich erklären, warum dein Beispiel zur Aussage passt."></textarea>
+      <textarea id="deepReasonText" placeholder="Du kannst deine Entscheidung zusätzlich begründen."></textarea>
     `;
+
+    wrap.querySelectorAll('input[name="deepJudge"]').forEach(radio=>{
+      radio.addEventListener("change",()=>{
+        const title=$("#deepJudgeEvidenceTitle");
+        if(title) title.textContent=radio.value==="Falsch" ? "Gegenbeispiel" : "Beispiel";
+      });
+    });
     return;
   }
 
@@ -10647,9 +10808,10 @@ function checkDeepExercise(){
     feedback.className="deep-feedback show bad";
     if(ex.type==="judge"){
       const chosen=document.querySelector('input[name="deepJudge"]:checked');
+      const evidenceWord=chosen?.value==="Falsch" ? "Gegenbeispiel" : "Beispiel";
       feedback.innerHTML=!chosen
         ? "<strong>Noch keine Auswahl getroffen.</strong> Entscheide zuerst zwischen Richtig und Falsch."
-        : "<strong>Beispiel noch nicht vollständig.</strong> Trage alle Zahlen für dein Beispiel oder Gegenbeispiel ein.";
+        : `<strong>${evidenceWord} noch nicht vollständig.</strong> Fülle alle Felder aus.`;
     }else{
       feedback.innerHTML=ex.type==="choiceReason"
         ? "<strong>Noch keine Auswahl getroffen.</strong> Wähle zuerst eine Antwort aus."
@@ -10663,8 +10825,8 @@ function checkDeepExercise(){
   feedback.className="deep-feedback show "+(correct?"ok":"bad");
   if(ex.type==="judge"){
     feedback.innerHTML=correct
-      ? "<strong>Richtig.</strong> Deine Entscheidung und dein Beispiel bzw. Gegenbeispiel passen mathematisch zusammen."
-      : "<strong>Noch nicht richtig.</strong> Prüfe sowohl deine Entscheidung als auch die eingetragenen Zahlen.";
+      ? "<strong>Richtig.</strong> Deine Entscheidung und die eingetragenen Zahlen passen mathematisch zusammen."
+      : "<strong>Noch nicht richtig.</strong> Prüfe deine Entscheidung und die eingetragenen Zahlen.";
   }else if(ex.type==="choiceReason"){
     feedback.innerHTML=correct
       ? "<strong>Deine Auswahl ist richtig.</strong> Eine zusätzliche Begründung kannst du später mit der Musterlösung vergleichen."
@@ -12153,7 +12315,6 @@ function deepExerciseToTest(ex,competencyId){
       type:"judgeEvidence",
       options:["Richtig","Falsch"],
       answer:ex.answer,
-      evidencePrompt:ex.evidencePrompt,
       labels:[...(ex.evidenceLabels||[])],
       checkEvidence:ex.evidenceCheck
     };
@@ -12399,10 +12560,10 @@ function renderTest(){
       const judgeOptions=shuffle(q.options || ["Richtig","Falsch"]);
       controls=`
         <div class="test-options">
-          ${judgeOptions.map(opt=>`<label class="test-option"><input type="radio" name="test-${i}" value="${escAttr(opt)}"><span>${opt}</span></label>`).join("")}
+          ${judgeOptions.map(opt=>`<label class="test-option"><input type="radio" name="test-${i}" value="${escAttr(opt)}" data-test-judge-choice="${i}"><span>${opt}</span></label>`).join("")}
         </div>
         <div class="test-evidence">
-          <div class="test-evidence-prompt">${q.evidencePrompt || "Gib ein mathematisch passendes Beispiel oder Gegenbeispiel an."}</div>
+          <div class="test-evidence-prompt" data-test-evidence-title="${i}">Beispiel oder Gegenbeispiel</div>
           <div class="test-multi-inputs">
             ${q.labels.map((label,j)=>`<label>${label}<input class="test-input" data-test-evidence="${i}-${j}" inputmode="decimal" placeholder="Zahl"></label>`).join("")}
           </div>
@@ -12428,6 +12589,16 @@ function renderTest(){
       <div class="test-solution" id="testSolution${i}"><strong>Lösung:</strong> ${q.solution}</div>`;
 
     wrap.appendChild(sec);
+
+    if(q.type==="judgeEvidence"){
+      sec.querySelectorAll(`[data-test-judge-choice="${i}"]`).forEach(radio=>{
+        radio.addEventListener("change",()=>{
+          const title=sec.querySelector(`[data-test-evidence-title="${i}"]`);
+          if(title) title.textContent=radio.value==="Falsch" ? "Gegenbeispiel" : "Beispiel";
+        });
+      });
+    }
+
     attachTestVisualInteraction(q,i,sec);
   });
 
