@@ -129,6 +129,11 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   background:currentColor
 }
 .status.neutral{background:var(--surface2);color:var(--muted)}
+.status.progress{
+  background:var(--surface2);
+  color:var(--muted);
+  border:1px solid var(--line);
+}
 .status.foundation{
   background:#eef7f1;
   color:#477257;
@@ -6281,7 +6286,7 @@ const deepExercises = {
     {id:"K32-01",level:1,kind:"Betrag",title:"Abstand zu null",
       type:"number",prompt:"Bestimme den Betrag: <strong>|−37,6|</strong>.",expected:37.6,
       solution:"Der Betrag ist der Abstand zu 0. Deshalb ist |−37,6| = <strong>37,6</strong>."},
-    {id:"K32-02",level:1,kind:"Gegenzahl",title:"Vorzeichen wechseln",
+    {id:"K32-02",level:1,kind:"Gegenzahl",title:"Eine Gegenzahl bestimmen",
       type:"number",prompt:"Gib die Gegenzahl zu <strong>+18,45</strong> an.",expected:-18.45,
       solution:"Die Gegenzahl hat denselben Betrag und das entgegengesetzte Vorzeichen: <strong>−18,45</strong>."},
     {id:"K32-03",level:1,kind:"Rückwärts",title:"Welche Zahl war gemeint?",
@@ -6430,7 +6435,7 @@ const deepExercises = {
       options:["Die Koordinate auf der Rechtsachse ist 0.","Die Koordinate auf der Hochachse ist 0.","Beide Koordinaten sind gleich."],
       answer:"Die Koordinate auf der Rechtsachse ist 0.",
       solution:"Auf der Hochachse gibt es keine Verschiebung nach rechts oder links. Deshalb ist die Koordinate auf der Rechtsachse <strong>0</strong>."},
-    {id:"K34-04",level:2,kind:"Fehler finden",title:"Koordinaten vertauscht",
+    {id:"K34-04",level:2,kind:"Fehler finden",title:"Eine Eintragung prüfen",
       type:"choice",
       prompt:"Mila soll <strong>P(2 | −3)</strong> eintragen. Sie geht vom Ursprung zuerst 2 nach unten und dann 3 nach rechts. Wo liegt ihr Fehler?",
       options:[
@@ -6564,7 +6569,7 @@ const deepExercises = {
     {id:"K41A-05",level:2,kind:"Sachaufgabe",title:"Rechnung berechnen",
       type:"number",prompt:"Ein Kontostand wird nur als mathematisches Modell betrachtet. Er beträgt −18,5 Einheiten, danach kommen +7,8 und +12,4 hinzu. Welcher Endwert entsteht?",expected:1.7,
       solution:"−18,5 + 7,8 + 12,4 = −18,5 + 20,2 = <strong>1,7</strong>."},
-    {id:"K41A-06",level:2,kind:"Fehler finden",title:"Beträge einfach addiert",
+    {id:"K41A-06",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Addition",
       type:"choice",prompt:"Jona rechnet <strong>−5,4 + 2,1 = +7,5</strong>. Welche Erklärung beschreibt den Fehler?",
       options:["Er hat die Beträge addiert und das Vorzeichen nicht aus der Rechnung bestimmt.","Bei verschiedenen Vorzeichen muss man immer multiplizieren.","Die Rechnung ist richtig."],
       answer:"Er hat die Beträge addiert und das Vorzeichen nicht aus der Rechnung bestimmt.",
@@ -6601,13 +6606,13 @@ const deepExercises = {
       ],
       answer:"5,63 + 0,37 + (−3,5)",
       solution:"Alle drei Umordnungen sind mathematisch korrekt. Besonders günstig ist <strong>5,63 + 0,37 + (−3,5)</strong>, weil 5,63 + 0,37 = 6. Danach ist 6 − 3,5 leicht zu berechnen."},
-    {id:"K41B-02",level:1,kind:"Grundlage",title:"Ergänzen zu einer ganzen Zahl",
+    {id:"K41B-02",level:1,kind:"Grundlage",title:"Eine Summe mit drei Zahlen",
       type:"number",prompt:"Rechne geschickt: <strong>−12,7 + 5,2 + 2,7</strong>.",expected:-4.8,
       solution:"−12,7 + 2,7 = −10. Dann −10 + 5,2 = <strong>−4,8</strong>."},
     {id:"K41B-03",level:1,kind:"Rückwärts",title:"Passenden Zahlen ergänzen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>8,4 + □ + 1,6 = 0</strong>",expected:-10,
       solution:"8,4 + 1,6 = 10. In die Lücke gehört <strong>−10</strong>."},
-    {id:"K41B-04",level:2,kind:"Strategie",title:"Welche Zahlen gehören zusammen?",
+    {id:"K41B-04",level:2,kind:"Strategie",title:"Eine Summe berechnen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>−25,6 + 13,4 + 5,6</strong>.",expected:-6.6,
       solution:"−25,6 + 5,6 = −20. Dann −20 + 13,4 = <strong>−6,6</strong>."},
     {id:"K41B-05",level:2,kind:"Fehler finden",title:"Rechnung berechnen",
@@ -6674,7 +6679,7 @@ const deepExercises = {
       evidenceLabels:["Ausgangszahl","Subtrahierte Zahl","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && v[1]<0 && Math.abs(v[0]-v[1]-v[2])<1e-9 && v[2]>v[0],
       solution:"a − (−b) = a + b für b &gt; 0. Man addiert also eine positive Zahl."},
-    {id:"K42-07",level:2,kind:"Fehler finden",title:"Minus minus verwechselt",
+    {id:"K42-07",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Subtraktion",
       type:"choice",prompt:"Mats rechnet <strong>−3,5 − (−1,2) = −4,7</strong>. Wo liegt der Fehler?",
       options:["Er hat −1,2 addiert statt die Gegenzahl +1,2 zu addieren.","Er hätte die Beträge multiplizieren müssen.","Die Rechnung ist richtig."],
       answer:"Er hat −1,2 addiert statt die Gegenzahl +1,2 zu addieren.",
@@ -6713,12 +6718,12 @@ const deepExercises = {
       options:["−4,2 + 3,8 − 1,1","−4,2 − 3,8 + 1,1","4,2 + 3,8 − 1,1"],
       answer:"−4,2 + 3,8 − 1,1",
       solution:"−(−3,8) wird zu +3,8; +(−1,1) wird zu −1,1."},
-    {id:"K43A-06",level:2,kind:"Fehler finden",title:"Doppeltes Minus",
+    {id:"K43A-06",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Umformung",
       type:"choice",prompt:"Nora formt <strong>5,6 − (−2,4)</strong> zu <strong>5,6 − 2,4</strong> um. Welche Korrektur ist nötig?",
       options:["Es muss 5,6 + 2,4 heißen.","Es muss −5,6 + 2,4 heißen.","Keine; die Umformung stimmt."],
       answer:"Es muss 5,6 + 2,4 heißen.",
       solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre positive Gegenzahl zu addieren."},
-    {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Minus vor negativer Zahl",
+    {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Eine Aussage zu Zahlklammern",
       type:"judge",prompt:"Beurteile: <strong>Steht ein Minus vor einer negativen Zahlklammer, wird beim Auflösen daraus ein Plus.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["Zahl in der Klammer","Ergebnis"],
@@ -6729,7 +6734,7 @@ const deepExercises = {
       prompt:"Berechne:<br><strong>−4 + |−3 − (+5)|</strong>",
       expected:4,
       solution:"Innerhalb des Betrags: −3 − (+5) = −8. Dann |−8| = 8. Also −4 + 8 = <strong>4</strong>."},
-    {id:"K43A-09",level:2,kind:"Knobeln",title:"Zwei mit demselben Werte Schreibweisen",
+    {id:"K43A-09",level:2,kind:"Knobeln",title:"Zwei Schreibweisen vergleichen",
       type:"choice",prompt:"Welche beiden Rechnungen haben immer denselben Wert?",
       options:["a − (−b) und a + b","a − (−b) und a − b","a + (−b) und a + b"],
       answer:"a − (−b) und a + b",
@@ -6762,7 +6767,7 @@ const deepExercises = {
     {id:"K43B-03",level:1,kind:"Rückwärts",title:"Rechnung auf null ergänzen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−4,8 + □ + 1,8 = 0</strong>",expected:3,
       solution:"−4,8 + 1,8 = −3. Also muss x = <strong>+3</strong> sein."},
-    {id:"K43B-04",level:2,kind:"Strategie",title:"Positive und negative Teile bündeln",
+    {id:"K43B-04",level:2,kind:"Strategie",title:"Eine Rechnung mit vier Termen",
       type:"number",prompt:"Rechne geschickt: <strong>−12,5 + 4,8 − 7,5 + 5,2</strong>.",expected:-10,
       solution:"−12,5 − 7,5 = −20 und 4,8 + 5,2 = 10. Zusammen <strong>−10</strong>."},
     {id:"K43B-05",level:2,kind:"Fehler finden",title:"Welche Umordnung stimmt?",
@@ -6775,13 +6780,13 @@ const deepExercises = {
       ],
       answer:"3 + 7 + (−8) + (−2)",
       solution:"Schreibe die Rechnung als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + 3 + (−2) + 7</strong>. Beim Umordnen bleiben <strong>−8</strong> und <strong>−2</strong> negativ."},
-    {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Vorzeichen gehören zur Zahl",
+    {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Eine Aussage zum Umordnen",
       type:"judge",prompt:"Beurteile: <strong>Beim vorteilhaften Umordnen eines Additions- und Subtraktionsterms muss das Vorzeichen zusammen mit der Zahl verschoben werden.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["1. Zahl","2. Zahl","3. Zahl","4. Zahl"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const a=[...v].sort((x,y)=>x-y);const target=[-5,-2,3,7];const same=a.every((x,i)=>Math.abs(x-target[i])<1e-9);const unchanged=Math.abs(v[0]+5)<1e-9&&Math.abs(v[1]-3)<1e-9&&Math.abs(v[2]+2)<1e-9&&Math.abs(v[3]-7)<1e-9;return same&&!unchanged;},
       solution:"Nach dem Umschreiben als Summe vorzeichenbehafteter Zahlen ist jeder Zahl eine Einheit aus Zahl und Vorzeichen."},
-    {id:"K43B-07",level:2,kind:"Rückwärts",title:"Fehlenden Rechnung bestimmen",
+    {id:"K43B-07",level:2,kind:"Rückwärts",title:"Fehlende Zahl bestimmen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−3,7 + 8,2 − 1,3 + □ = 0</strong>",expected:-3.2,
       solution:"−3,7 + 8,2 − 1,3 = 3,2. In die Lücke gehört <strong>−3,2</strong>."},
     {id:"K43B-08",level:2,kind:"Lösungsweg",title:"Welche Strategie ist am günstigsten?",
@@ -6817,13 +6822,13 @@ const deepExercises = {
       prompt:"Gib zwei Zahlen an, die miteinander multipliziert <strong>−24</strong> ergeben. Keine der beiden Zahlen darf +1 oder −1 sein.",
       check:(v)=>v.length===2 && v.every(Number.isFinite) && Math.abs(v[0]*v[1]+24)<1e-9 && Math.abs(v[0])!==1 && Math.abs(v[1])!==1,
       solution:"Zum Beispiel <strong>−6 und +4</strong>. Viele weitere Paare sind möglich."},
-    {id:"K44A-05",level:2,kind:"Aussage prüfen",title:"Ungerade Zahl negativer Zahlen",
+    {id:"K44A-05",level:2,kind:"Aussage prüfen",title:"Eine Aussage zum Produktvorzeichen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine ungerade Anzahl davon negativ ist, ist das Ergebnis negativ.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg%2===1&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]<0;},
       solution:"Jedes Paar negativer Zahlen liefert ein positives Teilprodukt. Bei ungerader Anzahl bleibt ein negativer Zahl übrig."},
-    {id:"K44A-06",level:2,kind:"Aussage prüfen",title:"Gerade Zahl negativer Zahlen",
+    {id:"K44A-06",level:2,kind:"Aussage prüfen",title:"Eine zweite Aussage zum Produktvorzeichen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine gerade Anzahl davon negativ ist, ist das Ergebnis positiv.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
@@ -6834,7 +6839,7 @@ const deepExercises = {
       options:["Das Ergebnis ist −24, weil drei negative Zahlen eine ungerade Anzahl sind.","Das Ergebnis ist +24, weil Minus mal Minus immer Plus ist.","Das Ergebnis ist 0."],
       answer:"Das Ergebnis ist −24, weil drei negative Zahlen eine ungerade Anzahl sind.",
       solution:"Die ersten beiden Zahlen ergeben +8; +8 · (−3) = <strong>−24</strong>."},
-    {id:"K44A-08",level:2,kind:"Rückwärts",title:"Welche negative Zahl fehlt?",
+    {id:"K44A-08",level:2,kind:"Rückwärts",title:"Welche Zahl fehlt?",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>(−3) · □ = +18</strong>",expected:-6,
       solution:"Für ein positives Ergebnis müssen beide Zahlen dasselbe Vorzeichen haben. In die Lücke gehört <strong>−6</strong>."},
     {id:"K44A-09",level:2,kind:"Knobeln",title:"Viele negative Zahlen",
@@ -6858,7 +6863,7 @@ const deepExercises = {
     {id:"K44B-01",level:1,kind:"Strategie",title:"Produkt berechnen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>(−25) · 16 · (−4)</strong>.",expected:1600,
       solution:"(−25) · (−4) = 100. Dann 100 · 16 = <strong>1600</strong>."},
-    {id:"K44B-02",level:1,kind:"Strategie",title:"Dezimalfaktoren passend gruppieren",
+    {id:"K44B-02",level:1,kind:"Strategie",title:"Ein Produkt mit Dezimalzahlen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>(−0,5) · (−0,2) · 40</strong>.",expected:4,
       solution:"(−0,5) · (−0,2) = 0,1. Dann 0,1 · 40 = <strong>4</strong>."},
     {id:"K44B-03",level:1,kind:"Rechenidee",title:"Rechnung berechnen",
@@ -6869,12 +6874,12 @@ const deepExercises = {
     {id:"K44B-04",level:2,kind:"Rückwärts",title:"Welche Zahl fehlt?",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>(−12,5) · □ · 8 = 200</strong>",expected:-2,
       solution:"(−12,5) · 8 = −100. In die Lücke gehört <strong>−2</strong>, damit am Ende +200 herauskommt."},
-    {id:"K44B-05",level:2,kind:"Lösungsweg",title:"Die beste Gruppierung erkennen",
+    {id:"K44B-05",level:2,kind:"Lösungsweg",title:"Eine Rechenidee auswählen",
       type:"choice",prompt:"Welche Idee ist bei <strong>(−0,25) · 16 · (−4) · 2,5</strong> besonders günstig?",
       options:["(−0,25) · (−4) und 16 · 2,5 bilden","Von links nach rechts mit Dezimalzahlen rechnen","Zuerst 16 · (−4) bilden"],
       answer:"(−0,25) · (−4) und 16 · 2,5 bilden",
       solution:"Das ergibt 1 · 40 = <strong>40</strong>."},
-    {id:"K44B-06",level:2,kind:"Fehler finden",title:"Günstig gruppiert, Vorzeichen vergessen",
+    {id:"K44B-06",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Produktrechnung",
       type:"choice",prompt:"Bei <strong>(−5) · 2 · (−0,2)</strong> rechnet Kai 5 · 0,2 = 1 und schreibt anschließend −2. Was wurde übersehen?",
       options:["Es gibt zwei negative Zahlen; miteinander multipliziert ergeben sie eine positive Zahl.","Man darf Zahlen nicht umordnen.","0,2 darf nicht mit 5 multipliziert werden."],
       answer:"Es gibt zwei negative Zahlen; miteinander multipliziert ergeben sie eine positive Zahl.",
@@ -6912,7 +6917,7 @@ const deepExercises = {
     {id:"K45A-04",level:1,kind:"Grundlage",title:"Durch eine Dezimalzahl teilen",
       type:"number",prompt:"Berechne: <strong>−7,2 : 0,6</strong>.",expected:-12,
       solution:"7,2 : 0,6 = 12 und Minus durch Plus ergibt Minus: <strong>−12</strong>."},
-    {id:"K45A-05",level:2,kind:"Aussage prüfen",title:"Gleiche Vorzeichen",
+    {id:"K45A-05",level:2,kind:"Aussage prüfen",title:"Eine Aussage zur Division",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Division ist die zweite Zahl nicht 0. Haben beide Zahlen dasselbe Vorzeichen, ist das Ergebnis positiv.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["Dividend","Divisor","Ergebnis"],
@@ -6921,12 +6926,12 @@ const deepExercises = {
     {id:"K45A-06",level:2,kind:"Knobeln",title:"Durch 0,5 teilen",
       type:"number",prompt:"Berechne und denke über die Größe nach: <strong>−12 : 0,5</strong>.",expected:-24,
       solution:"In −12 passen 24 Halb-Einheiten. Daher ist −12 : 0,5 = <strong>−24</strong>. Durch 0,5 zu teilen verdoppelt den Betrag."},
-    {id:"K45A-07",level:2,kind:"Fehler finden",title:"Minus durch Minus",
+    {id:"K45A-07",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Division",
       type:"choice",prompt:"Sina rechnet <strong>−15 : (−3) = −5</strong>. Welche Korrektur ist richtig?",
       options:["Das Ergebnis ist +5, weil Minus durch Minus Plus ergibt.","Das Ergebnis ist −12.","Die Rechnung ist richtig."],
       answer:"Das Ergebnis ist +5, weil Minus durch Minus Plus ergibt.",
       solution:"−15 : (−3) = <strong>+5</strong>."},
-    {id:"K45A-08",level:2,kind:"Rechenidee",title:"Division mit Multiplikation prüfen",
+    {id:"K45A-08",level:2,kind:"Rechenidee",title:"Eine Division überprüfen",
       type:"choice",prompt:"Wie kannst du <strong>−24 : 6 = −4</strong> sicher prüfen?",
       options:["−4 · 6 = −24","−4 + 6 = −24","−24 · 6 = −4"],
       answer:"−4 · 6 = −24",
@@ -9692,11 +9697,21 @@ function applyDeepCompletionMarker(ex){
   view.classList.add("previously-done-task");
   showPreviousDoneNotice(view,"✓ Diese Aufgabe hast du schon einmal richtig bearbeitet.");
 }
+function hasWorkInProgress(id){
+  // „In Bearbeitung“ gilt, sobald entweder ein Basis-Check
+  // begonnen wurde ODER mindestens eine Vertiefungsübung
+  // bearbeitet / als Lösung angesehen wurde.
+  const base=loadProgress()[id];
+  const deep=deepStatsFor(id);
+  return !!base || deep.attempted>0;
+}
+
 function statusFor(id){
   if(qualifiesMedal(id)) return "medal";
   if(qualifiesVerySecure(id)) return "verysecure";
   if(qualifiesSecure(id)) return "secure";
   if(hasFoundationStatus(id)) return "foundation";
+  if(hasWorkInProgress(id)) return "progress";
   return "neutral";
 }
 
@@ -9705,7 +9720,7 @@ function statusText(s){
   if(s==="verysecure") return "✓✓✓ Sehr sicher";
   if(s==="secure") return "✓✓ Sicher";
   if(s==="foundation") return "✓ Grundlagen";
-  if(s==="good" || s==="warn") return "In Bearbeitung";
+  if(s==="progress" || s==="good" || s==="warn") return "In Bearbeitung";
   return "Nicht geprüft";
 }
 
@@ -9785,24 +9800,25 @@ function renderHome(){
       grid.appendChild(btn);
     });
   }
-  const progress=loadProgress();
-  const checked=allItems.filter(i=>progress[i.id]).length;
+  const checked=allItems.filter(i=>statusFor(i.id)!=="neutral").length;
   $("#progressText").textContent=`${checked} von ${allItems.length}`;
   $("#progressBig").textContent=`${checked} / ${allItems.length}`;
   $("#progressBar").style.width=`${(checked/allItems.length)*100}%`;
   if(checked===0){
-    $("#summary").textContent="Noch keine Kompetenz geprüft.";
+    $("#summary").textContent="Noch keine Kompetenz bearbeitet.";
   }else{
     const medals=allItems.filter(i=>statusFor(i.id)==="medal").length;
     const verySecure=allItems.filter(i=>statusFor(i.id)==="verysecure").length;
     const secure=allItems.filter(i=>statusFor(i.id)==="secure").length;
     const foundations=allItems.filter(i=>statusFor(i.id)==="foundation").length;
+    const inProgress=allItems.filter(i=>statusFor(i.id)==="progress").length;
     const parts=[];
     if(medals) parts.push(`🏅 ${medals} mit Medaille`);
     if(verySecure) parts.push(`${verySecure} sehr sicher`);
     if(secure) parts.push(`${secure} sicher`);
     if(foundations) parts.push(`${foundations} Grundlagen`);
-    parts.push(`${checked} geprüft`);
+    if(inProgress) parts.push(`${inProgress} in Bearbeitung`);
+    parts.push(`${checked} bearbeitet`);
     $("#summary").textContent=parts.join(" · ");
   }
 }
