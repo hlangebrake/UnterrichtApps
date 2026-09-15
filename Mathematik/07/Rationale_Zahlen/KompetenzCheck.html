@@ -8570,7 +8570,7 @@ function startMeteorGame(){
     <div class="meteor-stars"></div>
     <div class="meteor-ship" id="meteorShip">🛸</div>
     <div class="enemy-warning" id="enemyWarning">⚠ Gegnerisches Schiff</div>
-    <div class="meteor-hint">Tippen: UFO gleitet zum Ziel · Ziehen: UFO folgt direkt</div>`;
+    <div class="meteor-hint">Am UFO ziehen: direkt · anderswo tippen/ziehen: UFO fliegt erst dorthin</div>`;
 
   const ship=$("#meteorShip");
   const enemyWarning=$("#enemyWarning");
@@ -8584,12 +8584,14 @@ function startMeteorGame(){
   let glideTargetY=null;
   const glideSpeed=310; // px/s
 
-  // Drag-Zustand: bei echtem Ziehen folgt das UFO direkt dem Finger.
+  // Pointer-Steuerung:
+  // Start direkt auf dem UFO => sofort direkt folgen.
+  // Start außerhalb => erst zur aktuellen Fingerposition gleiten,
+  // danach bei Erreichen direkt folgen.
   let activePointerId=null;
-  let pointerStartX=0;
-  let pointerStartY=0;
-  let dragging=false;
-  const dragThreshold=8;
+  let pointerClientX=0;
+  let pointerClientY=0;
+  let pointerMode="none"; // "direct" | "approach" | "none"
 
   let meteors=[];
   let enemyShots=[];
@@ -8643,9 +8645,27 @@ function startMeteorGame(){
     e.preventDefault();
 
     activePointerId=e.pointerId;
-    pointerStartX=e.clientX;
-    pointerStartY=e.clientY;
-    dragging=false;
+    pointerClientX=e.clientX;
+    pointerClientY=e.clientY;
+
+    const shipRect=ship.getBoundingClientRect();
+    const startsOnShip=
+      e.clientX>=shipRect.left &&
+      e.clientX<=shipRect.right &&
+      e.clientY>=shipRect.top &&
+      e.clientY<=shipRect.bottom;
+
+    if(startsOnShip){
+      // Drag beginnt auf dem UFO: ab jetzt direkte Fingersteuerung.
+      pointerMode="direct";
+      glideTargetX=null;
+      glideTargetY=null;
+    }else{
+      // Start außerhalb: niemals teleportieren. Das UFO fliegt zunächst
+      // zur aktuellen Fingerposition; das Ziel wird bei Bewegung aktualisiert.
+      pointerMode="approach";
+      setGlideTarget(e.clientX,e.clientY);
+    }
 
     if(stage.setPointerCapture){
       try{ stage.setPointerCapture(e.pointerId); }catch{}
@@ -8656,15 +8676,16 @@ function startMeteorGame(){
     if(activePointerId!==e.pointerId || !shipAlive)return;
     e.preventDefault();
 
-    const dist=Math.hypot(e.clientX-pointerStartX,e.clientY-pointerStartY);
-    if(!dragging && dist>=dragThreshold){
-      dragging=true;
-      glideTargetX=null;
-      glideTargetY=null;
-    }
+    pointerClientX=e.clientX;
+    pointerClientY=e.clientY;
 
-    if(dragging){
+    if(pointerMode==="direct"){
       positionShipDirect(e.clientX,e.clientY);
+    }else if(pointerMode==="approach"){
+      // Finger bewegt sich weiter: Das UFO verfolgt zunächst nur das neue Ziel.
+      // Erst wenn es den Finger erreicht, wird im Animationsloop auf direkte
+      // Steuerung umgeschaltet.
+      setGlideTarget(e.clientX,e.clientY);
     }
   };
 
@@ -8672,8 +8693,12 @@ function startMeteorGame(){
     if(activePointerId!==e.pointerId)return;
     e.preventDefault();
 
-    if(!dragging && shipAlive){
-      // Kein Teleport: ein Tap setzt nur das Ziel. Die Bewegung erfolgt im Frame-Loop.
+    pointerClientX=e.clientX;
+    pointerClientY=e.clientY;
+
+    if(pointerMode==="approach" && shipAlive){
+      // Loslassen, bevor das UFO angekommen ist: bis zur letzten
+      // Fingerposition weitergleiten.
       setGlideTarget(e.clientX,e.clientY);
     }
 
@@ -8682,7 +8707,7 @@ function startMeteorGame(){
     }
 
     activePointerId=null;
-    dragging=false;
+    pointerMode="none";
   };
 
   const pointerCancel=(e)=>{
@@ -8693,7 +8718,7 @@ function startMeteorGame(){
     }
 
     activePointerId=null;
-    dragging=false;
+    pointerMode="none";
   };
 
   stage.addEventListener("pointerdown",pointerDown);
@@ -8738,23 +8763,41 @@ function startMeteorGame(){
     clearTimeout(spawnTimer);
     clearTimeout(enemyTimer);
     clearTimeout(enemyShotTimer);
+    spawnTimer=0;
+    enemyTimer=0;
+    enemyShotTimer=0;
 
     clearHazards();
 
-    // Wirklich von vorne: Score UND Schwierigkeitszeit zurücksetzen.
+    // Vollständiger Rundenneustart: Score, Schwierigkeit und Steuerung zurücksetzen.
     setGameScore(0);
     startedAt=performance.now();
+    last=performance.now();
 
     glideTargetX=null;
     glideTargetY=null;
     activePointerId=null;
-    dragging=false;
+    pointerMode="none";
 
     resetShip();
 
-    // Neue Runde beginnt zunächst wieder ruhig.
-    spawnTimer=setTimeout(spawnMeteor,650);
+    // Das UFO muss bereits wieder aktiv sein, BEVOR die neue Spawn-Kette startet.
+    shipAlive=true;
+    invulnerableUntil=performance.now()+950;
+    ship.style.opacity=".42";
+
+    // Sofort wieder Spielgeschehen erzeugen. spawnMeteor() plant selbst
+    // den jeweils nächsten Meteor und startet damit die komplette Kette neu.
+    spawnMeteor();
+
+    // Gegner beginnen wie bei einem frischen Spiel erst nach einer kurzen Phase.
     enemyTimer=setTimeout(spawnEnemy,5000);
+
+    $("#gameMiniStatus").textContent="Neue Runde · 0 Punkte";
+
+    setTimeout(()=>{
+      if(!stopped && shipAlive) ship.style.opacity="1";
+    },520);
   };
 
   const damageShip=(label="Treffer! Neustart")=>{
@@ -8762,29 +8805,24 @@ function startMeteorGame(){
     if(stopped || !shipAlive || now<invulnerableUntil)return;
 
     shipAlive=false;
-    invulnerableUntil=now+1550;
     setGameScore(0);
     $("#gameMiniStatus").textContent=label;
 
     showShipExplosion();
     ship.style.opacity="0";
 
-    // Während der Explosion sofort alle Gefahren entfernen.
+    // Alte Runde vollständig stoppen, damit keine verwaisten Timer weiterlaufen.
     clearTimeout(spawnTimer);
     clearTimeout(enemyTimer);
     clearTimeout(enemyShotTimer);
+    spawnTimer=0;
+    enemyTimer=0;
+    enemyShotTimer=0;
     clearHazards();
 
     setTimeout(()=>{
       if(stopped)return;
-
       restartRoundAfterCrash();
-      ship.style.opacity=".42";
-      shipAlive=true;
-
-      setTimeout(()=>{
-        if(!stopped) ship.style.opacity="1";
-      },520);
     },620);
   };
 
@@ -8939,16 +8977,31 @@ function startMeteorGame(){
     last=now;
     const rect=stage.getBoundingClientRect();
 
-    // Bei einem Tap gleitet das UFO mit begrenzter Geschwindigkeit zum Ziel.
-    if(shipAlive && glideTargetX!==null && glideTargetY!==null && activePointerId===null){
+    // Gleiten funktioniert sowohl nach einem Tap als auch während eines
+    // außerhalb des UFOs begonnenen Drags.
+    if(shipAlive && glideTargetX!==null && glideTargetY!==null){
       const dx=glideTargetX-shipX;
       const dy=glideTargetY-shipY;
       const dist=Math.hypot(dx,dy);
 
-      if(dist<=2){
+      if(dist<=3){
         setShipPosition(glideTargetX,glideTargetY);
-        glideTargetX=null;
-        glideTargetY=null;
+
+        if(activePointerId!==null && pointerMode==="approach"){
+          // UFO hat den weiterhin gehaltenen Finger erreicht:
+          // ab jetzt folgt es direkt.
+          pointerMode="direct";
+          glideTargetX=null;
+          glideTargetY=null;
+
+          // Falls sich der Finger seit dem letzten Pointer-Event minimal
+          // weiterbewegt hat, exakt auf die zuletzt bekannte Position setzen.
+          positionShipDirect(pointerClientX,pointerClientY);
+        }else{
+          // Tap bzw. bereits losgelassener Drag: Ziel erreicht.
+          glideTargetX=null;
+          glideTargetY=null;
+        }
       }else{
         const step=Math.min(dist,glideSpeed*dt);
         setShipPosition(
@@ -9320,7 +9373,8 @@ function startTowerGame(){
       const oLeft=Math.max(left,pLeft),oRight=Math.min(right,pRight);
 
       if(oRight<=oLeft){
-        $("#gameMiniStatus").textContent="Daneben – Turm neu!";
+        $("#gameMiniStatus").textContent="Daneben – neue Runde · 0 Punkte";
+        setGameScore(0);
         blocks.forEach(b=>b.remove());
         blocks=[];
         width=150;
