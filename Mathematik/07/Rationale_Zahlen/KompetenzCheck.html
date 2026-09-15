@@ -2464,6 +2464,68 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   filter:drop-shadow(0 1px 2px rgba(0,0,0,.12));
 }
 
+
+.test-visual{
+  margin:10px 0 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fbfcfd;
+  overflow:hidden;
+}
+.test-visual svg{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:300px;
+}
+.test-visual.interactive{
+  background:#fff;
+}
+.test-visual.interactive svg{
+  touch-action:pinch-zoom;
+  cursor:crosshair;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.test-mark-note{
+  padding:7px 10px 9px;
+  color:var(--muted);
+  font-size:11px;
+  border-top:1px solid var(--line);
+}
+.test-multi-inputs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.test-multi-inputs label{
+  display:grid;
+  gap:5px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:650;
+}
+.test-multi-inputs input{
+  width:100%;
+}
+@media(max-width:560px){
+  .test-multi-inputs{grid-template-columns:1fr}
+}
+
+
+.test-question:has(.test-multi-inputs) .test-multi-inputs{
+  margin-top:10px;
+}
+.deep-multi-field label,
+.test-multi-inputs label{
+  line-height:1.25;
+}
+
+
+.test-visual svg text{
+  font-variant-numeric:tabular-nums;
+}
+
 @media(max-width:900px){
   .row-actions{
     width:100%;
@@ -2840,10 +2902,10 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
               <svg id="readCoord34" class="coord-svg" viewBox="0 0 620 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Koordinatensystem mit den Punkten A, B, C und D"></svg>
             </div>
             <div class="coord-input-list">
-              <div class="coord-answer"><strong>A</strong><span>(</span><input id="k34axA" inputmode="decimal" aria-label="x-Koordinate A"><span>|</span><input id="k34ayA" inputmode="decimal" aria-label="y-Koordinate A"><span>)</span></div>
-              <div class="coord-answer"><strong>B</strong><span>(</span><input id="k34axB" inputmode="decimal" aria-label="x-Koordinate B"><span>|</span><input id="k34ayB" inputmode="decimal" aria-label="y-Koordinate B"><span>)</span></div>
-              <div class="coord-answer"><strong>C</strong><span>(</span><input id="k34axC" inputmode="decimal" aria-label="x-Koordinate C"><span>|</span><input id="k34ayC" inputmode="decimal" aria-label="y-Koordinate C"><span>)</span></div>
-              <div class="coord-answer"><strong>D</strong><span>(</span><input id="k34axD" inputmode="decimal" aria-label="x-Koordinate D"><span>|</span><input id="k34ayD" inputmode="decimal" aria-label="y-Koordinate D"><span>)</span></div>
+              <div class="coord-answer"><strong>A</strong><span>(</span><input id="k34axA" inputmode="decimal" aria-label="Koordinate auf der Rechtsachse bei Punkt A"><span>|</span><input id="k34ayA" inputmode="decimal" aria-label="Koordinate auf der Hochachse bei Punkt A"><span>)</span></div>
+              <div class="coord-answer"><strong>B</strong><span>(</span><input id="k34axB" inputmode="decimal" aria-label="Koordinate auf der Rechtsachse bei Punkt B"><span>|</span><input id="k34ayB" inputmode="decimal" aria-label="Koordinate auf der Hochachse bei Punkt B"><span>)</span></div>
+              <div class="coord-answer"><strong>C</strong><span>(</span><input id="k34axC" inputmode="decimal" aria-label="Koordinate auf der Rechtsachse bei Punkt C"><span>|</span><input id="k34ayC" inputmode="decimal" aria-label="Koordinate auf der Hochachse bei Punkt C"><span>)</span></div>
+              <div class="coord-answer"><strong>D</strong><span>(</span><input id="k34axD" inputmode="decimal" aria-label="Koordinate auf der Rechtsachse bei Punkt D"><span>|</span><input id="k34ayD" inputmode="decimal" aria-label="Koordinate auf der Hochachse bei Punkt D"><span>)</span></div>
             </div>
             <div class="feedback" id="feedback34A"></div>
           </div>
@@ -3233,7 +3295,7 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
           <div class="reward-compact-rule">🪙 <span><b>Jede Aufgabe nur einmal:</b> Wiederholen bringt keine neuen Münzen.</span></div>
           <div class="reward-compact-rule">✓ <span><b>Richtig lösen:</b> Basis 1 Münze, Vertiefung 2–3 Münzen.</span></div>
           <div class="reward-compact-rule">💡 <span><b>Denkanstöße sind erlaubt.</b> Die Musterlösung beendet die Münzchance.</span></div>
-          <div class="reward-compact-rule">🎮 <span><b>Ab 5 Münzen</b> kannst du eine kurze Spielzeit freischalten.</span></div>
+          <div class="reward-compact-rule">🎮 <span><b>Ab 15 Münzen</b> kannst du eine kurze Spielzeit freischalten.</span></div>
         </div>
 
         <div class="reward-actions">
@@ -3296,10 +3358,10 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
         <div class="playtime-section">
           <div class="playtime-title">Spielzeit freischalten</div>
           <div class="playtime-options">
-            <button class="playtime-btn selected" type="button" data-minutes="1"><strong>1 Minute</strong><span>5 🪙</span></button>
-            <button class="playtime-btn" type="button" data-minutes="2"><strong>2 Minuten</strong><span>12 🪙</span></button>
-            <button class="playtime-btn" type="button" data-minutes="3"><strong>3 Minuten</strong><span>22 🪙</span></button>
-            <button class="playtime-btn" type="button" data-minutes="4"><strong>4 Minuten</strong><span>35 🪙</span></button>
+            <button class="playtime-btn selected" type="button" data-minutes="1"><strong>1 Minute</strong><span>15 🪙</span></button>
+            <button class="playtime-btn" type="button" data-minutes="2"><strong>2 Minuten</strong><span>27 🪙</span></button>
+            <button class="playtime-btn" type="button" data-minutes="3"><strong>3 Minuten</strong><span>37 🪙</span></button>
+            <button class="playtime-btn" type="button" data-minutes="4"><strong>4 Minuten</strong><span>45 🪙</span></button>
             <button class="playtime-btn" type="button" data-minutes="5"><strong>5 Minuten</strong><span>50 🪙</span></button>
           </div>
 
@@ -3495,16 +3557,16 @@ const deepExercises = {
       prompt:"Beurteile die Aussage: <strong>Zahl und Gegenzahl sind stets verschieden.</strong>",
       answer:"Falsch",
       solution:"Ein Gegenbeispiel ist <strong>0</strong>. Die Gegenzahl von 0 ist wieder 0."},
-    {id:"K32-07",level:2,kind:"Begründen",title:"Gleicher Betrag?",
-      type:"judge",
-      prompt:"Beurteile die Aussage: <strong>Eine Zahl und ihre Gegenzahl haben immer denselben Betrag.</strong>",
-      answer:"Richtig",
-      solution:"Die Aussage ist richtig. Zahl und Gegenzahl liegen auf der Zahlengeraden gleich weit von 0 entfernt."},
-    {id:"K32-08",level:2,kind:"Begründen",title:"Gegenzahl der Gegenzahl",
-      type:"judge",
-      prompt:"Beurteile die Aussage: <strong>Bildet man die Gegenzahl der Gegenzahl einer Zahl r, erhält man wieder r.</strong>",
-      answer:"Richtig",
-      solution:"Die Aussage ist richtig: Aus r wird −r und aus −r wieder r."},
+    {id:"K32-07",level:2,kind:"Betrag",title:"Betrag einer Rechnung",
+      type:"number",
+      prompt:"Berechne zuerst die Rechnung innerhalb der Betragsstriche und bestimme dann den Betrag:<br><strong>|−4,8 + 1,3|</strong>",
+      expected:3.5,
+      solution:"Zuerst: −4,8 + 1,3 = −3,5. Danach: |−3,5| = <strong>3,5</strong>."},
+    {id:"K32-08",level:2,kind:"Betrag",title:"Betrag einer Differenz",
+      type:"number",
+      prompt:"Berechne:<br><strong>|−2,4 − (−6,1)|</strong>",
+      expected:3.7,
+      solution:"Zuerst: −2,4 − (−6,1) = −2,4 + 6,1 = 3,7. Danach: |3,7| = <strong>3,7</strong>."},
     {id:"K32-09",level:2,kind:"Gegenbeispiel",title:"Größerer Betrag – größere Zahl?",
       type:"choice",
       prompt:"Welche Zahlen widerlegen die Aussage <strong>„Wenn |r| &gt; |s|, dann ist r &gt; s“</strong>?",
@@ -3549,11 +3611,16 @@ const deepExercises = {
       prompt:"Beurteile die Aussage: <strong>Von zwei positiven Zahlen ist diejenige kleiner, die den größeren Betrag hat.</strong>",
       answer:"Falsch",
       solution:"Bei positiven Zahlen stimmt die Reihenfolge mit den Beträgen überein. Zum Beispiel ist 3 &lt; 5, aber |3| &lt; |5|."},
-    {id:"K33-06",level:2,kind:"Begründen",title:"Negative Zahlen und Betrag",
-      type:"judge",
-      prompt:"Beurteile die Aussage: <strong>Von zwei verschiedenen negativen Zahlen ist diejenige kleiner, die den größeren Betrag hat.</strong>",
-      answer:"Richtig",
-      solution:"Zum Beispiel gilt −8 &lt; −3 und zugleich |−8| = 8 &gt; 3 = |−3|. Bei negativen Zahlen bedeutet der größere Betrag: weiter links."},
+    {id:"K33-06",level:2,kind:"Ordnen",title:"Ausdrücke vergleichen",
+      type:"choice",
+      prompt:"Welche Reihenfolge ist <strong>aufsteigend</strong>? Rechne die Ausdrücke zuerst aus.",
+      options:[
+        "−6 < |1 − 4| < |−7 + 2|",
+        "|1 − 4| < −6 < |−7 + 2|",
+        "−6 < |−7 + 2| < |1 − 4|"
+      ],
+      answer:"−6 < |1 − 4| < |−7 + 2|",
+      solution:"|1 − 4| = |−3| = 3 und |−7 + 2| = |−5| = 5. Deshalb gilt <strong>−6 &lt; 3 &lt; 5</strong>."},
     {id:"K33-07",level:2,kind:"Gegenbeispiel",title:"Aus r < s folgt |r| < |s|?",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn r &lt; s, dann gilt immer |r| &lt; |s|.</strong>",
@@ -3574,7 +3641,7 @@ const deepExercises = {
       ],
       answer:"−3,08 ist größer, weil es auf der Zahlengeraden näher an 0 und weiter rechts liegt.",
       solution:"−3,08 liegt rechts von −3,8. Deshalb gilt −3,08 &gt; −3,8."},
-    {id:"K33-10",level:3,kind:"Eigenes Beispiel",title:"Erfinde ein passendes Zahlenpaar",
+    {id:"K33-10",level:3,kind:"Eigenes Beispiel",title:"Rechnung berechnen",
       type:"multiNumberReason",labels:["kleinere Zahl","größere Zahl"],
       check:(v)=>v.length===2 && v.every(Number.isFinite) && v[0]<v[1] && Math.abs(v[0])>Math.abs(v[1]),
       prompt:"Erfinde zwei verschiedene Zahlen. Die <strong>erste Zahl soll kleiner</strong> sein als die zweite, aber ihr <strong>Betrag soll größer</strong> sein. Trage beide Zahlen ein. Erkläre anschließend, was du dabei über das Vorzeichen der kleineren Zahl bemerkst.",
@@ -3587,83 +3654,83 @@ const deepExercises = {
       prompt:"In welchem Quadranten liegt der Punkt <strong>P(−3,5 | 2,2)</strong>?",
       options:["I. Quadrant","II. Quadrant","III. Quadrant","IV. Quadrant"],
       answer:"II. Quadrant",
-      solution:"x ist negativ und y positiv. Daher liegt P im <strong>II. Quadranten</strong>."},
+      solution:"Die Koordinate auf der Rechtsachse ist negativ und die Koordinate auf der Hochachse positiv. Daher liegt P im <strong>II. Quadranten</strong>."},
     {id:"K34-02",level:1,kind:"Quadranten",title:"Vorzeichen im IV. Quadranten",
       type:"choice",
       prompt:"Welche Vorzeichen haben die Koordinaten eines Punktes im <strong>IV. Quadranten</strong>?",
-      options:["x positiv, y negativ","x negativ, y positiv","x negativ, y negativ"],
-      answer:"x positiv, y negativ",
-      solution:"Im IV. Quadranten gilt x &gt; 0 und y &lt; 0."},
+      options:["Rechtsachse positiv, Hochachse negativ","Rechtsachse negativ, Hochachse positiv","Rechtsachse negativ, Hochachse negativ"],
+      answer:"Rechtsachse positiv, Hochachse negativ",
+      solution:"Im IV. Quadranten ist die Koordinate auf der Rechtsachse positiv und die Koordinate auf der Hochachse negativ."},
     {id:"K34-03",level:1,kind:"Achsen",title:"Punkt auf der Hochachse",
       type:"choice",
-      prompt:"Ein Punkt liegt auf der <strong>Hochachse (y-Achse)</strong>. Was muss für seine Koordinaten gelten?",
-      options:["x = 0","y = 0","x und y sind gleich"],
-      answer:"x = 0",
-      solution:"Auf der y-Achse gibt es keine Verschiebung nach rechts oder links. Deshalb ist x = 0."},
-    {id:"K34-04",level:2,kind:"Fehler finden",title:"x und y vertauscht",
+      prompt:"Ein Punkt liegt auf der <strong>Hochachse</strong>. Was muss für seine Koordinaten gelten?",
+      options:["Die Koordinate auf der Rechtsachse ist 0.","Die Koordinate auf der Hochachse ist 0.","Beide Koordinaten sind gleich."],
+      answer:"Die Koordinate auf der Rechtsachse ist 0.",
+      solution:"Auf der Hochachse gibt es keine Verschiebung nach rechts oder links. Deshalb ist die Koordinate auf der Rechtsachse <strong>0</strong>."},
+    {id:"K34-04",level:2,kind:"Fehler finden",title:"Koordinaten vertauscht",
       type:"choice",
       prompt:"Mila soll <strong>P(2 | −3)</strong> eintragen. Sie geht vom Ursprung zuerst 2 nach unten und dann 3 nach rechts. Wo liegt ihr Fehler?",
       options:[
-        "Sie hat x- und y-Koordinate vertauscht.",
+        "Sie hat die Koordinate auf der Rechtsachse und die Koordinate auf der Hochachse vertauscht.",
         "Sie hätte beide Richtungen umkehren müssen.",
         "Der Punkt kann nicht eingetragen werden, weil y negativ ist."
       ],
-      answer:"Sie hat x- und y-Koordinate vertauscht.",
+      answer:"Sie hat die Koordinate auf der Rechtsachse und die Koordinate auf der Hochachse vertauscht.",
       solution:"Bei P(2 | −3) geht man zuerst 2 nach rechts und danach 3 nach unten."},
-    {id:"K34-05",level:2,kind:"Transfer",title:"Spiegelung an der y-Achse",
-      type:"multiNumber",labels:["x-Koordinate","y-Koordinate"],
-      prompt:"Der Punkt <strong>A(3,5 | −2)</strong> wird an der y-Achse gespiegelt. Gib die Koordinaten des Bildpunktes an.",
+    {id:"K34-05",level:2,kind:"Transfer",title:"Spiegelung an der Hochachse",
+      type:"multiNumber",labels:["Koordinate auf der Rechtsachse","Koordinate auf der Hochachse"],
+      prompt:"Der Punkt <strong>A(3,5 | −2)</strong> wird an der Hochachse gespiegelt. Gib die Koordinaten des Bildpunktes an.",
       check:(v)=>v.length===2 && Math.abs(v[0]+3.5)<1e-9 && Math.abs(v[1]+2)<1e-9,
-      solution:"Beim Spiegeln an der y-Achse ändert sich nur das Vorzeichen der x-Koordinate: <strong>(−3,5 | −2)</strong>."},
-    {id:"K34-06",level:2,kind:"Transfer",title:"Spiegelung an der x-Achse",
-      type:"multiNumber",labels:["x-Koordinate","y-Koordinate"],
-      prompt:"Der Punkt <strong>B(−4 | 1,5)</strong> wird an der x-Achse gespiegelt. Gib die Koordinaten des Bildpunktes an.",
+      solution:"Beim Spiegeln an der Hochachse ändert sich nur das Vorzeichen der Koordinate auf der Rechtsachse: <strong>(−3,5 | −2)</strong>."},
+    {id:"K34-06",level:2,kind:"Transfer",title:"Spiegelung an der Rechtsachse",
+      type:"multiNumber",labels:["Koordinate auf der Rechtsachse","Koordinate auf der Hochachse"],
+      prompt:"Der Punkt <strong>B(−4 | 1,5)</strong> wird an der Rechtsachse gespiegelt. Gib die Koordinaten des Bildpunktes an.",
       check:(v)=>v.length===2 && Math.abs(v[0]+4)<1e-9 && Math.abs(v[1]+1.5)<1e-9,
-      solution:"Beim Spiegeln an der x-Achse ändert sich nur das Vorzeichen der y-Koordinate: <strong>(−4 | −1,5)</strong>."},
+      solution:"Beim Spiegeln an der Rechtsachse ändert sich nur das Vorzeichen der Koordinate auf der Hochachse: <strong>(−4 | −1,5)</strong>."},
     {id:"K34-07",level:2,kind:"Vorwärts",title:"Eine Bewegung im Koordinatensystem",
-      type:"multiNumber",labels:["x-Koordinate","y-Koordinate"],
+      type:"multiNumber",labels:["Koordinate auf der Rechtsachse","Koordinate auf der Hochachse"],
       prompt:"Du startest bei <strong>S(−2 | 1,5)</strong>, gehst 3,5 Einheiten nach rechts und 4 Einheiten nach unten. Wo landest du?",
       check:(v)=>v.length===2 && Math.abs(v[0]-1.5)<1e-9 && Math.abs(v[1]+2.5)<1e-9,
-      solution:"x: −2 + 3,5 = 1,5. y: 1,5 − 4 = −2,5. Ziel: <strong>(1,5 | −2,5)</strong>."},
+      solution:"Koordinate auf der Rechtsachse: −2 + 3,5 = 1,5. Koordinate auf der Hochachse: 1,5 − 4 = −2,5. Ziel: <strong>(1,5 | −2,5)</strong>."},
     {id:"K34-08",level:2,kind:"Knobeln",title:"Senkrecht übereinander",
       type:"choice",
       prompt:"Welcher Punkt liegt mit <strong>P(−1,5 | 3)</strong> auf derselben senkrechten Linie?",
       options:["Q(−1,5 | −2)","Q(3 | −1,5)","Q(1,5 | 3)"],
       answer:"Q(−1,5 | −2)",
-      solution:"Auf derselben senkrechten Linie haben Punkte dieselbe x-Koordinate."},
+      solution:"Auf derselben senkrechten Linie haben Punkte dieselbe Koordinate auf der Rechtsachse."},
     {id:"K34-09",level:2,kind:"Begründen",title:"Abstand von den Achsen",
       type:"choice",
       prompt:"Der Punkt P hat die Koordinaten <strong>(−4,2 | 1,3)</strong>. Welche Aussage über die Abstände zu den Achsen ist richtig?",
       options:[
-        "Abstand zur y-Achse: 4,2; Abstand zur x-Achse: 1,3.",
-        "Abstand zur y-Achse: 1,3; Abstand zur x-Achse: 4,2.",
+        "Abstand zur Hochachse: 4,2; Abstand zur Rechtsachse: 1,3.",
+        "Abstand zur Hochachse: 1,3; Abstand zur Rechtsachse: 4,2.",
         "Beide Abstände sind negativ."
       ],
-      answer:"Abstand zur y-Achse: 4,2; Abstand zur x-Achse: 1,3.",
-      solution:"Der Abstand zur y-Achse ist |x| = 4,2. Der Abstand zur x-Achse ist |y| = 1,3."},
+      answer:"Abstand zur Hochachse: 4,2; Abstand zur Rechtsachse: 1,3.",
+      solution:"Der Abstand zur Hochachse ist der Betrag der Koordinate auf der Rechtsachse: 4,2. Der Abstand zur Rechtsachse ist der Betrag der Koordinate auf der Hochachse: 1,3."},
     {id:"K34-10",level:3,kind:"Rückwärts",title:"Zwei Schritte rückwärts",
-      type:"multiNumber",labels:["x-Koordinate","y-Koordinate"],
-      prompt:"Ein unbekannter Punkt P liegt im <strong>II. Quadranten</strong>. P wird zuerst an der y-Achse gespiegelt. Der Bildpunkt wird anschließend 2,5 Einheiten nach unten verschoben und liegt dann bei <strong>Q(4 | −1)</strong>. Bestimme P.",
+      type:"multiNumber",labels:["Koordinate auf der Rechtsachse","Koordinate auf der Hochachse"],
+      prompt:"Ein unbekannter Punkt P liegt im <strong>II. Quadranten</strong>. P wird zuerst an der Hochachse gespiegelt. Der Bildpunkt wird anschließend 2,5 Einheiten nach unten verschoben und liegt dann bei <strong>Q(4 | −1)</strong>. Bestimme P.",
       check:(v)=>v.length===2 && Math.abs(v[0]+4)<1e-9 && Math.abs(v[1]-1.5)<1e-9,
-      solution:"Gehe rückwärts: Vor der Verschiebung nach unten lag der gespiegelte Punkt bei <strong>(4 | 1,5)</strong>. Vor der Spiegelung an der y-Achse war die x-Koordinate negativ. Also <strong>P(−4 | 1,5)</strong>."}
+      solution:"Gehe rückwärts: Vor der Verschiebung nach unten lag der gespiegelte Punkt bei <strong>(4 | 1,5)</strong>. Vor der Spiegelung an der Hochachse war die Koordinate auf der Rechtsachse negativ. Also <strong>P(−4 | 1,5)</strong>."}
   ],
 
   "K3.5":[
-    {id:"K35-01",level:1,kind:"Vorwärts",title:"Startwert und Änderung",
-      type:"number",
-      prompt:"Ein Zustand startet bei <strong>−3,5</strong> und ändert sich um <strong>+5,2</strong>. Wie groß ist der neue Zustand?",
-      expected:1.7,
-      solution:"−3,5 + 5,2 = <strong>+1,7</strong>."},
-    {id:"K35-02",level:1,kind:"Rückwärts",title:"Gesuchter Startwert",
-      type:"number",
-      prompt:"Nach einer Änderung um <strong>−3,6</strong> beträgt der Zustand <strong>−2,4</strong>. Wie groß war der Zustand vorher?",
-      expected:1.2,
-      solution:"Startwert − 3,6 = −2,4. Also Startwert = −2,4 + 3,6 = <strong>+1,2</strong>."},
-    {id:"K35-03",level:1,kind:"Änderung",title:"Vom Anfang zum Ende",
-      type:"number",
-      prompt:"Ein Wert verändert sich von <strong>+4,7</strong> auf <strong>−2,8</strong>. Wie groß ist die Änderung?",
-      expected:-7.5,
-      solution:"Änderung = Endwert − Anfangswert = −2,8 − 4,7 = <strong>−7,5</strong>."},
+    {id:"K35-01",level:1,kind:"Sachaufgabe",title:"Temperaturänderung",
+      type:"multiNumber",labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:"Auf dem Thermometer sind zunächst <strong>+7 °C</strong>. Die Temperatur ändert sich um <strong>−10 °C</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.",
+      check:(v)=>v.length===3 && Math.abs(v[0]-7)<1e-9 && Math.abs(v[1]+10)<1e-9 && Math.abs(v[2]+3)<1e-9,
+      solution:"Ausgangszustand: <strong>+7 °C</strong>. Änderung: <strong>−10 °C</strong>. Endzustand: 7 + (−10) = <strong>−3 °C</strong>."},
+    {id:"K35-02",level:1,kind:"Sachaufgabe",title:"Aufzug – Ausgangszustand gesucht",
+      type:"multiNumber",labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:"Ein Aufzug fährt <strong>5 Ebenen nach unten</strong>. Danach steht er auf <strong>Ebene −2</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.",
+      check:(v)=>v.length===3 && Math.abs(v[0]-3)<1e-9 && Math.abs(v[1]+5)<1e-9 && Math.abs(v[2]+2)<1e-9,
+      solution:"5 Ebenen nach unten entsprechen der Änderung <strong>−5</strong>. Es gilt: Ausgangszustand + (−5) = −2. Also war der Ausgangszustand <strong>+3</strong>. Insgesamt: <strong>+3, −5, −2</strong>."},
+    {id:"K35-03",level:2,kind:"Sachaufgabe",title:"Wasserstand – Änderung gesucht",
+      type:"multiNumber",labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:"Ein Wasserstand wird relativ zu einer Messmarke angegeben. Zuerst liegt er bei <strong>−1,4 m</strong>, später bei <strong>+0,9 m</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.",
+      check:(v)=>v.length===3 && Math.abs(v[0]+1.4)<1e-9 && Math.abs(v[1]-2.3)<1e-9 && Math.abs(v[2]-.9)<1e-9,
+      solution:"Ausgangszustand: <strong>−1,4 m</strong>. Endzustand: <strong>+0,9 m</strong>. Änderung = 0,9 − (−1,4) = <strong>+2,3 m</strong>."},
     {id:"K35-04",level:2,kind:"Mehrschrittig",title:"Zwei Änderungen hintereinander",
       type:"number",
       prompt:"Ein Zustand beginnt bei <strong>−1,5</strong>. Zuerst ändert er sich um <strong>+2,8</strong>, danach um <strong>−4,1</strong>. Wie lautet der Endwert?",
@@ -3725,7 +3792,7 @@ const deepExercises = {
     {id:"K41A-04",level:2,kind:"Rückwärts",title:"Drei Zahlen ergeben zusammen null",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−6,2 + □ + 1,7 = 0</strong>",expected:4.5,
       solution:"−6,2 + 1,7 = −4,5. Damit die Summe 0 wird, muss x = <strong>+4,5</strong> sein."},
-    {id:"K41A-05",level:2,kind:"Sachaufgabe",title:"Drei Änderungen zusammenfassen",
+    {id:"K41A-05",level:2,kind:"Sachaufgabe",title:"Rechnung berechnen",
       type:"number",prompt:"Ein Kontostand wird nur als mathematisches Modell betrachtet. Er beträgt −18,5 Einheiten, danach kommen +7,8 und +12,4 hinzu. Welcher Endwert entsteht?",expected:1.7,
       solution:"−18,5 + 7,8 + 12,4 = −18,5 + 20,2 = <strong>1,7</strong>."},
     {id:"K41A-06",level:2,kind:"Fehler finden",title:"Beträge einfach addiert",
@@ -3733,9 +3800,9 @@ const deepExercises = {
       options:["Er hat die Beträge addiert und das Vorzeichen nicht aus der Rechnung bestimmt.","Bei verschiedenen Vorzeichen muss man immer multiplizieren.","Die Rechnung ist richtig."],
       answer:"Er hat die Beträge addiert und das Vorzeichen nicht aus der Rechnung bestimmt.",
       solution:"Bei verschiedenen Vorzeichen werden die Beträge verglichen und voneinander abgezogen. 5,4 − 2,1 = 3,3; wegen des größeren negativen Betrags lautet das Ergebnis <strong>−3,3</strong>."},
-    {id:"K41A-07",level:2,kind:"Aussage prüfen",title:"Zwei negative Zahlen",
-      type:"judge",prompt:"Beurteile: <strong>Wenn du zwei negative Zahlen addierst, ist das Ergebnis kleiner als jede der beiden Zahlen.</strong>",answer:"Richtig",
-      solution:"Die Aussage ist richtig. Addiert man zu einer negativen Zahl noch eine negative Zahl, bewegt man sich auf der Zahlengeraden weiter nach links."},
+    {id:"K41A-07",level:2,kind:"Betrag",title:"Summe mit Betrag",
+      type:"number",prompt:"Berechne:<br><strong>−3,5 + |−2,4 + 7,9|</strong>",expected:2,
+      solution:"Innerhalb des Betrags: −2,4 + 7,9 = 5,5. Also −3,5 + |5,5| = −3,5 + 5,5 = <strong>2</strong>."},
     {id:"K41A-08",level:2,kind:"Gegenbeispiel",title:"Keine Null – also Summe nicht null?",
       type:"judge",prompt:"Beurteile: <strong>Wenn keine der addierten Zahlen 0 ist, kann das Ergebnis der Addition nicht 0 sein.</strong>",answer:"Falsch",
       solution:"Gegenbeispiel: <strong>5 + (−5) = 0</strong>. Beide Zahlen sind von 0 verschieden."},
@@ -3750,11 +3817,15 @@ const deepExercises = {
   ],
 
   "K4.1b":[
-    {id:"K41B-01",level:1,kind:"Rechenidee",title:"Günstiges Paar zuerst",
-      type:"choice",prompt:"Welche Umordnung ist für <strong>5,63 + (−3,5) + 0,37</strong> besonders günstig?",
-      options:["5,63 + 0,37 + (−3,5)","5,63 + 3,5 + 0,37","0,37 − 5,63 − 3,5"],
+    {id:"K41B-01",level:1,kind:"Rechenidee",title:"Summe berechnen",
+      type:"choice",prompt:"Welche <strong>korrekte Umordnung</strong> ist für <strong>5,63 + (−3,5) + 0,37</strong> besonders günstig?",
+      options:[
+        "5,63 + 0,37 + (−3,5)",
+        "(−3,5) + 5,63 + 0,37",
+        "0,37 + (−3,5) + 5,63"
+      ],
       answer:"5,63 + 0,37 + (−3,5)",
-      solution:"5,63 + 0,37 = 6. Danach ist 6 − 3,5 leicht zu berechnen."},
+      solution:"Alle drei Umordnungen sind mathematisch korrekt. Besonders günstig ist <strong>5,63 + 0,37 + (−3,5)</strong>, weil 5,63 + 0,37 = 6. Danach ist 6 − 3,5 leicht zu berechnen."},
     {id:"K41B-02",level:1,kind:"Grundlage",title:"Ergänzen zu einer ganzen Zahl",
       type:"number",prompt:"Rechne geschickt: <strong>−12,7 + 5,2 + 2,7</strong>.",expected:-4.8,
       solution:"−12,7 + 2,7 = −10. Dann −10 + 5,2 = <strong>−4,8</strong>."},
@@ -3764,18 +3835,23 @@ const deepExercises = {
     {id:"K41B-04",level:2,kind:"Strategie",title:"Welche Zahlen gehören zusammen?",
       type:"number",prompt:"Rechne vorteilhaft: <strong>−25,6 + 13,4 + 5,6</strong>.",expected:-6.6,
       solution:"−25,6 + 5,6 = −20. Dann −20 + 13,4 = <strong>−6,6</strong>."},
-    {id:"K41B-05",level:2,kind:"Fehler finden",title:"Das Vorzeichen gehört zum Zahlen",
-      type:"choice",prompt:"Aus <strong>6,2 + (−4,8) + 1,8</strong> macht Leni beim Umordnen <strong>6,2 + 4,8 − 1,8</strong>. Was ist falsch?",
-      options:["Beim Vertauschen wurde das Vorzeichen der Zahlen verändert.","Zahlen dürfen grundsätzlich nicht vertauscht werden.","Nur Dezimalzahlen dürfen nicht vertauscht werden."],
-      answer:"Beim Vertauschen wurde das Vorzeichen der Zahlen verändert.",
-      solution:"Man darf Zahlen vertauschen, aber <strong>der Zahl bleibt mitsamt seinem Vorzeichen erhalten</strong>."},
+    {id:"K41B-05",level:2,kind:"Fehler finden",title:"Rechnung berechnen",
+      type:"choice",
+      prompt:"Welche Umordnung von <strong>−6,2 + 4,8 + 1,2</strong> ist mathematisch korrekt?",
+      options:[
+        "4,8 + 1,2 + (−6,2)",
+        "4,8 + 1,2 + 6,2",
+        "−4,8 + 1,2 + 6,2"
+      ],
+      answer:"4,8 + 1,2 + (−6,2)",
+      solution:"Die erste Zahl ist <strong>−6,2</strong>. Beim Umordnen muss dieses Minus bei der 6,2 bleiben. Korrekt ist daher <strong>4,8 + 1,2 + (−6,2)</strong>."},
     {id:"K41B-06",level:2,kind:"Rückwärts",title:"Vier Zahlen ergeben zusammen null",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>6,8 + (−2,3) + (−1,5) + □ = 0</strong>",expected:-3,
       solution:"6,8 − 2,3 − 1,5 = 3,0. In die Lücke gehört <strong>−3,0</strong>."},
-    {id:"K41B-07",level:2,kind:"Begründen",title:"Warum darf man umordnen?",
+    {id:"K41B-07",level:2,kind:"Begründen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Addition darfst du die Zahlen vertauschen, wenn das Vorzeichen bei der jeweiligen Zahl bleibt.</strong>",answer:"Richtig",
-      solution:"Das ist genau die Anwendung des Regel zum Vertauschenes auf vorzeichenbehaftete Zahlen."},
-    {id:"K41B-08",level:2,kind:"Sachaufgabe",title:"Vier Änderungen geschickt zusammenfassen",
+      solution:"Das ist genau die Regel zum Vertauschen bei vorzeichenbehafteten Zahlen."},
+    {id:"K41B-08",level:2,kind:"Sachaufgabe",title:"Rechnung berechnen",
       type:"number",prompt:"Vier Änderungen lauten <strong>+4,8; −1,3; +1,2; −4,7</strong>. Bestimme die Gesamtänderung möglichst geschickt.",expected:0,
       solution:"+4,8 + 1,2 = +6,0 und −1,3 − 4,7 = −6,0. Zusammen ergibt das <strong>0</strong>."},
     {id:"K41B-09",level:3,kind:"Eigenes Beispiel",title:"Erfinde vier passende Zahlen",
@@ -3819,11 +3895,9 @@ const deepExercises = {
       options:["Er hat −1,2 addiert statt die Gegenzahl +1,2 zu addieren.","Er hätte die Beträge multiplizieren müssen.","Die Rechnung ist richtig."],
       answer:"Er hat −1,2 addiert statt die Gegenzahl +1,2 zu addieren.",
       solution:"Richtig ist −3,5 + 1,2 = <strong>−2,3</strong>."},
-    {id:"K42-08",level:2,kind:"Rechenidee",title:"Subtraktion als Addition",
-      type:"choice",prompt:"Welche Rechnung hat denselben Wert wie <strong>7,4 − (−2,6)</strong>?",
-      options:["7,4 + 2,6","7,4 − 2,6","−7,4 + 2,6"],
-      answer:"7,4 + 2,6",
-      solution:"Die Subtraktion einer negativen Zahl wird zur Addition der Gegenzahl."},
+    {id:"K42-08",level:2,kind:"Betrag",title:"Differenz mit Betrag",
+      type:"number",prompt:"Berechne:<br><strong>|−3,2 + 8,7| − 6,1</strong>",expected:-0.6,
+      solution:"Zuerst: −3,2 + 8,7 = 5,5. Der Betrag ist 5,5. Danach: 5,5 − 6,1 = <strong>−0,6</strong>."},
     {id:"K42-09",level:2,kind:"Begründen",title:"Wann ergibt eine Differenz null?",
       type:"judge",prompt:"Beurteile: <strong>a − b = 0 gilt genau dann, wenn a und b gleich sind.</strong>",answer:"Richtig",
       solution:"Ist a = b, dann ist a − b = 0. Umgekehrt muss bei a − b = 0 die subtrahierte Zahl genauso groß wie die Ausgangszahl sein."},
@@ -3860,11 +3934,11 @@ const deepExercises = {
     {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Minus vor negativer Zahl",
       type:"judge",prompt:"Beurteile: <strong>Steht ein Minus vor einer negativen Zahlklammer, wird beim Auflösen daraus ein Plus.</strong>",answer:"Richtig",
       solution:"Für eine negative Zahl −a gilt: −(−a) = +a."},
-    {id:"K43A-08",level:2,kind:"Rückwärts",title:"Welche Zahl gehört in die Lücke?",
-      type:"choice",prompt:"Welche Zahl muss in <strong>4 + ( ? ) = −2</strong> stehen?",
-      options:["−6","+6","−2"],
-      answer:"−6",
-      solution:"4 + (−6) = <strong>−2</strong>."},
+    {id:"K43A-08",level:2,kind:"Betrag",title:"Rechnung mit Betrag",
+      type:"number",
+      prompt:"Berechne:<br><strong>−4 + |−3 − (+5)|</strong>",
+      expected:4,
+      solution:"Innerhalb des Betrags: −3 − (+5) = −8. Dann |−8| = 8. Also −4 + 8 = <strong>4</strong>."},
     {id:"K43A-09",level:2,kind:"Knobeln",title:"Zwei mit demselben Werte Schreibweisen",
       type:"choice",prompt:"Welche beiden Rechnungen haben immer denselben Wert?",
       options:["a − (−b) und a + b","a − (−b) und a − b","a + (−b) und a + b"],
@@ -3883,12 +3957,16 @@ const deepExercises = {
   ],
 
   "K4.3b":[
-    {id:"K43B-01",level:1,kind:"Rechenidee",title:"Günstig umordnen",
-      type:"choice",prompt:"Welche Umordnung ist für <strong>−2,5 + 3,1 − 1,5 + 1,9</strong> besonders günstig?",
-      options:["(−2,5 − 1,5) + (3,1 + 1,9)","(−2,5 + 3,1) − (1,5 + 1,9)","2,5 + 1,5 + 3,1 + 1,9"],
+    {id:"K43B-01",level:1,kind:"Rechenidee",title:"Rechnung berechnen",
+      type:"choice",prompt:"Welche <strong>korrekte Umordnung</strong> ist für <strong>−2,5 + 3,1 − 1,5 + 1,9</strong> besonders günstig?",
+      options:[
+        "(−2,5 − 1,5) + (3,1 + 1,9)",
+        "−2,5 + 3,1 + 1,9 − 1,5",
+        "3,1 − 1,5 + 1,9 − 2,5"
+      ],
       answer:"(−2,5 − 1,5) + (3,1 + 1,9)",
-      solution:"Die negativen Rechnunge ergeben −4, die positiven +5. So erhält man schnell <strong>1</strong>."},
-    {id:"K43B-02",level:1,kind:"Grundlage",title:"Paare zu null",
+      solution:"Alle drei Umordnungen sind mathematisch korrekt. Besonders günstig ist es, die beiden negativen Zahlen zu <strong>−4</strong> und die beiden positiven Zahlen zu <strong>+5</strong> zusammenzufassen. So erhält man schnell <strong>1</strong>."},
+    {id:"K43B-02",level:1,kind:"Grundlage",title:"Geschickt rechnen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>7,4 − 2,6 + 0,6 − 5,4</strong>.",expected:0,
       solution:"7,4 − 5,4 = 2 und −2,6 + 0,6 = −2. Zusammen ergibt das <strong>0</strong>."},
     {id:"K43B-03",level:1,kind:"Rückwärts",title:"Rechnung auf null ergänzen",
@@ -3897,11 +3975,16 @@ const deepExercises = {
     {id:"K43B-04",level:2,kind:"Strategie",title:"Positive und negative Teile bündeln",
       type:"number",prompt:"Rechne geschickt: <strong>−12,5 + 4,8 − 7,5 + 5,2</strong>.",expected:-10,
       solution:"−12,5 − 7,5 = −20 und 4,8 + 5,2 = 10. Zusammen <strong>−10</strong>."},
-    {id:"K43B-05",level:2,kind:"Fehler finden",title:"Vorzeichen beim Vertauschen verloren",
-      type:"choice",prompt:"Aus <strong>8 − 3 + 2</strong> macht Ben beim Vertauschen <strong>8 + 3 − 2</strong>. Was ist der Fehler?",
-      options:["Beim Umordnen müssen die Vorzeichen bei den zugehörigen Zahlen bleiben.","Subtraktion darf niemals umgeschrieben werden.","Nur die Zahl 8 darf verschoben werden."],
-      answer:"Beim Umordnen müssen die Vorzeichen bei den zugehörigen Zahlen bleiben.",
-      solution:"Schreibe den Rechnung als 8 + (−3) + 2. Dann darfst du die drei vorzeichenbehafteten Zahlen vertauschen."},
+    {id:"K43B-05",level:2,kind:"Fehler finden",title:"Welche Umordnung stimmt?",
+      type:"choice",
+      prompt:"Welche Umordnung von <strong>−8 + 3 − 2 + 7</strong> ist mathematisch korrekt?",
+      options:[
+        "3 + 7 + (−8) + (−2)",
+        "3 + 7 + 8 − 2",
+        "−3 + 7 + 8 − 2"
+      ],
+      answer:"3 + 7 + (−8) + (−2)",
+      solution:"Schreibe die Rechnung als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + 3 + (−2) + 7</strong>. Beim Umordnen bleiben <strong>−8</strong> und <strong>−2</strong> negativ."},
     {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Vorzeichen gehören zur Zahl",
       type:"judge",prompt:"Beurteile: <strong>Beim vorteilhaften Umordnen eines Additions- und Subtraktionsterms muss das Vorzeichen zusammen mit der Zahl verschoben werden.</strong>",answer:"Richtig",
       solution:"Nach dem Umschreiben als Summe vorzeichenbehafteter Zahlen ist jeder Zahl eine Einheit aus Zahl und Vorzeichen."},
@@ -3913,7 +3996,7 @@ const deepExercises = {
       options:["9,8 + 0,2 und −4,3 − 5,7 jeweils zusammenfassen.","Von links nach rechts alles schriftlich rechnen.","Alle Minuszeichen zunächst ignorieren."],
       answer:"9,8 + 0,2 und −4,3 − 5,7 jeweils zusammenfassen.",
       solution:"10 + (−10) = <strong>0</strong>. Die Zahlen sind bewusst so gewählt, dass passende Paare entstehen."},
-    {id:"K43B-09",level:3,kind:"Eigenes Beispiel",title:"Beim Umordnen bleibt das Vorzeichen bei der Zahl",
+    {id:"K43B-09",level:3,kind:"Eigenes Beispiel",title:"Rechnung berechnen",
       type:"multiNumberReason",labels:["erste Zahl","zweite Zahl (negativ)","dritte Zahl"],
       check:(v)=>v.length===3 && v.every(Number.isFinite) && v[1]<0,
       prompt:"Erfinde drei Zahlen. Die zweite Zahl soll negativ sein. Trage die drei Zahlen ein. Erkläre dann mit deinem Beispiel: Wenn du die Reihenfolge beim Addieren änderst, warum muss das Vorzeichen immer bei seiner Zahl bleiben?",
@@ -3973,13 +4056,13 @@ const deepExercises = {
   ],
 
   "K4.4b":[
-    {id:"K44B-01",level:1,kind:"Strategie",title:"25 und 4 zusammenfassen",
+    {id:"K44B-01",level:1,kind:"Strategie",title:"Produkt berechnen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>(−25) · 16 · (−4)</strong>.",expected:1600,
       solution:"(−25) · (−4) = 100. Dann 100 · 16 = <strong>1600</strong>."},
     {id:"K44B-02",level:1,kind:"Strategie",title:"Dezimalfaktoren passend gruppieren",
       type:"number",prompt:"Rechne vorteilhaft: <strong>(−0,5) · (−0,2) · 40</strong>.",expected:4,
       solution:"(−0,5) · (−0,2) = 0,1. Dann 0,1 · 40 = <strong>4</strong>."},
-    {id:"K44B-03",level:1,kind:"Rechenidee",title:"Welche Zahlen zuerst?",
+    {id:"K44B-03",level:1,kind:"Rechenidee",title:"Rechnung berechnen",
       type:"choice",prompt:"Bei <strong>0,25 · 8 · 4</strong>: Welche Gruppierung ist besonders günstig?",
       options:["0,25 · 4 zuerst","0,25 · 8 zuerst","Die Reihenfolge darf nicht verändert werden."],
       answer:"0,25 · 4 zuerst",
@@ -4000,7 +4083,7 @@ const deepExercises = {
     {id:"K44B-07",level:2,kind:"Rückwärts",title:"Auf 100 ergänzen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>(−2,5) · 4 · □ = 100</strong>",expected:-10,
       solution:"(−2,5) · 4 = −10. In die Lücke gehört <strong>−10</strong>."},
-    {id:"K44B-08",level:2,kind:"Aussage prüfen",title:"Zahlen umordnen",
+    {id:"K44B-08",level:2,kind:"Aussage prüfen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Multiplikation darfst du die Zahlen vertauschen und anders zusammenfassen, ohne das Ergebnis zu verändern.</strong>",answer:"Richtig",
       solution:"Das folgt aus Regeln zum Vertauschen und geschickten Zusammenfassen der Multiplikation."},
     {id:"K44B-09",level:3,kind:"Strategie",title:"Geschickt multiplizieren",
@@ -4116,9 +4199,9 @@ const $ = s => document.querySelector(s);
 
 
 
-const GAME_COST=5;
+const GAME_COST=15;
 const GAME_COOLDOWN_MS=15*60*1000;
-const GAME_COSTS={1:5,2:12,3:22,4:35,5:50};
+const GAME_COSTS={1:15,2:27,3:37,4:45,5:50};
 const GAME_NAMES={
   star:"Sternfänger",
   rocket:"Rocket Landing",
@@ -5207,6 +5290,7 @@ function performFullReset(){
   localStorage.removeItem("kompetenztrainer-deep-v2");
   localStorage.removeItem("kompetenztrainer-selfrating-v1");
   localStorage.removeItem("kompetenztrainer-reward-v1");
+  localStorage.removeItem("kompetenztrainer-test-history-v1");
   closeResetWarning();
   renderHome();
   updateRewardHeader();
@@ -5514,14 +5598,14 @@ const deepHintsById = {
     "Betrachte den Punkt genau bei 0: Was passiert dort beim Spiegeln?"
   ],
   "K32-07": [
-    "Zahl und Gegenzahl liegen spiegelbildlich zu 0.",
-    "Spiegelbildliche Punkte haben denselben Abstand zum Spiegelpunkt 0.",
-    "Der Betrag misst genau diesen Abstand. Nutze das für deine Entscheidung."
+    "Rechne zuerst nur den Ausdruck innerhalb der Betragsstriche: −4,8 + 1,3.",
+    "Das Zwischenergebnis ist negativ. Der Betrag fragt nach seinem Abstand zu 0.",
+    "Erst nach der Rechnung innerhalb der Striche bildest du den Betrag."
   ],
   "K32-08": [
-    "Bilde zu einer selbst gewählten Zahl zuerst einmal die Gegenzahl.",
-    "Spiegle diesen neuen Punkt ein zweites Mal an 0.",
-    "Überlege geometrisch: Wo landet ein Punkt, wenn du ihn zweimal an derselben Stelle spiegelst?"
+    "Beginne innerhalb der Betragsstriche mit dem doppelten Minus: − (−6,1).",
+    "Aus dem Subtrahieren einer negativen Zahl wird das Addieren der positiven Gegenzahl.",
+    "Berechne danach den Betrag des Zwischenergebnisses."
   ],
   "K32-09": [
     "Du suchst ein Paar, bei dem der erste Betrag größer ist, die erste Zahl selbst aber nicht größer ist.",
@@ -5559,9 +5643,9 @@ const deepHintsById = {
     "Wenn eine positive Zahl den größeren Betrag hat: Liegt sie dann links oder rechts von der anderen?"
   ],
   "K33-06": [
-    "Nimm zwei negative Beispielzahlen mit deutlich verschiedenen Beträgen.",
-    "Die negative Zahl mit dem größeren Abstand zu 0 liegt weiter links.",
-    "Verbinde nun „weiter links“ mit „kleiner“ und entscheide über die Aussage."
+    "Berechne zuerst getrennt |1 − 4| und |−7 + 2|.",
+    "Denke daran: Ein Betrag ist niemals negativ.",
+    "Ordne anschließend die fertigen Zahlen −6, 3 und 5 von klein nach groß."
   ],
   "K33-07": [
     "Teste die Aussage nicht nur mit positiven Zahlen, sondern besonders mit zwei negativen Zahlen.",
@@ -5584,19 +5668,19 @@ const deepHintsById = {
     "Probiere zuerst eine negative Zahl als erste Zahl und wähle die zweite näher bei 0. Prüfe danach beide Bedingungen getrennt."
   ],
   "K34-01": [
-    "Lies zuerst nur das Vorzeichen der x-Koordinate und dann das der y-Koordinate.",
+    "Lies zuerst das Vorzeichen der Koordinate auf der Rechtsachse und dann das der Koordinate auf der Hochachse.",
     "Für P ist x negativ und y positiv.",
     "Erinnere dich an die Quadranten: rechts oben I, links oben II, links unten III, rechts unten IV."
   ],
   "K34-02": [
     "Der IV. Quadrant liegt rechts unten.",
-    "Rechts vom Ursprung bedeutet eine positive x-Koordinate.",
-    "Unterhalb des Ursprungs bedeutet eine negative y-Koordinate."
+    "Rechts vom Ursprung bedeutet eine positive Koordinate auf der Rechtsachse.",
+    "Unterhalb des Ursprungs bedeutet eine negative Koordinate auf der Hochachse."
   ],
   "K34-03": [
     "Ein Punkt auf der Hochachse liegt weder rechts noch links vom Ursprung.",
-    "Die x-Koordinate beschreibt genau die Bewegung nach rechts oder links.",
-    "Welche Zahl muss die x-Koordinate also haben, wenn es keine seitliche Bewegung gibt?"
+    "Die Koordinate auf der Rechtsachse beschreibt genau die Bewegung nach rechts oder links.",
+    "Welche Zahl muss die Koordinate auf der Rechtsachse also haben, wenn es keine seitliche Bewegung gibt?"
   ],
   "K34-04": [
     "Bei P(2 | −3) steht die erste Zahl für rechts/links und die zweite für oben/unten.",
@@ -5604,49 +5688,49 @@ const deepHintsById = {
     "Formuliere, was sie bei der Reihenfolge der beiden Koordinaten verwechselt hat."
   ],
   "K34-05": [
-    "Beim Spiegeln an der y-Achse wandert ein Punkt auf die andere Seite der Hochachse.",
-    "Der Abstand zur y-Achse bleibt gleich. Nur rechts und links werden vertauscht.",
+    "Beim Spiegeln an der Hochachse wandert ein Punkt auf die andere Seite der Hochachse.",
+    "Der Abstand zur Hochachse bleibt gleich. Nur rechts und links werden vertauscht.",
     "Überlege, welche Koordinate für rechts/links zuständig ist. Nur bei dieser Koordinate ändert sich das Vorzeichen."
   ],
   "K34-06": [
-    "Beim Spiegeln an der x-Achse wandert ein Punkt auf die andere Seite der Rechtsachse.",
-    "Der Abstand zur x-Achse bleibt gleich. Nur oben und unten werden vertauscht.",
+    "Beim Spiegeln an der Rechtsachse wandert ein Punkt auf die andere Seite der Rechtsachse.",
+    "Der Abstand zur Rechtsachse bleibt gleich. Nur oben und unten werden vertauscht.",
     "Überlege, welche Koordinate für oben/unten zuständig ist. Nur bei dieser Koordinate ändert sich das Vorzeichen."
   ],
   "K34-07": [
     "Behandle die Bewegung nach rechts und die Bewegung nach unten getrennt.",
-    "Für die x-Koordinate gehst du 3,5 nach rechts; für die y-Koordinate 4 nach unten.",
-    "Berechne zuerst die neue x-Koordinate und danach die neue y-Koordinate. Setze beide anschließend zum Punkt zusammen."
+    "Für die Koordinate auf der Rechtsachse gehst du 3,5 nach rechts; für die Koordinate auf der Hochachse 4 nach unten.",
+    "Berechne zuerst die neue Koordinate auf der Rechtsachse und danach die neue Koordinate auf der Hochachse. Setze beide anschließend zum Punkt zusammen."
   ],
   "K34-08": [
     "Punkte auf derselben senkrechten Linie stehen genau übereinander.",
-    "Wenn du dich nur nach oben oder unten bewegst, verändert sich die x-Koordinate nicht.",
+    "Wenn du dich nur nach oben oder unten bewegst, verändert sich die Koordinate auf der Rechtsachse nicht.",
     "Suche also unter den Möglichkeiten nach einem Punkt mit derselben ersten Koordinate wie P."
   ],
   "K34-09": [
-    "Der Abstand zur y-Achse wird durch die waagerechte Entfernung bestimmt.",
-    "Die waagerechte Entfernung steckt in der x-Koordinate; die senkrechte Entfernung in der y-Koordinate.",
+    "Der Abstand zur Hochachse wird durch die waagerechte Entfernung bestimmt.",
+    "Die waagerechte Entfernung steckt in der Koordinate auf der Rechtsachse; die senkrechte Entfernung in der Koordinate auf der Hochachse.",
     "Für einen Abstand ist nur die Größe wichtig, nicht das Vorzeichen."
   ],
   "K34-10": [
     "Arbeite rückwärts vom Punkt Q(4 | −1). Der letzte Schritt war 2,5 Einheiten nach unten.",
     "Mache zuerst nur diesen letzten Schritt rückgängig: Wo lag der Punkt unmittelbar vor der Verschiebung?",
-    "Dieser Zwischenpunkt war das Spiegelbild von P an der y-Achse. Beim Rückspiegeln bleibt die y-Koordinate gleich und nur rechts/links wechseln."
+    "Dieser Zwischenpunkt war das Spiegelbild von P an der Hochachse. Beim Rückspiegeln bleibt die Koordinate auf der Hochachse gleich und nur rechts/links wechseln."
   ],
   "K35-01": [
-    "Der Startwert ist −3,5 und die Änderung ist positiv.",
-    "Eine positive Änderung bedeutet eine Bewegung nach rechts auf der Zahlengeraden.",
-    "Gehe vom Startwert 5,2 Einheiten nach rechts und prüfe, ob du dabei 0 überschreitest."
+    "Markiere im Text zuerst die Temperatur am Anfang und danach die angegebene Änderung.",
+    "„Ändert sich um −10 °C“ bedeutet: Zur Anfangstemperatur wird −10 addiert.",
+    "Nutze die Beziehung: Ausgangszustand + Änderung = Endzustand. Trage anschließend auch die beiden gegebenen Werte in die passenden Felder ein."
   ],
   "K35-02": [
-    "Der Endwert und die Änderung sind bekannt; gesucht ist der Startwert.",
-    "Die Änderung −3,6 bedeutet: Vom Startwert ging es 3,6 nach links.",
-    "Gehe vom Endwert −2,4 deshalb 3,6 Einheiten in die entgegengesetzte Richtung zurück."
+    "Im Text sind der Endzustand und die Bewegung des Aufzugs angegeben.",
+    "5 Ebenen nach unten entsprechen einer Änderung von −5.",
+    "Gehe vom Endzustand −2 die Änderung rückwärts: Welche Ebene liegt 5 Ebenen darüber? Trage danach alle drei Größen ein."
   ],
   "K35-03": [
-    "Gesucht ist nicht der Endwert, sondern die Bewegung vom Anfang zum Ende.",
-    "Von +4,7 nach −2,8 geht es nach links, also muss die Änderung negativ sein.",
-    "Bestimme die gesamte Strecke: zuerst von +4,7 bis 0 und dann weiter bis −2,8."
+    "Hier sind Ausgangszustand und Endzustand direkt im Text genannt.",
+    "Die Änderung erhältst du mit: Endzustand − Ausgangszustand.",
+    "Achte beim Rechnen auf das Minus vor −1,4: 0,9 − (−1,4). Trage anschließend alle drei Größen ein."
   ],
   "K35-04": [
     "Bearbeite die beiden Änderungen nacheinander.",
@@ -5714,9 +5798,9 @@ const deepHintsById = {
     "Vergleiche 5,4 und 2,1 und überlege, welche Richtung auf der Zahlengeraden am Ende überwiegt."
   ],
   "K41A-07": [
-    "Nimm zwei einfache negative Beispielzahlen und addiere sie.",
-    "Auf der Zahlengeraden bedeutet das Addieren einer negativen Zahl immer eine Bewegung nach links.",
-    "Frage dich: Wenn du von einer negativen Zahl noch weiter nach links gehst, wie liegt das Ergebnis im Vergleich zu beiden Ausgangszahlen?"
+    "Berechne zuerst nur −2,4 + 7,9 innerhalb der Betragsstriche.",
+    "Bilde vom Zwischenergebnis den Betrag.",
+    "Addiere diesen Wert anschließend zu −3,5."
   ],
   "K41A-08": [
     "Um die Aussage zu widerlegen, genügt ein einziges Beispiel.",
@@ -5754,9 +5838,9 @@ const deepHintsById = {
     "Rechne dieses Paar zuerst und nimm danach erst +13,4 dazu."
   ],
   "K41B-05": [
-    "Beim Umordnen darfst du Zahlen verschieben – aber das Vorzeichen gehört zur jeweiligen Zahl.",
-    "Vergleiche den ursprünglichen Wert −4,8 mit dem Wert +4,8 im umgeordneten Weg.",
-    "Prüfe außerdem, was mit +1,8 passiert ist. Finde den ersten Moment, an dem ein Vorzeichen nicht mehr bei seiner Zahl bleibt."
+    "Markiere zuerst die erste Zahl vollständig: Sie lautet −6,2 und nicht +6,2.",
+    "Beim Umordnen darf −6,2 an eine andere Stelle wandern. Das Minus muss aber bei der 6,2 bleiben.",
+    "Prüfe bei jeder Antwort, ob genau dieselben drei vorzeichenbehafteten Zahlen vorkommen: −6,2; +4,8; +1,2."
   ],
   "K41B-06": [
     "Fasse die drei bekannten Zahlen zunächst geschickt zusammen.",
@@ -5819,9 +5903,9 @@ const deepHintsById = {
     "Ersetze das Abziehen der negativen Zahl gedanklich durch die passende Bewegung nach rechts und prüfe den neuen Wert."
   ],
   "K42-08": [
-    "Konzentriere dich auf das doppelte Minus: − (−2,6).",
-    "Wenn du eine negative Zahl abziehst, bewegst du dich auf der Zahlengeraden nach rechts.",
-    "Suche unter den Möglichkeiten die Rechnung, die genau diese Bewegung nach rechts beschreibt."
+    "Der erste Rechenschritt steht innerhalb des Betrags: −3,2 + 8,7.",
+    "Bilde vom Zwischenergebnis den Betrag.",
+    "Erst danach ziehst du 6,1 ab."
   ],
   "K42-09": [
     "Teste die Aussage zuerst mit zwei gleichen Zahlen.",
@@ -5869,9 +5953,9 @@ const deepHintsById = {
     "Wenn du eine negative Zahl abziehst, in welche Richtung gehst du – und welches Rechenzeichen beschreibt diese Richtung ohne Klammer?"
   ],
   "K43A-08": [
-    "Von 4 aus soll die Zahl in der Klammer dich bis −2 bringen.",
-    "Der Zielwert liegt links von 4, also brauchst du in der Klammer eine negative Zahl.",
-    "Bestimme den Abstand von 4 bis −2 und nutze Richtung und Abstand für die fehlende Zahl."
+    "Rechne zuerst vollständig innerhalb der Betragsstriche: −3 − (+5).",
+    "Bilde danach den Betrag des Zwischenergebnisses.",
+    "Erst ganz am Ende addierst du diesen Betrag zu −4."
   ],
   "K43A-09": [
     "Prüfe die Möglichkeiten mit einer einfachen positiven Zahl anstelle von b, zum Beispiel 2.",
@@ -5904,9 +5988,9 @@ const deepHintsById = {
     "Wenn du beide Gruppen getrennt zusammenfasst, bleiben nur zwei sehr einfache Zahlen übrig."
   ],
   "K43B-05": [
-    "Schreibe die ursprüngliche Rechnung so, dass du das Vorzeichen jeder Zahl deutlich siehst: +8, −3, +2.",
-    "Beim Umordnen darf −3 nicht zu +3 werden und +2 nicht zu −2.",
-    "Vergleiche Bens neue Reihenfolge Zeichen für Zeichen mit den ursprünglichen drei Zahlen."
+    "Schreibe die Ausgangsrechnung als vier vorzeichenbehaftete Zahlen: −8; +3; −2; +7.",
+    "Beim Umordnen darf sich nur die Reihenfolge ändern, nicht das Vorzeichen einer Zahl.",
+    "Prüfe deshalb, in welcher Antwort genau −8, +3, −2 und +7 vorkommen."
   ],
   "K43B-06": [
     "Teste die Aussage an einer kurzen Rechnung wie 8 − 3 + 2.",
@@ -7186,7 +7270,7 @@ function checkK34(){
   fa.className="feedback show "+(aScore===4?"good":"bad");
   fa.innerHTML=aScore===4
     ? "<strong>Aufgabe a richtig.</strong> Alle vier Punkte wurden korrekt abgelesen."
-    : `<strong>${aScore} von 4 Punkten richtig.</strong> Prüfe zuerst die Rechtsachse (x) und danach die Hochachse (y).`;
+    : `<strong>${aScore} von 4 Punkten richtig.</strong> Prüfe zuerst die Koordinate auf der Rechtsachse und danach die Koordinate auf der Hochachse.`;
 
   const bChecks=placements34.map((p,i)=>p &&
     Math.abs(p.x-touchPoints34[i].x)<0.01 &&
@@ -7311,10 +7395,13 @@ function escAttr(s){
 
 const testGenerators=[
   ()=>{
-    const v=randInt(-60,60)/10;
+    const distance=randInt(2,60)/10;
+    const direction=Math.random()<.5?"links":"rechts";
+    const answer=direction==="links"?-distance:distance;
     return {competency:"K3.1",level:"Basis",type:"input",
-      prompt:`Gib die Zahl ${fmtTest(v)} als Dezimalzahl ein.`,
-      answer:v,solution:`Die Zahl lautet ${fmtTest(v)}.`};
+      prompt:`Du startest auf der Zahlengeraden bei <strong>0</strong> und gehst <strong>${fmtTest(distance)} Einheiten nach ${direction}</strong>. Welche Zahl erreichst du?`,
+      answer,
+      solution:`Von 0 aus bedeutet „${direction}“ ${direction==="links"?"eine negative":"eine positive"} Zahl. Du erreichst <strong>${fmtTest(answer)}</strong>.`};
   },
   ()=>{
     const v=randInt(-99,99)||-12;
@@ -7346,17 +7433,43 @@ const testGenerators=[
       answer:ans,solution:`Auf der Zahlengeraden bedeutet „weiter links“ immer „kleiner“.`};
   },
   ()=>{
-    const x=randInt(-8,8)/2,y=randInt(-8,8)/2;
-    const ans=`P (${fmtTest(x)} | ${fmtTest(y)})`;
+    const axis=Math.random()<.5?"Rechtsachse":"Hochachse";
+    const distance=randInt(1,8)/2;
+    const target=-distance;
+    let other=randInt(-8,8)/2;
+    while(Math.abs(other-target)<1e-9 || Math.abs(other+target)<1e-9) other=randInt(-8,8)/2;
+
+    let ans,d1,d2;
+    if(axis==="Rechtsachse"){
+      ans=`P (${fmtTest(target)} | ${fmtTest(other)})`;
+      d1=`P (${fmtTest(-target)} | ${fmtTest(other)})`;
+      d2=`P (${fmtTest(other)} | ${fmtTest(target)})`;
+    }else{
+      ans=`P (${fmtTest(other)} | ${fmtTest(target)})`;
+      d1=`P (${fmtTest(other)} | ${fmtTest(-target)})`;
+      d2=`P (${fmtTest(target)} | ${fmtTest(other)})`;
+    }
+
     return {competency:"K3.4",level:"Basis",type:"choice",
-      prompt:`Welcher Punkt hat die Koordinaten (${fmtTest(x)} | ${fmtTest(y)})?`,
-      options:[ans,`P (${fmtTest(y)} | ${fmtTest(x)})`,`P (${fmtTest(-x)} | ${fmtTest(y)})`],
-      answer:ans,solution:`Zuerst wird die x-Koordinate, dann die y-Koordinate angegeben.`};
+      prompt:`Bei welchem Punkt liegt die Koordinate auf der ${axis} ${fmtTest(distance)} unter 0?`,
+      options:[ans,d1,d2],
+      answer:ans,
+      solution:`${fmtTest(distance)} unter 0 bedeutet ${fmtTest(target)}. Entscheidend ist die Koordinate auf der ${axis}.`};
   },
   ()=>{
     const q=pick([
-      {p:"Ein Punkt liegt auf der y-Achse. Was muss gelten?",o:["x = 0","y = 0","x = y"],a:"x = 0",s:"Auf der y-Achse ist die x-Koordinate 0."},
-      {p:"Ein Punkt liegt auf der x-Achse. Was muss gelten?",o:["y = 0","x = 0","x = y"],a:"y = 0",s:"Auf der x-Achse ist die y-Koordinate 0."}
+      {
+        p:"Ein Punkt liegt auf der Hochachse. Welche Aussage muss gelten?",
+        o:["Die Koordinate auf der Rechtsachse ist 0.","Die Koordinate auf der Hochachse ist 0.","Beide Koordinaten müssen positiv sein."],
+        a:"Die Koordinate auf der Rechtsachse ist 0.",
+        s:"Auf der Hochachse gibt es keine Bewegung nach rechts oder links. Deshalb ist die Koordinate auf der Rechtsachse 0."
+      },
+      {
+        p:"Ein Punkt liegt auf der Rechtsachse. Welche Aussage muss gelten?",
+        o:["Die Koordinate auf der Hochachse ist 0.","Die Koordinate auf der Rechtsachse ist 0.","Beide Koordinaten müssen negativ sein."],
+        a:"Die Koordinate auf der Hochachse ist 0.",
+        s:"Auf der Rechtsachse gibt es keine Bewegung nach oben oder unten. Deshalb ist die Koordinate auf der Hochachse 0."
+      }
     ]);
     return {competency:"K3.4",level:"Vertiefung",type:"choice",prompt:q.p,options:q.o,answer:q.a,solution:q.s};
   },
@@ -7406,10 +7519,36 @@ testGenerators.push(
   },
   ()=>({
     competency:"K4.1b",level:"Vertiefung",type:"choice",
-    prompt:"Welche Umordnung ist für 5,63 − 3,5 + 0,37 besonders günstig?",
-    options:["5,63 + 0,37 − 3,5","5,63 − 0,37 − 3,5","3,5 + 0,37 − 5,63"],
+    prompt:"Welche korrekte Umordnung ist für 5,63 − 3,5 + 0,37 besonders günstig?",
+    options:[
+      "5,63 + 0,37 − 3,5",
+      "−3,5 + 5,63 + 0,37",
+      "0,37 − 3,5 + 5,63"
+    ],
     answer:"5,63 + 0,37 − 3,5",
-    solution:"5,63 und 0,37 ergeben zusammen 6. Danach ist 6 − 3,5 leicht zu berechnen."
+    solution:"Alle drei Umordnungen haben denselben Wert. Besonders günstig ist 5,63 + 0,37 − 3,5, weil 5,63 + 0,37 = 6."
+  }),
+  ()=>({
+    competency:"K4.1b",level:"Vertiefung",type:"choice",
+    prompt:"Welche Umordnung von −6,2 + 4,8 + 1,2 ist mathematisch korrekt?",
+    options:[
+      "4,8 + 1,2 + (−6,2)",
+      "4,8 + 1,2 + 6,2",
+      "−4,8 + 1,2 + 6,2"
+    ],
+    answer:"4,8 + 1,2 + (−6,2)",
+    solution:"Das führende Minus gehört zur 6,2. Beim Umordnen muss deshalb −6,2 als ganze vorzeichenbehaftete Zahl erhalten bleiben."
+  }),
+  ()=>({
+    competency:"K4.3b",level:"Vertiefung",type:"choice",
+    prompt:"Welche Umordnung von −7,5 + 2,4 − 1,5 + 5,6 ist mathematisch korrekt?",
+    options:[
+      "2,4 + 5,6 + (−7,5) + (−1,5)",
+      "2,4 + 5,6 + 7,5 − 1,5",
+      "−2,4 + 5,6 + 7,5 − 1,5"
+    ],
+    answer:"2,4 + 5,6 + (−7,5) + (−1,5)",
+    solution:"Die negativen Zahlen sind −7,5 und −1,5. Beim Umordnen müssen ihre Minuszeichen bei den Zahlen bleiben."
   }),
   ()=>({
     competency:"K4.3a",level:"Vertiefung",type:"choice",
@@ -7432,59 +7571,645 @@ testGenerators.push(
     answer:"Das Ergebnis ist positiv.",
     solution:"Minus durch Minus ergibt Plus."
   })
+
 );
 
+// Weitere Testformate: mehrgliedrige Rechnungen und echte Darstellungen
+testGenerators.push(
+  ()=>{
+    const a=randInt(-60,60)/10;
+    const b=randInt(-60,60)/10;
+    const c=randInt(-60,60)/10;
+    const answer=Math.round((a+b+c)*1000000000)/1000000000;
+    const s=n=>`(${n>=0?"+":""}${fmtTest(n)})`;
+    return {
+      competency:"K4.1a",level:"Basis",type:"input",
+      prompt:`Berechne die Summe: <strong>${s(a)} + ${s(b)} + ${s(c)}</strong>`,
+      answer,
+      solution:`Das Ergebnis ist <strong>${fmtTest(answer)}</strong>.`
+    };
+  },
+  ()=>{
+    const a=randInt(-80,80)/10;
+    const b=randInt(-70,70)/10;
+    const c=randInt(-70,70)/10;
+    const d=randInt(-60,60)/10;
+    const answer=Math.round((a-b+c-d)*1000000000)/1000000000;
+    const s=n=>`(${n>=0?"+":""}${fmtTest(n)})`;
+    return {
+      competency:"K4.3a",level:"Basis",type:"input",
+      prompt:`Berechne: <strong>${s(a)} − ${s(b)} + ${s(c)} − ${s(d)}</strong>`,
+      answer,
+      solution:`Das Ergebnis ist <strong>${fmtTest(answer)}</strong>.`
+    };
+  },
+  ()=>{
+    const step=pick([0.2,0.5,1]);
+    const min=Math.round(randInt(-14,-2)*step*10)/10;
+    const max=Math.round((min+12*step)*10)/10;
+    const labelIndices=[0,4,8,12];
+    const targetIndex=pick([1,2,3,5,6,7,9,10,11]);
+    const labelValues=labelIndices.map(k=>Math.round((min+k*step)*10)/10);
+    const target=Math.round((min+targetIndex*step)*10)/10;
+    return {
+      competency:"K3.1",level:"Basis",type:"input",
+      prompt:"Welche Zahl ist durch den blauen Punkt auf der Zahlengeraden markiert?",
+      visualType:"numberlineRead",
+      min,max,step,target,labelValues,
+      answer:target,
+      solution:`Die Teilstriche haben den Abstand <strong>${fmtTest(step)}</strong>. Der blaue Punkt liegt bei <strong>${fmtTest(target)}</strong>.`
+    };
+  },
+  ()=>{
+    const step=pick([0.2,0.5]);
+    const min=Math.round(randInt(-14,-2)*step*10)/10;
+    const max=Math.round((min+11*step)*10)/10;
+    const labelIndices=pick([[1,6],[2,7],[3,8]]);
+    const labelValues=labelIndices.map(k=>Math.round((min+k*step)*10)/10);
+    const targetIndex=pick([0,4,5,9,10,11].filter(k=>!labelIndices.includes(k)));
+    const target=Math.round((min+targetIndex*step)*10)/10;
+    return {
+      competency:"K3.1",level:"Basis",type:"numberlineMark",
+      prompt:`Markiere <strong>${fmtTest(target)}</strong> auf der Zahlengeraden. Bestimme die Skalierung aus den beschrifteten Werten und den Teilstrichen.`,
+      min,max,step,target,labelValues,
+      solution:`Zwischen den beschrifteten Werten liegen gleich große Teilstriche. Ein Teilstrich entspricht <strong>${fmtTest(step)}</strong>. Die richtige Stelle ist <strong>${fmtTest(target)}</strong>.`
+    };
+  },
+  ()=>{
+    const vals=[-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4];
+    let x=pick(vals),y=pick(vals);
+    while(x===0 && y===0){x=pick(vals);y=pick(vals)}
+    return {
+      competency:"K3.4",level:"Basis",type:"coordinateMark",
+      prompt:`Trage den Punkt <strong>P(${fmtTest(x)} | ${fmtTest(y)})</strong> in das Koordinatensystem ein.`,
+      target:{x,y},
+      solution:`P liegt bei <strong>(${fmtTest(x)} | ${fmtTest(y)})</strong>.`
+    };
+  }
+);
+
+
+
+testGenerators.push(
+  ()=>{
+    const start=randInt(-5,12);
+    let change=randInt(-12,12);
+    if(change===0) change=-7;
+    const end=start+change;
+    return {
+      competency:"K3.5",level:"Basis",type:"multiInput",
+      labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:`Auf einem Thermometer sind zunächst <strong>${fmtTest(start)} °C</strong>. Die Temperatur ändert sich um <strong>${change>0?"+":""}${fmtTest(change)} °C</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.`,
+      check:(v)=>v.length===3 && Math.abs(v[0]-start)<1e-9 && Math.abs(v[1]-change)<1e-9 && Math.abs(v[2]-end)<1e-9,
+      solution:`Ausgangszustand: <strong>${fmtTest(start)} °C</strong>, Änderung: <strong>${change>0?"+":""}${fmtTest(change)} °C</strong>, Endzustand: <strong>${fmtTest(end)} °C</strong>.`
+    };
+  },
+  ()=>{
+    let change=randInt(-6,6);
+    if(change===0) change=-4;
+    const end=randInt(-4,7);
+    const start=end-change;
+    const direction=change<0?`${Math.abs(change)} Ebenen nach unten`:`${Math.abs(change)} Ebenen nach oben`;
+    return {
+      competency:"K3.5",level:"Basis",type:"multiInput",
+      labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:`Ein Aufzug fährt <strong>${direction}</strong>. Danach steht er auf <strong>Ebene ${end>0?"+":""}${fmtTest(end)}</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.`,
+      check:(v)=>v.length===3 && Math.abs(v[0]-start)<1e-9 && Math.abs(v[1]-change)<1e-9 && Math.abs(v[2]-end)<1e-9,
+      solution:`Die Änderung ist <strong>${change>0?"+":""}${fmtTest(change)}</strong>. Daraus folgt als Ausgangszustand <strong>${start>0?"+":""}${fmtTest(start)}</strong>. Endzustand: <strong>${end>0?"+":""}${fmtTest(end)}</strong>.`
+    };
+  },
+  ()=>{
+    const start=randInt(-30,10)/10;
+    let end=randInt(-10,30)/10;
+    while(Math.abs(end-start)<.4) end=randInt(-10,30)/10;
+    const change=Math.round((end-start)*10)/10;
+    return {
+      competency:"K3.5",level:"Vertiefung",type:"multiInput",
+      labels:["Ausgangszustand","Änderung","Endzustand"],
+      prompt:`Ein Wasserstand wird relativ zu einer Messmarke angegeben. Zuerst liegt er bei <strong>${start>0?"+":""}${fmtTest(start)} m</strong>, später bei <strong>${end>0?"+":""}${fmtTest(end)} m</strong>. Trage Ausgangszustand, Änderung und Endzustand ein.`,
+      check:(v)=>v.length===3 && Math.abs(v[0]-start)<1e-9 && Math.abs(v[1]-change)<1e-9 && Math.abs(v[2]-end)<1e-9,
+      solution:`Änderung = Endzustand − Ausgangszustand = ${fmtTest(end)} − (${fmtTest(start)}) = <strong>${change>0?"+":""}${fmtTest(change)} m</strong>.`
+    };
+  }
+);
+
+
+testGenerators.push(
+  ()=>{
+    const a=randInt(-9,9);
+    let b=randInt(-9,9);
+    if(a+b===0) b+=2;
+    const inside=a+b;
+    return {
+      competency:"K3.2",level:"Vertiefung",type:"input",
+      prompt:`Berechne den Betrag: <strong>|${a>=0?"+":""}${a} + (${b>=0?"+":""}${b})|</strong>`,
+      answer:Math.abs(inside),
+      solution:`Zuerst wird innerhalb der Betragsstriche gerechnet. Danach ist der Betrag <strong>${Math.abs(inside)}</strong>.`
+    };
+  },
+  ()=>{
+    const a=randInt(-8,8), b=randInt(-8,8), c=randInt(-7,7);
+    const absVal=Math.abs(a-b);
+    const items=[
+      {txt:`|${a} − (${b})|`,val:absVal},
+      {txt:`${c}`,val:c},
+      {txt:`${-absVal-1}`,val:-absVal-1}
+    ];
+    const sorted=[...items].sort((x,y)=>x.val-y.val);
+    const answer=sorted.map(x=>x.txt).join(" < ");
+    return {
+      competency:"K3.3",level:"Vertiefung",type:"choice",
+      prompt:"Welche Reihenfolge ist aufsteigend? Rechne den Betrag zuerst aus.",
+      options:[
+        answer,
+        [...sorted].reverse().map(x=>x.txt).join(" < "),
+        [sorted[1],sorted[0],sorted[2]].map(x=>x.txt).join(" < ")
+      ],
+      answer,
+      solution:`Der Betrag hat den Wert ${absVal}. Danach werden die drei fertigen Zahlen verglichen.`
+    };
+  },
+  ()=>{
+    const a=randInt(-70,30)/10, b=randInt(-60,60)/10, c=randInt(-60,60)/10;
+    const inside=Math.round((b+c)*10)/10;
+    const answer=Math.round((a+Math.abs(inside))*10)/10;
+    return {
+      competency:"K4.1a",level:"Vertiefung",type:"input",
+      prompt:`Berechne: <strong>${fmtTest(a)} + |${fmtTest(b)} + (${c>=0?"+":""}${fmtTest(c)})|</strong>`,
+      answer,
+      solution:`Zuerst innerhalb des Betrags rechnen, dann den Betrag bilden und anschließend addieren. Ergebnis: <strong>${fmtTest(answer)}</strong>.`
+    };
+  },
+  ()=>{
+    const a=randInt(-60,60)/10, b=randInt(-60,60)/10, c=randInt(-60,60)/10;
+    const inside=Math.round((a+b)*10)/10;
+    const answer=Math.round((Math.abs(inside)-c)*10)/10;
+    return {
+      competency:"K4.2",level:"Vertiefung",type:"input",
+      prompt:`Berechne: <strong>|${fmtTest(a)} + (${b>=0?"+":""}${fmtTest(b)})| − (${c>=0?"+":""}${fmtTest(c)})</strong>`,
+      answer,
+      solution:`Zuerst innerhalb des Betrags rechnen, dann den Betrag bilden und danach subtrahieren. Ergebnis: <strong>${fmtTest(answer)}</strong>.`
+    };
+  },
+  ()=>{
+    const a=randInt(-50,50)/10, b=randInt(-50,50)/10, c=randInt(-50,50)/10, d=randInt(-50,50)/10;
+    const inside=Math.round((b-c)*10)/10;
+    const answer=Math.round((a+Math.abs(inside)+d)*10)/10;
+    return {
+      competency:"K4.3a",level:"Vertiefung",type:"input",
+      prompt:`Berechne: <strong>${fmtTest(a)} + |${fmtTest(b)} − (${c>=0?"+":""}${fmtTest(c)})| + (${d>=0?"+":""}${fmtTest(d)})</strong>`,
+      answer,
+      solution:`Rechne zuerst innerhalb des Betrags, bilde dann den Betrag und berechne anschließend die gesamte Summe. Ergebnis: <strong>${fmtTest(answer)}</strong>.`
+    };
+  }
+);
+
+
+testGenerators.push(
+  ()=>{
+    const step=pick([0.2,0.3,0.4,0.5]);
+    const tickCount=10;
+    const min=Math.round(randInt(-12,-2)*step*10)/10;
+    const max=Math.round((min+tickCount*step)*10)/10;
+    const pair=pick([[1,6],[2,7],[3,8]]);
+    const labelValues=pair.map(k=>Math.round((min+k*step)*10)/10);
+    const possible=[];
+    for(let k=0;k<=tickCount;k++){
+      if(!pair.includes(k)) possible.push(k);
+    }
+    const targetIndex=pick(possible.filter(k=>k>0 && k<tickCount));
+    const target=Math.round((min+targetIndex*step)*10)/10;
+    return {
+      competency:"K3.1",level:"Vertiefung",type:"input",
+      prompt:"Bestimme zuerst die Skalierung der Zahlengeraden. Welche Zahl ist durch den blauen Punkt markiert?",
+      visualType:"numberlineRead",
+      min,max,step,target,labelValues,
+      answer:target,
+      solution:`Zwischen <strong>${fmtTest(labelValues[0])}</strong> und <strong>${fmtTest(labelValues[1])}</strong> liegen ${pair[1]-pair[0]} gleich große Abstände. Daher entspricht ein Teilstrich <strong>${fmtTest(step)}</strong>. Der blaue Punkt liegt bei <strong>${fmtTest(target)}</strong>.`
+    };
+  }
+);
+
+const TEST_GENERATOR_META=[
+  {id:"K31-numberline-direction",family:"K3.1"},
+  {id:"K32-absolute-value",family:"K3.2"},
+  {id:"K32-opposite-number",family:"K3.2"},
+  {id:"K33-compare-numbers",family:"K3.3"},
+  {id:"K33-numberline-reason",family:"K3.3"},
+  {id:"K34-coordinate-axis-value",family:"K3.4"},
+  {id:"K34-axis-property",family:"K3.4"},
+  {id:"K35-state-change",family:"K3.5"},
+  {id:"K35-temperature-change",family:"K3.5"},
+  {id:"K41a-add",family:"K4.1a"},
+  {id:"K42-subtract",family:"K4.2"},
+  {id:"K44a-multiply",family:"K4.4a"},
+  {id:"K45a-divide",family:"K4.5a"},
+  {id:"K41b-favorable-reorder",family:"K4.1b"},
+  {id:"K41b-correct-reorder",family:"K4.1b"},
+  {id:"K43b-correct-reorder",family:"K4.3b"},
+  {id:"K43a-minus-brackets",family:"K4.3a"},
+  {id:"K44a-product-sign",family:"K4.4a"},
+  {id:"K45a-division-sign",family:"K4.5a"},
+  {id:"K41a-sum-three",family:"K4.1a"},
+  {id:"K43a-mixed-four",family:"K4.3a"},
+  {id:"K31-numberline-read-sparse",family:"K3.1"},
+  {id:"K31-numberline-mark-scale",family:"K3.1"},
+  {id:"K34-coordinate-mark",family:"K3.4"},
+  {id:"K35-story-end",family:"K3.5"},
+  {id:"K35-story-start",family:"K3.5"},
+  {id:"K35-story-change",family:"K3.5"},
+  {id:"K32-abs-expression",family:"K3.2"},
+  {id:"K33-order-abs-expression",family:"K3.3"},
+  {id:"K41a-sum-with-abs",family:"K4.1a"},
+  {id:"K42-difference-with-abs",family:"K4.2"},
+  {id:"K43a-mixed-with-abs",family:"K4.3a"},
+  {id:"K31-numberline-infer-scale",family:"K3.1"}
+];
+
+const TEST_HISTORY_KEY="kompetenztrainer-test-history-v1";
+
+function loadTestHistory(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(TEST_HISTORY_KEY)) || {};
+    return {
+      round:Number.isFinite(Number(raw.round)) ? Number(raw.round) : 0,
+      lastUsed:raw.lastUsed && typeof raw.lastUsed==="object" ? raw.lastUsed : {}
+    };
+  }catch{
+    return {round:0,lastUsed:{}};
+  }
+}
+
+function saveTestHistory(history){
+  localStorage.setItem(TEST_HISTORY_KEY,JSON.stringify(history));
+}
+
+function chooseLeastRecent(candidates,count,history){
+  // Zuerst kommen Typen dran, die noch nie oder am längsten nicht mehr
+  // verwendet wurden. Bei gleicher Historie entscheidet der Zufall.
+  return candidates
+    .map(item=>({
+      ...item,
+      last:Number(history.lastUsed[item.id])||0,
+      tie:Math.random()
+    }))
+    .sort((a,b)=>a.last-b.last || a.tie-b.tie)
+    .slice(0,count);
+}
+
+
+function deepExerciseToTest(ex,competencyId){
+  const base={
+    competency:competencyId,
+    level:"Vertiefung",
+    prompt:ex.prompt,
+    solution:ex.solution,
+    _deepExerciseId:ex.id
+  };
+
+  if(ex.type==="number"){
+    return {
+      ...base,
+      type:"input",
+      answer:Number.isFinite(Number(ex.expected))?Number(ex.expected):null,
+      check:typeof ex.check==="function" ? ex.check : null
+    };
+  }
+
+  if(ex.type==="choice"){
+    return {...base,type:"choice",options:[...ex.options],answer:ex.answer};
+  }
+
+  if(ex.type==="judge"){
+    return {...base,type:"choice",options:["Richtig","Falsch"],answer:ex.answer};
+  }
+
+  if(ex.type==="multiNumber"){
+    return {
+      ...base,
+      type:"multiInput",
+      labels:[...(ex.labels||[])],
+      check:typeof ex.check==="function" ? ex.check : null
+    };
+  }
+
+  return null;
+}
+
+function deepTestCandidates(){
+  const candidates=[];
+  Object.entries(deepExercises).forEach(([competencyId,items])=>{
+    items.forEach(ex=>{
+      if(!["number","choice","judge","multiNumber"].includes(ex.type)) return;
+      const preview=deepExerciseToTest(ex,competencyId);
+      if(!preview) return;
+      if(preview.type==="input" && preview.answer===null && !preview.check) return;
+      if(preview.type==="multiInput" && !preview.check) return;
+
+      candidates.push({
+        id:`deep:${ex.id}`,
+        family:competencyId,
+        sample:preview,
+        gen:()=>deepExerciseToTest(ex,competencyId)
+      });
+    });
+  });
+  return candidates;
+}
+
+function chooseLeastRecentDiverse(candidates,count,history,usedFamilies=new Set()){
+  const ranked=candidates
+    .map(item=>({
+      ...item,
+      last:Number(history.lastUsed[item.id])||0,
+      tie:Math.random()
+    }))
+    .sort((a,b)=>a.last-b.last || a.tie-b.tie);
+
+  const chosen=[];
+  for(const item of ranked){
+    if(chosen.length>=count) break;
+    if(!usedFamilies.has(item.family)){
+      chosen.push(item);
+      usedFamilies.add(item.family);
+    }
+  }
+
+  if(chosen.length<count){
+    for(const item of ranked){
+      if(chosen.length>=count) break;
+      if(chosen.some(x=>x.id===item.id)) continue;
+      chosen.push(item);
+    }
+  }
+  return chosen;
+}
+
 function buildTest(){
-  // Jeder Generator liefert beim Aufruf eine Aufgabe mit Basis- oder Vertiefungsniveau.
-  // Für die Auswahl wird einmal probeweise erzeugt; die ausgewählten Generatoren erzeugen
-  // anschließend frische Zahlen für den eigentlichen Test.
-  const tagged=testGenerators.map(gen=>({gen,sample:gen()}));
-  const basis=tagged.filter(x=>x.sample.level==="Basis").map(x=>x.gen);
-  const deep=tagged.filter(x=>x.sample.level==="Vertiefung").map(x=>x.gen);
-  const gens=[...shuffle(basis).slice(0,4),...shuffle(deep).slice(0,2)];
-  testState.items=shuffle(gens.map(g=>g()));
+  const history=loadTestHistory();
+  history.round+=1;
+
+  const generated=testGenerators.map((gen,index)=>{
+    const sample=gen();
+    const meta=TEST_GENERATOR_META[index] || {id:`generator-${index}`,family:sample.competency};
+    return {gen,sample,id:meta.id,family:meta.family};
+  });
+
+  const all=[...generated,...deepTestCandidates()];
+  const basis=all.filter(x=>x.sample.level==="Basis");
+  const deep=all.filter(x=>x.sample.level==="Vertiefung");
+
+  const usedFamilies=new Set();
+  const chosenBasis=chooseLeastRecentDiverse(basis,4,history,usedFamilies);
+  const chosenDeep=chooseLeastRecentDiverse(deep,2,history,usedFamilies);
+  const chosen=[...chosenBasis,...chosenDeep];
+
+  chosen.forEach(item=>{
+    history.lastUsed[item.id]=history.round;
+  });
+  saveTestHistory(history);
+
+  testState.items=shuffle(chosen.map(item=>{
+    const q=item.gen();
+    q._generatorId=item.id;
+    return q;
+  }));
+
   testState.checked=false;
   renderTest();
 }
+
+function testNumberLineSvg(q,i,interactive=false){
+  const W=720,H=128,left=58,right=690,y=66;
+  const xFor=v=>left+(v-q.min)/(q.max-q.min)*(right-left);
+  let s=`<svg id="testNumberline${i}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-label="Zahlengerade">`;
+  s+=`<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#617080" stroke-width="2"/>`;
+  s+=`<path d="M ${left} ${y} l 10 -5 v 10 z" fill="#617080"/><path d="M ${right} ${y} l -10 -5 v 10 z" fill="#617080"/>`;
+
+  const explicitLabels=Array.isArray(q.labelValues)?q.labelValues:[];
+  for(let v=q.min;v<=q.max+1e-9;v+=q.step){
+    const vv=Math.round(v*1000)/1000;
+    const x=xFor(vv);
+    const isLabel=explicitLabels.length
+      ? explicitLabels.some(label=>Math.abs(label-vv)<1e-8)
+      : Math.abs(vv-Math.round(vv))<1e-9;
+
+    s+=`<line x1="${x}" y1="${y-(isLabel?9:5)}" x2="${x}" y2="${y+(isLabel?9:5)}" stroke="#617080" stroke-width="${isLabel?1.6:1}"/>`;
+
+    if(isLabel){
+      s+=`<text x="${x}" y="${y+27}" text-anchor="middle" font-size="12" fill="#667586">${fmtTest(vv)}</text>`;
+    }
+  }
+
+  const shown=interactive?q.userValue:q.target;
+  if(shown!==undefined && shown!==null){
+    const x=xFor(shown);
+    s+=`<circle cx="${x}" cy="${y}" r="8" fill="#58789a" stroke="white" stroke-width="3"/>`;
+  }
+  s+=`</svg>`;
+  return s;
+}
+
+function testCoordinateSvg(q,i){
+  const W=720,H=420,cx=360,cy=210,scale=42;
+  let s=`<svg id="testCoord${i}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-label="Koordinatensystem mit Rechtsachse und Hochachse">`;
+
+  for(let x=-6;x<=6;x++){
+    const px=cx+x*scale;
+    s+=`<line x1="${px}" y1="22" x2="${px}" y2="${H-22}" stroke="${x===0?"#637284":"#e3e8ed"}" stroke-width="${x===0?2:1}"/>`;
+    if(x!==0) s+=`<text x="${px}" y="${cy+18}" text-anchor="middle" font-size="11" fill="#718090">${x}</text>`;
+  }
+  for(let y=-4;y<=4;y++){
+    const py=cy-y*scale;
+    s+=`<line x1="52" y1="${py}" x2="${W-52}" y2="${py}" stroke="${y===0?"#637284":"#e3e8ed"}" stroke-width="${y===0?2:1}"/>`;
+    if(y!==0) s+=`<text x="${cx-12}" y="${py+4}" text-anchor="end" font-size="11" fill="#718090">${y}</text>`;
+  }
+
+  s+=`<text x="${W-58}" y="${cy-10}" text-anchor="end" font-size="11" fill="#667586">Rechtsachse</text>`;
+  s+=`<text x="${cx+10}" y="30" font-size="11" fill="#667586">Hochachse</text>`;
+
+  if(q.userPoint){
+    const px=cx+q.userPoint.x*scale;
+    const py=cy-q.userPoint.y*scale;
+    s+=`<circle cx="${px}" cy="${py}" r="8" fill="#58789a" stroke="white" stroke-width="3"/>`;
+    s+=`<text x="${px+12}" y="${py-10}" font-size="12" font-weight="700" fill="#3f566f">P</text>`;
+  }
+
+  s+=`</svg>`;
+  return s;
+}
+
+function testSvgPoint(svg,ev){
+  const pt=svg.createSVGPoint();
+  pt.x=ev.clientX;
+  pt.y=ev.clientY;
+  const ctm=svg.getScreenCTM();
+  return ctm ? pt.matrixTransform(ctm.inverse()) : {x:0,y:0};
+}
+
+function attachTestTapGuard(svg,onTap){
+  const pointers=new Set();
+  let hadMulti=false;
+
+  svg.addEventListener("pointerdown",ev=>{
+    pointers.add(ev.pointerId);
+    if(pointers.size>1) hadMulti=true;
+  });
+
+  svg.addEventListener("pointerup",ev=>{
+    const single=!hadMulti && pointers.size===1;
+    pointers.delete(ev.pointerId);
+    if(single) onTap(ev);
+    if(pointers.size===0) hadMulti=false;
+  });
+
+  svg.addEventListener("pointercancel",ev=>{
+    pointers.delete(ev.pointerId);
+    if(pointers.size===0) hadMulti=false;
+  });
+}
+
+function attachTestVisualInteraction(q,i,sec){
+  if(q.type==="numberlineMark"){
+    const svg=sec.querySelector(`#testNumberline${i}`);
+    if(!svg)return;
+    attachTestTapGuard(svg,ev=>{
+      const p=testSvgPoint(svg,ev);
+      const left=58,right=690;
+      const ratio=Math.max(0,Math.min(1,(p.x-left)/(right-left)));
+      const raw=q.min+ratio*(q.max-q.min);
+      const snapped=Math.round(raw/q.step)*q.step;
+      q.userValue=Math.max(q.min,Math.min(q.max,Math.round(snapped*1000)/1000));
+      svg.outerHTML=testNumberLineSvg(q,i,true);
+      attachTestVisualInteraction(q,i,sec);
+    });
+  }
+
+  if(q.type==="coordinateMark"){
+    const svg=sec.querySelector(`#testCoord${i}`);
+    if(!svg)return;
+    attachTestTapGuard(svg,ev=>{
+      const p=testSvgPoint(svg,ev);
+      const cx=360,cy=210,scale=42;
+      let x=Math.round(((p.x-cx)/scale)*2)/2;
+      let y=Math.round(((cy-p.y)/scale)*2)/2;
+      x=Math.max(-6,Math.min(6,x));
+      y=Math.max(-4,Math.min(4,y));
+      q.userPoint={x,y};
+      svg.outerHTML=testCoordinateSvg(q,i);
+      attachTestVisualInteraction(q,i,sec);
+    });
+  }
+}
+
 function renderTest(){
   const wrap=$("#testQuestions");wrap.innerHTML="";
+
   testState.items.forEach((q,i)=>{
-    const sec=document.createElement("section");sec.className="test-question";
+    const sec=document.createElement("section");
+    sec.className="test-question";
+
+    let visual="";
     let controls="";
+
+    if(q.visualType==="numberlineRead"){
+      visual=`<div class="test-visual">${testNumberLineSvg(q,i,false)}</div>`;
+    }
+
     if(q.type==="input"){
       controls=`<input class="test-input" data-test-input="${i}" inputmode="decimal" placeholder="Antwort eingeben">`;
+    }else if(q.type==="multiInput"){
+      controls=`<div class="test-multi-inputs">${q.labels.map((label,j)=>`
+        <label>${label}<input class="test-input" data-test-multi="${i}-${j}" inputmode="decimal" placeholder="Antwort"></label>
+      `).join("")}</div>`;
+    }else if(q.type==="numberlineMark"){
+      controls=`<div class="test-visual interactive">${testNumberLineSvg(q,i,true)}<div class="test-mark-note">Tippe auf die passende Stelle. Zoomen mit zwei Fingern verändert die Markierung nicht.</div></div>`;
+    }else if(q.type==="coordinateMark"){
+      controls=`<div class="test-visual interactive">${testCoordinateSvg(q,i)}<div class="test-mark-note">Tippe auf den gewünschten Punkt. Es wird auf halbe Einheiten eingerastet.</div></div>`;
     }else{
       controls=`<div class="test-options">${shuffle(q.options).map(opt=>`<label class="test-option"><input type="radio" name="test-${i}" value="${escAttr(opt)}"><span>${opt}</span></label>`).join("")}</div>`;
     }
+
     sec.innerHTML=`
       <div class="test-qhead"><span class="test-num">${i+1}</span><span class="test-level ${q.level==="Vertiefung"?"deep":""}">${q.level}</span><span class="test-level">${q.competency}</span></div>
       <div class="test-prompt">${q.prompt}</div>
+      ${visual}
       ${controls}
       <div class="test-feedback hidden" id="testFeedback${i}"></div>
       <div class="test-solution" id="testSolution${i}"><strong>Lösung:</strong> ${q.solution}</div>`;
+
     wrap.appendChild(sec);
+    attachTestVisualInteraction(q,i,sec);
   });
+
   $("#testScore").textContent="Noch nicht überprüft.";
   $("#showSolutionsBtn").classList.add("hidden");
   $("#checkTestBtn").classList.remove("hidden");
 }
 function getTestAnswer(q,i){
   if(q.type==="input"){
-    const p=parseNum(document.querySelector(`[data-test-input="${i}"]`).value);
+    const p=parseRational(document.querySelector(`[data-test-input="${i}"]`).value);
     return p.valid?p.value:null;
   }
+
+  if(q.type==="multiInput"){
+    const vals=q.labels.map((_,j)=>{
+      const p=parseRational(document.querySelector(`[data-test-multi="${i}-${j}"]`).value);
+      return p.valid?p.value:null;
+    });
+    return vals.some(v=>v===null)?null:vals;
+  }
+
+  if(q.type==="numberlineMark"){
+    return q.userValue===undefined?null:q.userValue;
+  }
+
+  if(q.type==="coordinateMark"){
+    return q.userPoint||null;
+  }
+
   return document.querySelector(`input[name="test-${i}"]:checked`)?.value??null;
 }
+
+function isTestAnswerCorrect(q,ans){
+  if(ans===null)return false;
+
+  if(q.type==="input"){
+    if(typeof q.check==="function") return !!q.check(ans);
+    return Math.abs(ans-q.answer)<1e-9;
+  }
+
+  if(q.type==="multiInput"){
+    return typeof q.check==="function" ? !!q.check(ans) : false;
+  }
+
+  if(q.type==="numberlineMark"){
+    return Math.abs(ans-q.target)<1e-9;
+  }
+
+  if(q.type==="coordinateMark"){
+    return Math.abs(ans.x-q.target.x)<1e-9 && Math.abs(ans.y-q.target.y)<1e-9;
+  }
+
+  return ans===q.answer;
+}
+
 function checkTest(){
   let score=0;
   testState.items.forEach((q,i)=>{
     const ans=getTestAnswer(q,i);
-    const ok=ans!==null&&(q.type==="input"?Math.abs(ans-q.answer)<1e-9:ans===q.answer);
+    const ok=isTestAnswerCorrect(q,ans);
     if(ok)score++;
+
     const f=$("#testFeedback"+i);
     f.className="test-feedback "+(ok?"ok":"bad");
-    f.innerHTML=ok?"<strong>Richtig.</strong>":ans===null?"<strong>Noch keine Antwort.</strong>":"<strong>Noch nicht richtig.</strong>";
+    f.innerHTML=ok
+      ? "<strong>Richtig.</strong>"
+      : ans===null
+        ? "<strong>Noch keine Antwort.</strong>"
+        : "<strong>Noch nicht richtig.</strong>";
   });
+
   $("#testScore").textContent=`${score} von ${testState.items.length} Aufgaben richtig.`;
   $("#showSolutionsBtn").classList.remove("hidden");
   $("#checkTestBtn").classList.add("hidden");
@@ -7836,7 +8561,8 @@ function exportCompetencyProgress(){
     progress:loadProgress(),
     deepProgress:loadDeepProgress(),
     selfRatings:loadSelfRatings(),
-    rewardSystem:loadRewardState()
+    rewardSystem:loadRewardState(),
+    testHistory:loadTestHistory()
   };
 
   const blob=new Blob(
