@@ -8607,6 +8607,10 @@ function startMeteorGame(){
   let scoreTimer=0;
   let enemyTimer=0;
   let enemyShotTimer=0;
+  let restartTimer=0;
+  let spawnWatchdog=0;
+  let roundSerial=0;
+  let lastMeteorSpawnAt=performance.now();
   let last=performance.now();
   let invulnerableUntil=0;
   let stopped=false;
@@ -8765,16 +8769,23 @@ function startMeteorGame(){
   };
 
   const restartRoundAfterCrash=()=>{
+    // Jede Runde bekommt eine eigene Kennung. Dadurch können alte,
+    // bereits geplante Timer nach einem Treffer keine neue Runde stören.
+    roundSerial+=1;
+    const thisRound=roundSerial;
+
     clearTimeout(spawnTimer);
     clearTimeout(enemyTimer);
     clearTimeout(enemyShotTimer);
+    clearTimeout(restartTimer);
     spawnTimer=0;
     enemyTimer=0;
     enemyShotTimer=0;
+    restartTimer=0;
 
     clearHazards();
 
-    // Vollständiger Rundenneustart: Score, Schwierigkeit und Steuerung zurücksetzen.
+    // Vollständiger Neustart der Runde.
     setGameScore(0);
     startedAt=performance.now();
     last=performance.now();
@@ -8786,22 +8797,21 @@ function startMeteorGame(){
 
     resetShip();
 
-    // Das UFO muss bereits wieder aktiv sein, BEVOR die neue Spawn-Kette startet.
     shipAlive=true;
     invulnerableUntil=performance.now()+950;
     ship.style.opacity=".42";
 
-    // Sofort wieder Spielgeschehen erzeugen. spawnMeteor() plant selbst
-    // den jeweils nächsten Meteor und startet damit die komplette Kette neu.
-    spawnMeteor();
+    // Meteor-Kette sofort neu starten.
+    lastMeteorSpawnAt=0;
+    spawnMeteor(thisRound);
 
-    // Gegner beginnen wie bei einem frischen Spiel erst nach einer kurzen Phase.
-    enemyTimer=setTimeout(spawnEnemy,5000);
+    // Gegner beginnen wie bei einem frischen Spiel erst später.
+    enemyTimer=setTimeout(()=>spawnEnemy(thisRound),5000);
 
     $("#gameMiniStatus").textContent="Neue Runde · 0 Punkte";
 
     setTimeout(()=>{
-      if(!stopped && shipAlive) ship.style.opacity="1";
+      if(!stopped && shipAlive && roundSerial===thisRound) ship.style.opacity="1";
     },520);
   };
 
@@ -8825,15 +8835,17 @@ function startMeteorGame(){
     enemyShotTimer=0;
     clearHazards();
 
-    setTimeout(()=>{
+    clearTimeout(restartTimer);
+    restartTimer=setTimeout(()=>{
       if(stopped)return;
       restartRoundAfterCrash();
     },620);
   };
 
-  const spawnMeteor=()=>{
-    if(stopped)return;
+  const spawnMeteor=(expectedRound=roundSerial)=>{
+    if(stopped || !shipAlive || expectedRound!==roundSerial)return;
 
+    lastMeteorSpawnAt=performance.now();
     const rect=stage.getBoundingClientRect();
     const side=Math.floor(Math.random()*4);
     let x,y;
@@ -8877,7 +8889,7 @@ function startMeteorGame(){
     meteors.push(obj);
 
     const nextDelay=Math.max(260,690-currentGameScore*6-elapsed*4);
-    spawnTimer=setTimeout(spawnMeteor,nextDelay);
+    spawnTimer=setTimeout(()=>spawnMeteor(expectedRound),nextDelay);
   };
 
   const meteorHit=(m)=>{
@@ -8938,16 +8950,16 @@ function startMeteorGame(){
     enemyShotTimer=setTimeout(enemyFireLoop,delay);
   };
 
-  function spawnEnemy(){
-    if(stopped)return;
+  function spawnEnemy(expectedRound=roundSerial){
+    if(stopped || !shipAlive || expectedRound!==roundSerial)return;
 
     if(elapsedSeconds()<14){
-      enemyTimer=setTimeout(spawnEnemy,2600);
+      enemyTimer=setTimeout(()=>spawnEnemy(expectedRound),2600);
       return;
     }
 
     if(enemy){
-      enemyTimer=setTimeout(spawnEnemy,3000);
+      enemyTimer=setTimeout(()=>spawnEnemy(expectedRound),3000);
       return;
     }
 
@@ -8974,7 +8986,7 @@ function startMeteorGame(){
     $("#gameMiniStatus").textContent="⚠ Gegnerisches Schiff!";
     enemyFireLoop();
 
-    enemyTimer=setTimeout(spawnEnemy,16500);
+    enemyTimer=setTimeout(()=>spawnEnemy(expectedRound),16500);
   }
 
   const loop=(now)=>{
@@ -9101,8 +9113,23 @@ function startMeteorGame(){
   };
 
   resetShip();
-  spawnMeteor();
-  enemyTimer=setTimeout(spawnEnemy,5000);
+  shipAlive=true;
+  roundSerial=1;
+  spawnMeteor(roundSerial);
+  enemyTimer=setTimeout(()=>spawnEnemy(roundSerial),5000);
+
+  // Sicherheitsnetz: Sollte eine Spawn-Kette durch einen Browser-/Timer-Race
+  // verloren gehen, startet sie automatisch wieder. So bleibt das UFO nach
+  // einer Explosion niemals allein im Spielfeld.
+  spawnWatchdog=setInterval(()=>{
+    if(stopped || !shipAlive)return;
+    const now=performance.now();
+    if(meteors.length===0 && now-lastMeteorSpawnAt>1200){
+      clearTimeout(spawnTimer);
+      spawnTimer=0;
+      spawnMeteor(roundSerial);
+    }
+  },450);
 
   scoreTimer=setInterval(()=>{
     if(shipAlive){
@@ -9118,6 +9145,8 @@ function startMeteorGame(){
     clearTimeout(spawnTimer);
     clearTimeout(enemyTimer);
     clearTimeout(enemyShotTimer);
+    clearTimeout(restartTimer);
+    clearInterval(spawnWatchdog);
     clearInterval(scoreTimer);
     cancelAnimationFrame(raf);
 
