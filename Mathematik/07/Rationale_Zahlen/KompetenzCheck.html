@@ -111,16 +111,48 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   min-width:48px;
   text-align:center;
 }
-.status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:750;white-space:nowrap}
-.status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:750;
+  white-space:nowrap
+}
+.status:before{
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:currentColor
+}
 .status.neutral{background:var(--surface2);color:var(--muted)}
-.status.warn{background:var(--warnSoft);color:var(--warn)}
-.status.good{background:var(--goodSoft);color:var(--good)}
-.status.good:before{display:none}
-.status.good:after{content:"✓";font-size:15px;font-weight:900;line-height:1;margin-left:2px}
-.status.verygood{background:#dcefe5;color:#176544}
-.status.verygood:before{display:none}
-.status.verygood:after{content:"✓✓";font-size:14px;font-weight:900;letter-spacing:-2px;line-height:1;margin-left:3px}
+.status.foundation{
+  background:#eef7f1;
+  color:#477257;
+  border:1px solid #d9e9de
+}
+.status.secure{
+  background:#e5f3e9;
+  color:#286441;
+  border:1px solid #cae2d1
+}
+.status.verysecure{
+  background:#dcefe5;
+  color:#176544;
+  border:1px solid #bfdcc9
+}
+.status.medal{
+  background:#fff5d6;
+  color:#80600b;
+  border:1px solid #ead58b
+}
+.status.foundation:before,
+.status.secure:before,
+.status.verysecure:before,
+.status.medal:before{display:none}
 .card-title{
   font-size:16px;
   font-weight:760;
@@ -308,7 +340,7 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   align-items:center;
   justify-content:center;
   gap:8px;
-  font-size:20px;
+  font-size:16px;
   font-weight:850;
   margin-bottom:9px;
 }
@@ -379,7 +411,7 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   min-width:0;
   height:46px;
   border:1px solid var(--line);
-  border-radius:10px;
+  border-radius:9px;
   padding:0 9px;
   background:#fff;
   color:var(--text);
@@ -448,6 +480,60 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
 }
 .row-action:active{
   background:var(--surface3);
+}
+
+/* Die beiden Aktionsbuttons zeigen gleichzeitig den Aufgabenfortschritt. */
+.row-action.progress-action{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  min-width:176px;
+  transition:border-color .2s ease, background .2s ease;
+}
+.row-action.progress-action::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:0;
+  top:0;
+  bottom:0;
+  width:var(--progress-pct,0%);
+  background:rgba(91,157,112,.17);
+  border-right:1px solid rgba(91,157,112,.12);
+  transition:width .35s ease;
+  pointer-events:none;
+}
+.row-action.progress-action.primary-row::before{
+  background:rgba(91,157,112,.19);
+}
+.row-action.progress-action.progress-complete{
+  border-color:rgba(75,139,96,.36);
+}
+.row-action-progress-inner{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+}
+.row-action-progress-label{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.row-action-progress-count{
+  flex:0 0 auto;
+  font-size:11px;
+  font-weight:760;
+  color:#58705f;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:760px){
+  .row-action.progress-action{
+    min-width:0;
+  }
 }
 .card-spacer{min-width:0}
 .status{
@@ -1610,6 +1696,14 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   color:var(--muted);
   font-size:12px;
 }
+
+@media(prefers-reduced-motion:reduce){
+  body.reward-theme-dark .app::after{
+    animation:none!important;
+    opacity:.6;
+    filter:none;
+  }
+}
 @media(prefers-reduced-motion:reduce){
   .coin-badge.ready .game-ready-icon{animation:none}
 }
@@ -2526,6 +2620,959 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   font-variant-numeric:tabular-nums;
 }
 
+
+
+
+
+/* Neue Münzanimation: kleiner Party-Puff direkt aus dem geklickten Button */
+.coin-fx-layer{
+  position:fixed;
+  inset:0;
+  z-index:2200;
+  pointer-events:none;
+  overflow:hidden;
+  contain:strict;
+}
+.coin-party{
+  position:absolute;
+  width:1px;
+  height:1px;
+  pointer-events:none;
+}
+.coin-party-coin{
+  position:absolute;
+  left:0;
+  top:0;
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:27px;
+  line-height:1;
+  filter:drop-shadow(0 4px 5px rgba(111,82,4,.18));
+  transform:translate(-50%,-50%) scale(.55);
+  opacity:0;
+  animation:partyCoin .9s cubic-bezier(.17,.8,.25,1) forwards;
+  animation-delay:var(--delay,0ms);
+}
+.coin-confetti{
+  position:absolute;
+  left:0;
+  top:0;
+  width:8px;
+  height:4px;
+  border-radius:2px;
+  background:var(--confetti,#d7ae2f);
+  transform:translate(-50%,-50%) rotate(var(--rot,0deg));
+  opacity:0;
+  animation:partyConfetti .82s cubic-bezier(.15,.8,.2,1) forwards;
+  animation-delay:var(--delay,0ms);
+  filter:drop-shadow(0 1px 1px rgba(90,65,10,.08));
+}
+.coin-confetti.dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+}
+.coin-party-puff{
+  position:absolute;
+  left:0;
+  top:0;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:2px solid rgba(224,182,47,.82);
+  box-shadow:
+    0 0 0 2px rgba(255,236,164,.18),
+    0 0 14px rgba(228,186,58,.20);
+  transform:translate(-50%,-50%) scale(.18);
+  opacity:0;
+  animation:partyPuff .5s cubic-bezier(.12,.78,.2,1) forwards;
+}
+.coin-reward-pop{
+  animation:partyButtonPop .38s cubic-bezier(.2,.9,.25,1);
+}
+.reward-success-glow{
+  position:relative;
+  isolation:isolate;
+  border-radius:16px;
+  overflow:hidden;
+  animation:rewardGlowBase 1.05s ease-out;
+}
+.reward-success-glow::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 31%,
+    rgba(255,232,143,.08) 40%,
+    rgba(255,238,169,.42) 49%,
+    rgba(255,255,255,.62) 54%,
+    rgba(255,232,143,.12) 63%,
+    transparent 72%,
+    transparent 100%
+  );
+  transform:translateX(-105%);
+  animation:rewardGlowSweep .9s ease-out forwards;
+}
+@keyframes partyCoin{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(0,0) scale(.55);
+  }
+  15%{
+    opacity:1;
+    transform:translate(-50%,-50%) translate(
+      calc(var(--dx,0px) * .12),
+      calc(var(--dy,-90px) * .12)
+    ) scale(1.08);
+  }
+  68%{
+    opacity:1;
+    transform:translate(-50%,-50%) translate(
+      calc(var(--dx,0px) * .78),
+      calc(var(--dy,-90px) * .78)
+    ) scale(1);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(
+      var(--dx,0px),
+      var(--dy,-90px)
+    ) scale(.92);
+  }
+}
+  18%{
+    opacity:1;
+    transform:translate(-50%,-50%) translateY(-19px) scale(1.04);
+  }
+  72%{
+    opacity:1;
+    transform:translate(-50%,-50%) translateY(-43px) scale(1);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) translateY(-58px) scale(.94);
+  }
+}
+@keyframes partyConfetti{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(0,0) rotate(var(--rot,0deg)) scale(.45);
+  }
+  10%{
+    opacity:1;
+    transform:translate(-50%,-50%) translate(
+      calc(var(--cx,0px) * .08),
+      calc(var(--cy,-70px) * .08)
+    ) rotate(var(--rot,0deg)) scale(1.12);
+  }
+  72%{
+    opacity:1;
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(var(--cx,0px),var(--cy,-70px))
+      rotate(calc(var(--rot,0deg) + 210deg)) scale(.82);
+  }
+}
+@keyframes partyPuff{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.18)}
+  16%{opacity:1;transform:translate(-50%,-50%) scale(.75)}
+  55%{opacity:.72}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(6.2)}
+}
+@keyframes partyButtonPop{
+  0%,100%{transform:scale(1)}
+  45%{transform:scale(1.045)}
+}
+@keyframes rewardGlowSweep{
+  0%{transform:translateX(-105%);opacity:0}
+  12%{opacity:1}
+  100%{transform:translateX(105%);opacity:0}
+}
+@keyframes rewardGlowBase{
+  0%{box-shadow:0 0 0 rgba(221,190,88,0)}
+  35%{box-shadow:0 0 0 2px rgba(221,190,88,.22),0 8px 24px rgba(196,157,45,.08)}
+  100%{box-shadow:0 0 0 rgba(221,190,88,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .coin-confetti,
+  .coin-party-puff{display:none}
+  .coin-party-coin{
+    animation:partyCoinReduced .6s ease-out forwards;
+  }
+    .coin-reward-pop,
+  .reward-success-glow::after{animation:none}
+  .reward-success-glow{
+    animation:none;
+    box-shadow:0 0 0 2px rgba(221,190,88,.18);
+  }
+}
+@keyframes partyCoinReduced{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.8)}
+  25%{opacity:1;transform:translate(-50%,-50%) translateY(-18px) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) translateY(-55px) scale(1)}
+}
+  25%{opacity:1;transform:translate(-50%,-50%) translateY(-20px) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) translateY(-46px) scale(1)}
+}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) translateY(-90px) scale(.96)}
+}
+  25%{opacity:1;transform:translate(-50%,-80%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-150%) scale(1)}
+}
+
+
+/* Bereits richtig bearbeitete Aufgaben */
+.previously-done-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  margin-left:7px;
+  border-radius:999px;
+  background:#edf7f0;
+  color:#3f7b52;
+  border:1px solid #c9e2d0;
+  font-size:12px;
+  font-weight:850;
+  vertical-align:middle;
+  flex:0 0 auto;
+}
+.previously-done-field{
+  position:relative;
+}
+.previously-done-field::after{
+  content:"✓";
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:20px;
+  height:20px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#edf7f0;
+  color:#3f7b52;
+  border:1px solid #c9e2d0;
+  font-size:12px;
+  font-weight:850;
+  pointer-events:none;
+}
+.previously-done-field input{
+  padding-right:34px;
+}
+.previously-done-task{
+  border-color:rgba(76,132,92,.22)!important;
+}
+.previously-done-notice{
+  margin:8px 0 12px;
+  padding:8px 10px;
+  border-radius:10px;
+  background:#f3f8f4;
+  color:#55725d;
+  border:1px solid #dceadf;
+  font-size:12px;
+  line-height:1.35;
+}
+
+
+.judge-evidence,
+.test-evidence{
+  margin:12px 0;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #e2e7ec;
+  background:#f8fafb;
+}
+.judge-evidence-title,
+.test-evidence-prompt{
+  margin-bottom:9px;
+  color:#526171;
+  font-size:13px;
+  font-weight:680;
+  line-height:1.4;
+}
+
+
+/* Avoid the Meteors: Spezialgegner und Trefferfeedback */
+.meteor-special{
+  filter:
+    drop-shadow(0 0 6px rgba(255,205,92,.52))
+    drop-shadow(0 0 12px rgba(255,129,75,.24));
+}
+.meteor-special::after{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border:1px solid rgba(255,221,120,.55);
+  border-radius:50%;
+  animation:meteorSpecialPulse .8s ease-in-out infinite alternate;
+}
+@keyframes meteorSpecialPulse{
+  from{transform:scale(.86);opacity:.38}
+  to{transform:scale(1.15);opacity:.9}
+}
+
+.meteor-explosion{
+  position:absolute;
+  width:68px;
+  height:68px;
+  z-index:12;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  display:grid;
+  place-items:center;
+}
+.meteor-explosion-core{
+  position:absolute;
+  font-size:36px;
+  animation:meteorExplosionCore .62s ease-out forwards;
+}
+.meteor-explosion-spark{
+  position:absolute;
+  font-size:16px;
+  opacity:0;
+  animation:meteorExplosionSpark .62s ease-out forwards;
+}
+.meteor-explosion-spark.s1{--dx:-30px;--dy:-25px}
+.meteor-explosion-spark.s2{--dx:31px;--dy:-18px}
+.meteor-explosion-spark.s3{--dx:-28px;--dy:26px}
+.meteor-explosion-spark.s4{--dx:27px;--dy:29px}
+.meteor-explosion-spark.s5{--dx:3px;--dy:-36px}
+@keyframes meteorExplosionCore{
+  0%{opacity:0;transform:scale(.45)}
+  18%{opacity:1;transform:scale(1.08)}
+  60%{opacity:1;transform:scale(1.28)}
+  100%{opacity:0;transform:scale(.7)}
+}
+@keyframes meteorExplosionSpark{
+  0%{opacity:0;transform:translate(0,0) scale(.5)}
+  22%{opacity:1}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.08)}
+}
+
+.enemy-meteor-ship{
+  position:absolute;
+  width:58px;
+  height:48px;
+  z-index:7;
+  display:grid;
+  place-items:center;
+  font-size:37px;
+  filter:drop-shadow(0 0 7px rgba(255,105,105,.3));
+  pointer-events:none;
+}
+.enemy-meteor-ship::after{
+  content:"";
+  position:absolute;
+  inset:3px;
+  border:1px solid rgba(255,135,135,.48);
+  border-radius:50%;
+}
+.enemy-shot{
+  position:absolute;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:#ffb056;
+  box-shadow:
+    0 0 6px rgba(255,176,86,.88),
+    0 0 12px rgba(255,91,70,.42);
+  z-index:6;
+  pointer-events:none;
+}
+.enemy-warning{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:9;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(43,54,81,.82);
+  border:1px solid rgba(255,255,255,.18);
+  color:#ffe1a5;
+  font-size:10px;
+  font-weight:760;
+  opacity:0;
+  transition:opacity .18s ease;
+  pointer-events:none;
+}
+.enemy-warning.show{opacity:1}
+
+@media(prefers-reduced-motion:reduce){
+  .meteor-special::after,
+  .meteor-explosion-core,
+  .meteor-explosion-spark{
+    animation:none;
+  }
+  .meteor-special::after{opacity:.65}
+  .meteor-explosion-core{opacity:1}
+}
+
+
+#checkTestBtn:disabled{
+  opacity:.72;
+  cursor:default;
+}
+
+
+/* ---------- Abzeichen-Shop ---------- */
+.reward-shop-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin:4px 0 15px;
+  padding:4px;
+  border-radius:12px;
+  background:var(--surface2);
+}
+.reward-shop-tab{
+  min-height:40px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:760;
+}
+.reward-shop-tab.active{
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:0 1px 4px rgba(16,24,40,.08);
+}
+.reward-shop-view{min-width:0}
+
+.badge-shop-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:11px;
+}
+.badge-shop-head strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:2px;
+}
+.badge-shop-head span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+}
+.badge-owned-count{
+  flex:0 0 auto;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:760;
+}
+.badge-gallery{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+.badge-card{
+  position:relative;
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface);
+  padding:6px;
+  overflow:hidden;
+}
+.badge-card.owned{
+  border-color:rgba(89,137,102,.28);
+  background:linear-gradient(135deg,var(--surface),rgba(229,243,233,.28));
+}
+.badge-card.displayed{
+  box-shadow:inset 0 0 0 1.5px rgba(91,126,103,.18);
+}
+.badge-card.locked{opacity:.58}
+.badge-card-top{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:5px;
+}
+.badge-level{display:none}
+.badge-art{
+  position:relative;
+  width:30px;
+  height:30px;
+  flex:0 0 30px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:18px;
+  background:linear-gradient(145deg,#f6f7f8,#e7ebef);
+  border:1px solid #dfe4e9;
+}
+.badge-art.level-2{
+  background:linear-gradient(145deg,#eef4fb,#dfeaf6);
+  border-color:#d0ddeb;
+}
+.badge-art.level-3{
+  background:linear-gradient(145deg,#eef0f8,#dce2f1);
+  border-color:#cbd4e8;
+}
+.badge-art.level-4{
+  background:linear-gradient(145deg,#fff8df,#eadfae);
+  border-color:#dbc97a;
+}
+.badge-art.level-5{
+  background:linear-gradient(145deg,#303946,#171d25);
+  border-color:#596473;
+}
+.badge-copy{min-width:0}
+.badge-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10.5px;
+  font-weight:820;
+  line-height:1.12;
+}
+.badge-tier{
+  margin-top:1px;
+  color:var(--muted);
+  font-size:8.5px;
+  font-weight:760;
+  line-height:1.1;
+}
+.badge-effect-copy{display:none}
+.badge-card-actions{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.badge-buy-btn,
+.badge-show-btn{
+  min-height:27px;
+  flex:1 1 auto;
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:0 5px;
+  font-size:9px;
+  font-weight:780;
+  line-height:1;
+}
+.badge-buy-btn{
+  background:#fff8dd;
+  color:#725611;
+  border-color:#ead48a;
+}
+.badge-show-btn{
+  background:var(--surface2);
+  color:var(--text);
+}
+.badge-show-btn.current{
+  background:#edf7f0;
+  color:#3f7350;
+  border-color:#cfe4d5;
+}
+.badge-buy-btn:disabled,
+.badge-show-btn:disabled{opacity:.5;cursor:default}
+.badge-lock{
+  min-height:27px;
+  display:flex;
+  align-items:center;
+  color:var(--muted);
+  font-size:8.5px;
+  line-height:1.15;
+}
+.badge-shop-foot{display:none}
+
+/* ---------- Abzeichen in der Statusleiste ---------- */
+.topbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:14px;
+}
+.brand{
+  grid-column:1;
+  justify-self:start;
+}
+.top-badge-zone{
+  grid-column:2;
+}
+.top-actions{
+  grid-column:3;
+  justify-self:end;
+}
+
+.top-badge-zone{
+  justify-self:center;
+  min-width:0;
+  width:min(70vw,820px);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  column-gap:8px;
+}
+.header-badge-side{
+  min-width:0;
+  display:flex;
+  align-items:center;
+}
+.header-badge-side-left{justify-content:flex-end}
+.header-badge-side-right{justify-content:flex-start}
+
+.header-badge-main{
+  position:relative;
+  z-index:2;
+  min-height:40px;
+  max-width:220px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--text);
+  padding:4px 9px 4px 7px;
+  display:grid;
+  grid-template-columns:auto auto;
+  grid-template-rows:auto auto;
+  column-gap:8px;
+  align-items:center;
+  text-align:left;
+  overflow:visible;
+}
+.header-badge-main-level{
+  grid-column:2;
+  grid-row:1;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:850;
+  line-height:1.1;
+}
+.header-badge-main-icon{
+  grid-column:1;
+  grid-row:1 / 3;
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:var(--surface2);
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:20px;
+  line-height:1;
+  transform-origin:center;
+}
+.header-badge-main-name{
+  grid-column:2;
+  grid-row:2;
+  min-width:0;
+  max-width:125px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.15;
+}
+.header-badge-main.level-3,
+.header-badge-main.level-4,
+.header-badge-main.level-5{
+  border-color:rgba(99,119,145,.32);
+}
+.header-badge-main.level-4{
+  box-shadow:0 0 0 1px rgba(207,176,79,.10),0 4px 14px rgba(120,94,16,.08);
+}
+.header-badge-main.level-5{
+  box-shadow:0 0 14px rgba(94,113,139,.16);
+}
+
+.header-badge-shelf{
+  --badge-mini-size:28px;
+  --badge-mini-font:15px;
+  --badge-level-size:13px;
+  --badge-rows:1;
+  width:100%;
+  min-width:0;
+  display:grid;
+  grid-auto-flow:column;
+  grid-template-rows:repeat(var(--badge-rows),var(--badge-mini-size));
+  grid-auto-columns:var(--badge-mini-size);
+  align-content:center;
+  gap:4px;
+  overflow:visible;
+}
+#headerBadgeShelfLeft{justify-content:end}
+#headerBadgeShelfRight{justify-content:start}
+
+.mini-badge-btn{
+  position:relative;
+  width:var(--badge-mini-size);
+  height:var(--badge-mini-size);
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  padding:0;
+  display:grid;
+  place-items:center;
+}
+.mini-badge-btn .mini-badge-icon{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:var(--badge-mini-font);
+  line-height:1;
+}
+.mini-badge-btn .mini-badge-level{
+  position:absolute;
+  right:-3px;
+  bottom:-3px;
+  min-width:var(--badge-level-size);
+  height:var(--badge-level-size);
+  padding:0 2px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:var(--surface2);
+  border:1px solid var(--line);
+  color:var(--muted);
+  font-size:6px;
+  font-weight:900;
+  line-height:1;
+}
+.mini-badge-btn.level-3,
+.mini-badge-btn.level-4,
+.mini-badge-btn.level-5{
+  border-color:rgba(99,119,145,.28);
+}
+
+.mini-badge-tooltip{
+  position:fixed;
+  z-index:2300;
+  transform:translate(-50%,-100%);
+  padding:6px 9px;
+  border-radius:9px;
+  background:rgba(31,41,55,.94);
+  color:white;
+  font-size:11px;
+  font-weight:740;
+  line-height:1.2;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  animation:miniBadgeTip .18s ease-out forwards;
+}
+@keyframes miniBadgeTip{
+  from{opacity:0;transform:translate(-50%,calc(-100% + 4px)) scale(.96)}
+  to{opacity:1;transform:translate(-50%,-100%) scale(1)}
+}
+
+
+
+
+/* Hochwertigste Abzeichen: sehr dezenter Glanz über dem App-Hintergrund */
+body.reward-theme-gold,
+body.reward-theme-green,
+body.reward-theme-dark,
+body.reward-theme-violet{
+  background-size:220% 220%;
+  animation:premiumAppShimmer 24s ease-in-out infinite;
+}
+body.reward-theme-gold{
+  background-image:
+    linear-gradient(120deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(255,239,178,.20) 49%,
+      rgba(255,255,255,.22) 52%,
+      transparent 59%,
+      transparent 100%);
+}
+body.reward-theme-green{
+  background-image:
+    linear-gradient(120deg,
+      transparent 0%,
+      transparent 43%,
+      rgba(190,224,196,.15) 49%,
+      rgba(255,255,255,.18) 52%,
+      transparent 59%,
+      transparent 100%);
+}
+body.reward-theme-dark{
+  --bg:#111722;
+  --surface:#1d2530;
+  --surface2:#252f3c;
+  --surface3:#2d3948;
+  --line:#404c5e;
+  --text:#edf3fb;
+  --muted:#bcc8d7;
+  --accent:#95a7c6;
+  --accentSoft:#273245;
+  --good:#88cba6;
+  --goodSoft:#22362c;
+  --warn:#d9bc6b;
+  --warnSoft:#43381f;
+  --bad:#e39f9f;
+  --badSoft:#4b2d2d;
+  --shadow:0 10px 26px rgba(0,0,0,.24);
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 14% 22%,rgba(255,255,255,.18) 0 .7px,transparent 1px),
+    radial-gradient(circle at 26% 72%,rgba(255,255,255,.14) 0 .8px,transparent 1.1px),
+    radial-gradient(circle at 78% 18%,rgba(255,255,255,.16) 0 .75px,transparent 1px),
+    radial-gradient(circle at 84% 68%,rgba(255,255,255,.12) 0 .85px,transparent 1.1px),
+    radial-gradient(circle at 48% 52%,rgba(255,255,255,.11) 0 .7px,transparent 1px),
+    linear-gradient(180deg,#0f1520 0%,#131c28 42%,#172130 100%);
+  background-size:34% 34%,42% 42%,38% 38%,46% 46%,40% 40%,100% 100%;
+}
+body.reward-theme-dark .topbar{
+  background:rgba(28,35,45,.86);
+  border-color:rgba(150,166,188,.24);
+  padding:6px 8px;
+}
+body.reward-theme-dark .app{
+  position:relative;
+}
+body.reward-theme-dark .app::before,
+body.reward-theme-dark .app::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+body.reward-theme-dark .app::before{
+  z-index:-3;
+  background:
+    radial-gradient(circle at 7% 14%,rgba(255,255,255,.90) 0 1px,transparent 1.8px),
+    radial-gradient(circle at 18% 43%,rgba(255,255,255,.70) 0 .9px,transparent 1.6px),
+    radial-gradient(circle at 33% 26%,rgba(255,255,255,.82) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 46% 72%,rgba(255,255,255,.76) 0 .95px,transparent 1.6px),
+    radial-gradient(circle at 59% 16%,rgba(255,255,255,.88) 0 1px,transparent 1.75px),
+    radial-gradient(circle at 68% 57%,rgba(255,255,255,.74) 0 .9px,transparent 1.6px),
+    radial-gradient(circle at 82% 32%,rgba(255,255,255,.80) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 91% 76%,rgba(255,255,255,.70) 0 .85px,transparent 1.5px),
+    radial-gradient(circle at 24% 86%,rgba(255,255,255,.72) 0 .9px,transparent 1.6px),
+    radial-gradient(circle at 73% 88%,rgba(255,255,255,.82) 0 1px,transparent 1.7px);
+  opacity:.72;
+}
+body.reward-theme-dark .app::after{
+  z-index:-2;
+  background:
+    radial-gradient(circle at 13% 24%,rgba(255,255,255,1) 0 1.3px,rgba(255,255,255,.42) 1.6px,transparent 3px),
+    radial-gradient(circle at 31% 64%,rgba(255,255,255,1) 0 1.2px,rgba(255,255,255,.38) 1.6px,transparent 3px),
+    radial-gradient(circle at 53% 34%,rgba(255,255,255,1) 0 1.25px,rgba(255,255,255,.40) 1.7px,transparent 3px),
+    radial-gradient(circle at 71% 18%,rgba(255,255,255,1) 0 1.3px,rgba(255,255,255,.42) 1.6px,transparent 3px),
+    radial-gradient(circle at 87% 58%,rgba(255,255,255,1) 0 1.2px,rgba(255,255,255,.36) 1.5px,transparent 3px),
+    radial-gradient(circle at 61% 82%,rgba(255,255,255,1) 0 1.25px,rgba(255,255,255,.40) 1.6px,transparent 3px);
+  opacity:.72;
+  animation:nightTwinkle 10s ease-in-out infinite alternate;
+}
+@keyframes nightTwinkle{
+  0%{opacity:.28;filter:brightness(.9)}
+  18%{opacity:.60;filter:brightness(1.02)}
+  36%{opacity:.38;filter:brightness(.95)}
+  56%{opacity:.78;filter:brightness(1.12)}
+  73%{opacity:.48;filter:brightness(.98)}
+  100%{opacity:.70;filter:brightness(1.08)}
+}
+body.reward-theme-gold .topbar::before,
+body.reward-theme-dark .topbar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.42) 49%,transparent 62%);
+  transform:translateX(-100%);
+  animation:badgeStatusShine 18s ease-in-out infinite;
+}
+@keyframes badgeStatusShine{
+  0%,88%,100%{opacity:0;transform:translateX(-100%)}
+  91%{opacity:.55}
+  96%{opacity:.35;transform:translateX(100%)}
+  97%{opacity:0;transform:translateX(100%)}
+}
+
+/* Dark-Theme: harte Weißflächen ebenfalls anpassen */
+body.reward-theme-dark .reward-modal,
+body.reward-theme-dark .reset-modal,
+body.reward-theme-dark .task,
+body.reward-theme-dark .math-input-card,
+body.reward-theme-dark .game-card,
+body.reward-theme-dark .side-card,
+body.reward-theme-dark .test-question,
+body.reward-theme-dark .deep-choice,
+body.reward-theme-dark .answer-mini,
+body.reward-theme-dark .row-action,
+body.reward-theme-dark .modal-close,
+body.reward-theme-dark .header-badge-main,
+body.reward-theme-dark .mini-badge-btn,
+body.reward-theme-nebula .reward-modal,
+body.reward-theme-nebula .reset-modal,
+body.reward-theme-nebula .task,
+body.reward-theme-nebula .math-input-card,
+body.reward-theme-nebula .game-card,
+body.reward-theme-nebula .side-card,
+body.reward-theme-nebula .test-question,
+body.reward-theme-nebula .deep-choice,
+body.reward-theme-nebula .answer-mini,
+body.reward-theme-nebula .row-action,
+body.reward-theme-nebula .modal-close,
+body.reward-theme-nebula .header-badge-main,
+body.reward-theme-nebula .mini-badge-btn{
+  background:var(--surface);
+  color:var(--text);
+  border-color:var(--line);
+}
+body.reward-theme-dark input,
+body.reward-theme-dark textarea,
+body.reward-theme-dark select,
+body.reward-theme-nebula input,
+body.reward-theme-nebula textarea,
+body.reward-theme-nebula select{
+  background:#252d36;
+  color:var(--text);
+  border-color:#46515d;
+}
+body.reward-theme-nebula input,
+body.reward-theme-nebula textarea,
+body.reward-theme-nebula select{
+  background:#202938;
+  border-color:#42506a;
+}
+body.reward-theme-dark .bookbox,
+body.reward-theme-nebula .bookbox{
+  background:#2b2b25;
+  border-color:#56503d;
+}
+body.reward-theme-dark .reward-shop-tab.active,
+body.reward-theme-nebula .reward-shop-tab.active{
+  background:#303842;
+}
+body.reward-theme-dark .badge-card.owned,
+body.reward-theme-nebula .badge-card.owned{
+  background:linear-gradient(135deg,var(--surface),rgba(55,85,65,.42));
+}
+
+@media(max-width:620px){
+  .header-badge-level{display:none}
+  .header-badge-btn{min-width:42px;width:42px;padding:0}
+}
+@media(prefers-reduced-motion:reduce){
+  body.reward-effect-thumb #headerBadgeIcon,
+  body.reward-effect-rocket .topbar::after,
+  body.reward-theme-gold .topbar::before,
+  body.reward-theme-dark .topbar::before{
+    animation:none!important;
+  }
+}
+
 @media(max-width:900px){
   .row-actions{
     width:100%;
@@ -2665,6 +3712,1657 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
   .math-input-grid{grid-template-columns:1fr}
 }
 
+
+/* Kantenknacker: konsequent komplett eckiges Interface */
+body.reward-effect-square{
+  --r:0px;
+}
+body.reward-effect-square *,
+body.reward-effect-square *::before,
+body.reward-effect-square *::after{
+  border-radius:0!important;
+}
+
+
+/* ==========================================================
+   Legendäre Level-5-Hintergründe
+   ========================================================== */
+
+/* Panels bleiben lesbar, lassen den animierten Hintergrund aber durchscheinen. */
+body.reward-theme-dark .panel,
+body.reward-theme-dark .task,
+body.reward-theme-dark .side-card,
+body.reward-theme-dark .math-input-card,
+body.reward-theme-dark .test-question,
+body.reward-theme-dark .deep-shell,
+body.reward-theme-dark .reward-modal,
+body.reward-theme-dark .game-card,
+body.reward-theme-dark .badge-card,
+body.reward-theme-dark .bookbox,
+body.reward-theme-nebula .panel,
+body.reward-theme-nebula .task,
+body.reward-theme-nebula .side-card,
+body.reward-theme-nebula .math-input-card,
+body.reward-theme-nebula .test-question,
+body.reward-theme-nebula .deep-shell,
+body.reward-theme-nebula .reward-modal,
+body.reward-theme-nebula .game-card,
+body.reward-theme-nebula .badge-card,
+body.reward-theme-nebula .bookbox{
+  background:rgba(27,35,48,.82)!important;
+  backdrop-filter:blur(7px) saturate(108%);
+  -webkit-backdrop-filter:blur(7px) saturate(108%);
+}
+body.reward-theme-orbit .panel,
+body.reward-theme-orbit .task,
+body.reward-theme-orbit .side-card,
+body.reward-theme-orbit .math-input-card,
+body.reward-theme-orbit .test-question,
+body.reward-theme-orbit .deep-shell,
+body.reward-theme-orbit .reward-modal,
+body.reward-theme-orbit .game-card,
+body.reward-theme-orbit .badge-card,
+body.reward-theme-orbit .bookbox{
+  background:rgba(250,253,252,.80)!important;
+  backdrop-filter:blur(6px) saturate(104%);
+  -webkit-backdrop-filter:blur(6px) saturate(104%);
+}
+
+/* Koordinaten-Orbit: ruhige App-Palette */
+body.reward-theme-orbit{
+  --bg:#edf4f3;
+  --surface:#fbfdfd;
+  --surface2:#e9f1f0;
+  --surface3:#e1eae8;
+  --line:#cbd9d6;
+  --accent:#587572;
+  --accentSoft:#dfecea;
+  background:#edf4f3;
+}
+body.reward-theme-orbit .app{
+  position:relative;
+  z-index:1;
+}
+body.reward-theme-orbit .topbar{
+  background:rgba(229,239,237,.84);
+  border-color:rgba(101,136,131,.34);
+  padding:6px 8px;
+  backdrop-filter:blur(6px);
+}
+
+/* feste Hintergrundebene: liegt hinter der eigentlichen App */
+.orbit-space-layer{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .45s ease;
+}
+body.reward-theme-orbit .orbit-space-layer{opacity:1}
+
+.orbit-coordinate-grid{
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(72,111,106,.115) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(72,111,106,.115) 1px,transparent 1px);
+  background-size:46px 46px;
+  background-position:center center;
+}
+.orbit-axis-x,
+.orbit-axis-y{
+  position:absolute;
+  background:rgba(64,101,97,.22);
+}
+.orbit-axis-x{
+  left:0;
+  right:0;
+  top:50%;
+  height:2px;
+}
+.orbit-axis-y{
+  top:0;
+  bottom:0;
+  left:50%;
+  width:2px;
+}
+.orbit-origin{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(64,101,97,.34);
+  transform:translate(-50%,-50%);
+}
+
+.orbit-system{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:0;
+  height:0;
+}
+.orbit-sun{
+  position:absolute;
+  left:0;
+  top:0;
+  width:34px;
+  height:34px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 38% 34%,#fff6c7 0 16%,#ffd870 38%,#e7a52c 72%,#c9861f 100%);
+  box-shadow:
+    0 0 18px rgba(230,172,52,.35),
+    0 0 38px rgba(230,172,52,.13);
+}
+.orbit-sun::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,222,117,.18),transparent 67%);
+  animation:orbitSunBreath 7s ease-in-out infinite alternate;
+}
+@keyframes orbitSunBreath{
+  from{transform:scale(.93);opacity:.55}
+  to{transform:scale(1.08);opacity:.9}
+}
+
+.orbit-runner{
+  position:absolute;
+  left:0;
+  top:0;
+  width:0;
+  height:0;
+  animation:orbitTrueCircle var(--orbit-duration,36s) linear infinite;
+  animation-delay:var(--orbit-phase,0s);
+}
+.orbit-runner.orbit-paused{animation-play-state:paused}
+@keyframes orbitTrueCircle{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+.orbit-planet-holder{
+  position:absolute;
+  left:var(--orbit-radius,100px);
+  top:0;
+  width:var(--planet-size,14px);
+  height:var(--planet-size,14px);
+  transform:translate(-50%,-50%);
+}
+.orbit-planet{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:var(--planet-fill,#7597c5);
+  box-shadow:
+    inset -3px -2px 5px rgba(0,0,0,.13),
+    0 0 6px var(--planet-glow,rgba(80,120,170,.22));
+  transition:opacity .35s ease,transform .35s ease;
+}
+.orbit-planet.destroyed{
+  opacity:0;
+  transform:scale(.18);
+}
+.orbit-trail-dot{
+  position:absolute;
+  left:var(--orbit-radius,100px);
+  top:0;
+  width:var(--trail-size,4px);
+  height:var(--trail-size,4px);
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:var(--trail-color,rgba(90,130,150,.22));
+  opacity:var(--trail-opacity,.24);
+  filter:blur(.15px);
+}
+
+/* Spezialereignisse */
+.orbit-special-event{
+  position:absolute;
+  z-index:6;
+  pointer-events:none;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  line-height:1;
+}
+.orbit-event-rocket{
+  font-size:23px;
+  animation:orbitRocketEscape 5.3s cubic-bezier(.15,.58,.18,1) forwards;
+}
+@keyframes orbitRocketEscape{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rocket-angle,0deg)) scale(.72)}
+  12%{opacity:1;transform:translate(-50%,-50%) translate(calc(var(--dx)*.05),calc(var(--dy)*.05)) rotate(var(--rocket-angle,0deg)) scale(1)}
+  82%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(var(--rocket-angle,0deg)) scale(.9)}
+}
+.orbit-event-satellite{
+  font-size:23px;
+  animation:orbitSatelliteFly 9s linear forwards;
+}
+@keyframes orbitSatelliteFly{
+  from{opacity:0;transform:translate(-80px,0) rotate(9deg)}
+  9%{opacity:.9}
+  89%{opacity:.9}
+  to{opacity:0;transform:translate(calc(100vw + 120px),var(--sat-dy,40px)) rotate(20deg)}
+}
+.orbit-event-comet{
+  font-size:29px;
+  animation:orbitCometFly 7.2s cubic-bezier(.2,.55,.25,1) forwards;
+  filter:drop-shadow(0 0 7px rgba(162,199,231,.32));
+}
+@keyframes orbitCometFly{
+  0%{opacity:0;transform:translate(90px,-60px) rotate(21deg) scale(.8)}
+  12%{opacity:1}
+  86%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-100vw - 180px),calc(100vh + 120px)) rotate(21deg) scale(1)}
+}
+.orbit-event-ufo{
+  font-size:27px;
+  transition:transform 3.8s cubic-bezier(.18,.58,.18,1),opacity .35s ease;
+  filter:drop-shadow(0 0 7px rgba(87,161,178,.24));
+}
+.orbit-event-ufo.leaving{
+  transition:transform 3.2s ease-in,opacity .6s ease;
+}
+.orbit-event-explosion{
+  font-size:25px;
+  animation:orbitExplosion .8s ease-out forwards;
+}
+@keyframes orbitExplosion{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  24%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.55)}
+}
+.orbit-solar-flare{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid rgba(255,190,75,.36);
+  transform:translate(-50%,-50%) scale(.7);
+  animation:orbitSolarFlare 4.8s ease-out forwards;
+}
+@keyframes orbitSolarFlare{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+  20%{opacity:.8}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(6.4)}
+}
+.orbit-meteor-streak{
+  position:absolute;
+  width:48px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(173,202,218,.75));
+  transform:rotate(-32deg);
+  animation:orbitMeteorShower 3.8s linear forwards;
+}
+@keyframes orbitMeteorShower{
+  0%{opacity:0;transform:translate(0,0) rotate(-32deg)}
+  12%{opacity:.8}
+  86%{opacity:.65}
+  100%{opacity:0;transform:translate(-38vw,28vh) rotate(-32deg)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .orbit-runner,
+  .orbit-sun::after{
+    animation:none!important;
+  }
+  .orbit-special-event,
+  .orbit-solar-flare,
+  .orbit-meteor-streak{
+    display:none!important;
+  }
+}
+
+
+/* ==========================================================
+   Finale Abzeichen-Effekt-Overrides
+   Dieser Block liegt bewusst am Ende der Stylesheet-Kaskade.
+   ========================================================== */
+
+/* Glanz */
+body.reward-effect-thumb .topbar{
+  background:rgba(248,242,232,.72)!important;
+  border-color:rgba(215,195,158,.38)!important;
+}
+body.reward-effect-thumb #headerBadgeIcon{
+  animation:badgeThumbPulse 30s ease-in-out infinite;
+}
+body.reward-effect-sky .topbar{
+  background:rgba(229,239,249,.78)!important;
+  border-color:rgba(132,168,203,.36)!important;
+}
+body.reward-effect-title-plum .task-title,
+body.reward-effect-title-plum .deep-task-title,
+body.reward-effect-title-plum .check-section-head h3,
+body.reward-effect-title-plum .math-expression{
+  color:#77566f!important;
+}
+
+/* Spezial */
+body.reward-effect-title-cobalt .task-title,
+body.reward-effect-title-cobalt .deep-task-title,
+body.reward-effect-title-cobalt .check-section-head h3,
+body.reward-effect-title-cobalt .math-expression{
+  color:#4e6889!important;
+}
+body.reward-effect-rocket .topbar{
+  background:rgba(232,237,246,.82)!important;
+  border-color:rgba(125,144,177,.36)!important;
+}
+body.reward-effect-square{
+  --r:0px;
+}
+body.reward-effect-square *,
+body.reward-effect-square *::before,
+body.reward-effect-square *::after{
+  border-radius:0!important;
+}
+
+/* Elite */
+body.reward-theme-gold{
+  --bg:#f8f6ef;
+  --surface:#fffefb;
+  --surface2:#f5f0e3;
+  --surface3:#eee7d6;
+  --line:#e6ddc5;
+  --accent:#826f42;
+  --accentSoft:#f1ebda;
+  background-color:var(--bg)!important;
+}
+body.reward-theme-green{
+  --bg:#f2f7f3;
+  --surface:#fbfdfb;
+  --surface2:#edf4ee;
+  --surface3:#e4eee6;
+  --line:#d8e4db;
+  --accent:#567860;
+  --accentSoft:#e6f0e8;
+  background-color:var(--bg)!important;
+}
+body.reward-theme-violet{
+  --bg:#f6f3f8;
+  --surface:#fffdfd;
+  --surface2:#f1ebf4;
+  --surface3:#e9e1ee;
+  --line:#e1d8e6;
+  --accent:#755f82;
+  --accentSoft:#eee6f2;
+  background-color:var(--bg)!important;
+}
+body.reward-theme-gold .topbar{
+  background:rgba(247,240,215,.84)!important;
+  border-color:rgba(198,169,79,.40)!important;
+}
+body.reward-theme-green .topbar{
+  background:rgba(228,240,230,.86)!important;
+  border-color:rgba(112,154,122,.36)!important;
+}
+body.reward-theme-violet .topbar{
+  background:rgba(240,232,245,.86)!important;
+  border-color:rgba(150,119,165,.32)!important;
+}
+body.reward-theme-violet .task-title,
+body.reward-theme-violet .deep-task-title,
+body.reward-theme-violet .check-section-head h3{
+  color:#6e567b!important;
+}
+
+/* Legendär: Nachtgenie */
+body.reward-theme-dark{
+  --bg:#111722;
+  --surface:#1d2530;
+  --surface2:#252f3c;
+  --surface3:#2d3948;
+  --line:#404c5e;
+  --text:#edf3fb;
+  --muted:#bcc8d7;
+  --accent:#95a7c6;
+  --accentSoft:#273245;
+  --good:#88cba6;
+  --goodSoft:#22362c;
+  --warn:#d9bc6b;
+  --warnSoft:#43381f;
+  --bad:#e39f9f;
+  --badSoft:#4b2d2d;
+  background-color:var(--bg)!important;
+}
+
+/* Legendär: Zahlennebel */
+body.reward-theme-nebula{
+  --bg:#111621;
+  --surface:#1a2130;
+  --surface2:#232c3d;
+  --surface3:#2a3548;
+  --line:#3a4860;
+  --text:#eef3fb;
+  --muted:#b5c0d0;
+  --accent:#93a4c2;
+  --accentSoft:#223149;
+  --good:#84c8a2;
+  --goodSoft:#21382d;
+  --warn:#d8b86a;
+  --warnSoft:#3f3521;
+  --bad:#e29a9a;
+  --badSoft:#472b2b;
+  background-color:var(--bg)!important;
+}
+
+/* Legendär: Koordinaten-Orbit */
+body.reward-theme-orbit{
+  --bg:#edf4f3;
+  --surface:#fbfdfd;
+  --surface2:#e9f1f0;
+  --surface3:#e1eae8;
+  --line:#cbd9d6;
+  --text:#1f2937;
+  --muted:#667085;
+  --accent:#587572;
+  --accentSoft:#dfecea;
+  background-color:var(--bg)!important;
+}
+
+/* Legendäre Themes: echte semitransparente Inhaltsflächen.
+   !important verhindert, dass ältere komponentenspezifische Weißflächen
+   die Transparenz wieder überschreiben. */
+body.reward-theme-dark .panel,
+body.reward-theme-dark .task,
+body.reward-theme-dark .side-card,
+body.reward-theme-dark .math-input-card,
+body.reward-theme-dark .test-question,
+body.reward-theme-dark .deep-shell,
+body.reward-theme-dark .reward-modal,
+body.reward-theme-dark .game-card,
+body.reward-theme-dark .badge-card,
+body.reward-theme-dark .bookbox,
+body.reward-theme-dark .answer-mini,
+body.reward-theme-dark .deep-choice,
+body.reward-theme-dark .row-action{
+  background:rgba(29,37,48,.78)!important;
+  backdrop-filter:blur(8px) saturate(110%);
+  -webkit-backdrop-filter:blur(8px) saturate(110%);
+}
+
+body.reward-theme-nebula .panel,
+body.reward-theme-nebula .task,
+body.reward-theme-nebula .side-card,
+body.reward-theme-nebula .math-input-card,
+body.reward-theme-nebula .test-question,
+body.reward-theme-nebula .deep-shell,
+body.reward-theme-nebula .reward-modal,
+body.reward-theme-nebula .game-card,
+body.reward-theme-nebula .badge-card,
+body.reward-theme-nebula .bookbox,
+body.reward-theme-nebula .answer-mini,
+body.reward-theme-nebula .deep-choice,
+body.reward-theme-nebula .row-action{
+  background:rgba(26,33,48,.76)!important;
+  backdrop-filter:blur(8px) saturate(112%);
+  -webkit-backdrop-filter:blur(8px) saturate(112%);
+}
+
+body.reward-theme-orbit .panel,
+body.reward-theme-orbit .task,
+body.reward-theme-orbit .side-card,
+body.reward-theme-orbit .math-input-card,
+body.reward-theme-orbit .test-question,
+body.reward-theme-orbit .deep-shell,
+body.reward-theme-orbit .reward-modal,
+body.reward-theme-orbit .game-card,
+body.reward-theme-orbit .badge-card,
+body.reward-theme-orbit .bookbox,
+body.reward-theme-orbit .answer-mini,
+body.reward-theme-orbit .deep-choice,
+body.reward-theme-orbit .row-action{
+  background:rgba(251,253,253,.73)!important;
+  backdrop-filter:blur(7px) saturate(104%);
+  -webkit-backdrop-filter:blur(7px) saturate(104%);
+}
+
+/* Inputs in den dunklen legendären Modi bleiben kontrastreich,
+   sind aber ebenfalls nicht vollständig opak. */
+body.reward-theme-dark input,
+body.reward-theme-dark textarea,
+body.reward-theme-dark select,
+body.reward-theme-nebula input,
+body.reward-theme-nebula textarea,
+body.reward-theme-nebula select{
+  background:rgba(34,44,57,.82)!important;
+  color:var(--text)!important;
+  border-color:rgba(86,105,130,.72)!important;
+}
+
+/* Im Orbit sollen Eingabefelder hell transparent bleiben. */
+body.reward-theme-orbit input,
+body.reward-theme-orbit textarea,
+body.reward-theme-orbit select{
+  background:rgba(255,255,255,.76)!important;
+}
+
+/* Der Hintergrund soll trotz App-Container sichtbar bleiben. */
+body.reward-theme-dark .app,
+body.reward-theme-nebula .app,
+body.reward-theme-orbit .app{
+  background:transparent!important;
+}
+
+/* Nachtgenie / Zahlennebel: Textflächen behalten volle Lesbarkeit */
+body.reward-theme-dark .previously-done-notice,
+body.reward-theme-nebula .previously-done-notice{
+  background:rgba(35,48,42,.80)!important;
+  color:#dce9df!important;
+  border-color:rgba(104,143,115,.40)!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.reward-effect-thumb #headerBadgeIcon,
+  body.reward-effect-rocket .topbar::after{
+    animation:none!important;
+  }
+}
+
+
+/* ==========================================================
+   Legendäre Themes: Hintergrund wirklich durch die Inhaltsflächen sichtbar
+   ========================================================== */
+
+/* Nachtgenie */
+body.reward-theme-dark .panel,
+body.reward-theme-dark .card,
+body.reward-theme-dark .task,
+body.reward-theme-dark .side-card,
+body.reward-theme-dark .math-input-card,
+body.reward-theme-dark .test-question,
+body.reward-theme-dark .deep-shell,
+body.reward-theme-dark .deep-row,
+body.reward-theme-dark .reward-modal,
+body.reward-theme-dark .game-card,
+body.reward-theme-dark .badge-card,
+body.reward-theme-dark .bookbox,
+body.reward-theme-dark .answer-mini,
+body.reward-theme-dark .deep-choice{
+  background:rgba(29,37,48,.66)!important;
+  backdrop-filter:blur(7px) saturate(108%);
+  -webkit-backdrop-filter:blur(7px) saturate(108%);
+}
+
+/* Zahlennebel */
+body.reward-theme-nebula .panel,
+body.reward-theme-nebula .card,
+body.reward-theme-nebula .task,
+body.reward-theme-nebula .side-card,
+body.reward-theme-nebula .math-input-card,
+body.reward-theme-nebula .test-question,
+body.reward-theme-nebula .deep-shell,
+body.reward-theme-nebula .deep-row,
+body.reward-theme-nebula .reward-modal,
+body.reward-theme-nebula .game-card,
+body.reward-theme-nebula .badge-card,
+body.reward-theme-nebula .bookbox,
+body.reward-theme-nebula .answer-mini,
+body.reward-theme-nebula .deep-choice{
+  background:rgba(26,33,48,.63)!important;
+  backdrop-filter:blur(7px) saturate(110%);
+  -webkit-backdrop-filter:blur(7px) saturate(110%);
+}
+
+/* Koordinaten-Orbit: deutlich transparenter, damit Raster und Ereignisse sichtbar bleiben */
+body.reward-theme-orbit .panel,
+body.reward-theme-orbit .card,
+body.reward-theme-orbit .task,
+body.reward-theme-orbit .side-card,
+body.reward-theme-orbit .math-input-card,
+body.reward-theme-orbit .test-question,
+body.reward-theme-orbit .deep-shell,
+body.reward-theme-orbit .deep-row,
+body.reward-theme-orbit .reward-modal,
+body.reward-theme-orbit .game-card,
+body.reward-theme-orbit .badge-card,
+body.reward-theme-orbit .bookbox,
+body.reward-theme-orbit .answer-mini,
+body.reward-theme-orbit .deep-choice{
+  background:rgba(251,253,253,.56)!important;
+  backdrop-filter:blur(5px) saturate(102%);
+  -webkit-backdrop-filter:blur(5px) saturate(102%);
+}
+
+/* Die Kompetenzzeilen brauchen zusätzlich einen leicht transparenten Rahmen,
+   damit sie sich vom Raster unterscheiden, ohne es zuzudecken. */
+body.reward-theme-orbit .card{
+  border-color:rgba(139,164,160,.48)!important;
+}
+body.reward-theme-nebula .card,
+body.reward-theme-dark .card{
+  border-color:rgba(93,111,137,.52)!important;
+}
+
+/* Aktionsbuttons dürfen etwas deckender bleiben, damit Text und Fortschritt lesbar sind. */
+body.reward-theme-orbit .row-action{
+  background:rgba(250,253,252,.75)!important;
+}
+body.reward-theme-nebula .row-action,
+body.reward-theme-dark .row-action{
+  background:rgba(34,43,56,.78)!important;
+}
+
+/* Auch der Kopfbereich soll den Hintergrund leicht durchlassen. */
+body.reward-theme-orbit .topbar{
+  background:rgba(229,239,237,.69)!important;
+}
+body.reward-theme-nebula .topbar,
+body.reward-theme-dark .topbar{
+  background:rgba(27,35,49,.72)!important;
+}
+
+
+/* ==========================================================
+   Zahlennebel: eigene animierte Galaxie-Hintergrundebene
+   ========================================================== */
+.nebula-space-layer{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .5s ease;
+  background:
+    linear-gradient(180deg,#0d121d 0%,#121927 42%,#172236 100%);
+}
+body.reward-theme-nebula .nebula-space-layer{
+  opacity:1;
+}
+body.reward-theme-nebula .app{
+  position:relative;
+  z-index:1;
+  background:transparent!important;
+}
+
+.nebula-cloud{
+  position:absolute;
+  inset:-22%;
+  filter:blur(34px) saturate(122%);
+  will-change:transform,opacity;
+}
+.nebula-cloud-a{
+  background:
+    radial-gradient(circle at 18% 27%,rgba(126,91,226,.34) 0 8%,transparent 26%),
+    radial-gradient(circle at 66% 42%,rgba(68,146,226,.27) 0 10%,transparent 29%),
+    radial-gradient(circle at 47% 78%,rgba(219,91,174,.22) 0 9%,transparent 27%);
+  opacity:.82;
+  animation:nebulaCloudDriftA 34s ease-in-out infinite alternate;
+}
+.nebula-cloud-b{
+  background:
+    radial-gradient(circle at 78% 24%,rgba(78,211,207,.20) 0 7%,transparent 23%),
+    radial-gradient(circle at 31% 64%,rgba(174,105,218,.20) 0 11%,transparent 31%),
+    radial-gradient(circle at 83% 78%,rgba(79,123,220,.20) 0 9%,transparent 28%);
+  opacity:.68;
+  animation:nebulaCloudDriftB 47s ease-in-out infinite alternate;
+}
+.nebula-galaxy-core{
+  position:absolute;
+  left:52%;
+  top:48%;
+  width:min(78vw,920px);
+  aspect-ratio:1.65 / 1;
+  transform:translate(-50%,-50%) rotate(-11deg);
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255,244,220,.20) 0 5%,
+      rgba(184,157,238,.17) 8%,
+      rgba(91,140,218,.13) 21%,
+      rgba(146,89,189,.09) 36%,
+      transparent 67%);
+  filter:blur(11px);
+  opacity:.72;
+  animation:nebulaCoreBreath 23s ease-in-out infinite alternate;
+}
+.nebula-stars{
+  position:absolute;
+  inset:0;
+  opacity:.72;
+  background:
+    radial-gradient(circle at 7% 12%,rgba(255,255,255,.85) 0 .7px,transparent 1.4px),
+    radial-gradient(circle at 14% 63%,rgba(255,255,255,.62) 0 .7px,transparent 1.4px),
+    radial-gradient(circle at 22% 31%,rgba(255,255,255,.80) 0 .8px,transparent 1.5px),
+    radial-gradient(circle at 31% 81%,rgba(255,255,255,.58) 0 .65px,transparent 1.3px),
+    radial-gradient(circle at 39% 18%,rgba(255,255,255,.75) 0 .7px,transparent 1.4px),
+    radial-gradient(circle at 48% 57%,rgba(255,255,255,.64) 0 .8px,transparent 1.5px),
+    radial-gradient(circle at 57% 29%,rgba(255,255,255,.82) 0 .7px,transparent 1.4px),
+    radial-gradient(circle at 64% 76%,rgba(255,255,255,.56) 0 .65px,transparent 1.3px),
+    radial-gradient(circle at 73% 14%,rgba(255,255,255,.78) 0 .8px,transparent 1.5px),
+    radial-gradient(circle at 81% 52%,rgba(255,255,255,.66) 0 .7px,transparent 1.4px),
+    radial-gradient(circle at 89% 84%,rgba(255,255,255,.76) 0 .75px,transparent 1.45px),
+    radial-gradient(circle at 95% 37%,rgba(255,255,255,.58) 0 .7px,transparent 1.4px);
+  animation:nebulaStarDrift 54s linear infinite;
+}
+.nebula-twinkles{
+  position:absolute;
+  inset:0;
+  opacity:.55;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(255,255,255,1) 0 1.25px,rgba(255,255,255,.35) 1.7px,transparent 3px),
+    radial-gradient(circle at 35% 68%,rgba(255,255,255,1) 0 1.15px,rgba(255,255,255,.30) 1.6px,transparent 3px),
+    radial-gradient(circle at 54% 34%,rgba(255,255,255,1) 0 1.2px,rgba(255,255,255,.32) 1.65px,transparent 3px),
+    radial-gradient(circle at 72% 72%,rgba(255,255,255,1) 0 1.25px,rgba(255,255,255,.32) 1.7px,transparent 3px),
+    radial-gradient(circle at 86% 25%,rgba(255,255,255,1) 0 1.15px,rgba(255,255,255,.30) 1.6px,transparent 3px);
+  animation:nebulaTwinkle 13s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaCloudDriftA{
+  0%{transform:translate3d(-3%,-2%,0) scale(1)}
+  50%{transform:translate3d(2%,1%,0) scale(1.06)}
+  100%{transform:translate3d(5%,-1%,0) scale(1.10)}
+}
+@keyframes nebulaCloudDriftB{
+  0%{transform:translate3d(4%,2%,0) scale(1.04)}
+  50%{transform:translate3d(-1%,-2%,0) scale(1)}
+  100%{transform:translate3d(-5%,1%,0) scale(1.08)}
+}
+@keyframes nebulaCoreBreath{
+  from{transform:translate(-50%,-50%) rotate(-11deg) scale(.96);opacity:.58}
+  to{transform:translate(-50%,-50%) rotate(-7deg) scale(1.08);opacity:.82}
+}
+@keyframes nebulaStarDrift{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-1.5%,1%,0)}
+}
+@keyframes nebulaTwinkle{
+  0%{opacity:.25;filter:brightness(.9)}
+  35%{opacity:.72;filter:brightness(1.1)}
+  62%{opacity:.38;filter:brightness(.96)}
+  100%{opacity:.68;filter:brightness(1.08)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .nebula-cloud,
+  .nebula-galaxy-core,
+  .nebula-stars,
+  .nebula-twinkles{
+    animation:none!important;
+  }
+}
+
+
+/* ==========================================================
+   Nachtgenie + Zahlennebel: deutlich transparentere Inhaltsflächen
+   ========================================================== */
+
+/* Beide legendären dunklen Themes bewusst identisch transparent. */
+body.reward-theme-dark .panel,
+body.reward-theme-dark .card,
+body.reward-theme-dark .task,
+body.reward-theme-dark .side-card,
+body.reward-theme-dark .math-input-card,
+body.reward-theme-dark .test-question,
+body.reward-theme-dark .deep-shell,
+body.reward-theme-dark .deep-row,
+body.reward-theme-dark .reward-modal,
+body.reward-theme-dark .game-card,
+body.reward-theme-dark .badge-card,
+body.reward-theme-dark .bookbox,
+body.reward-theme-dark .answer-mini,
+body.reward-theme-dark .deep-choice,
+body.reward-theme-nebula .panel,
+body.reward-theme-nebula .card,
+body.reward-theme-nebula .task,
+body.reward-theme-nebula .side-card,
+body.reward-theme-nebula .math-input-card,
+body.reward-theme-nebula .test-question,
+body.reward-theme-nebula .deep-shell,
+body.reward-theme-nebula .deep-row,
+body.reward-theme-nebula .reward-modal,
+body.reward-theme-nebula .game-card,
+body.reward-theme-nebula .badge-card,
+body.reward-theme-nebula .bookbox,
+body.reward-theme-nebula .answer-mini,
+body.reward-theme-nebula .deep-choice{
+  background:rgba(25,33,46,.48)!important;
+  backdrop-filter:blur(7.5px) saturate(112%)!important;
+  -webkit-backdrop-filter:blur(7.5px) saturate(112%)!important;
+}
+
+/* Kompetenzzeilen bekommen nur eine dezente Kontur, nicht wieder eine deckende Fläche. */
+body.reward-theme-dark .card,
+body.reward-theme-nebula .card{
+  border-color:rgba(104,124,151,.45)!important;
+}
+
+/* Interaktive Elemente etwas deckender als die großen Panels. */
+body.reward-theme-dark .row-action,
+body.reward-theme-nebula .row-action,
+body.reward-theme-dark .backbtn,
+body.reward-theme-nebula .backbtn,
+body.reward-theme-dark .modal-close,
+body.reward-theme-nebula .modal-close,
+body.reward-theme-dark .header-badge-main,
+body.reward-theme-nebula .header-badge-main,
+body.reward-theme-dark .mini-badge-btn,
+body.reward-theme-nebula .mini-badge-btn{
+  background:rgba(37,47,61,.61)!important;
+  backdrop-filter:blur(6px)!important;
+  -webkit-backdrop-filter:blur(6px)!important;
+}
+
+/* Eingabefelder: weiterhin klar lesbar, aber Hintergrund bleibt erkennbar. */
+body.reward-theme-dark input,
+body.reward-theme-dark textarea,
+body.reward-theme-dark select,
+body.reward-theme-nebula input,
+body.reward-theme-nebula textarea,
+body.reward-theme-nebula select{
+  background:rgba(35,45,59,.64)!important;
+  backdrop-filter:blur(5px)!important;
+  -webkit-backdrop-filter:blur(5px)!important;
+}
+
+/* Kopfzeile ebenfalls gleich transparent. */
+body.reward-theme-dark .topbar,
+body.reward-theme-nebula .topbar{
+  background:rgba(25,33,46,.54)!important;
+  backdrop-filter:blur(8px) saturate(110%)!important;
+  -webkit-backdrop-filter:blur(8px) saturate(110%)!important;
+}
+
+
+/* ==========================================================
+   Nachtgenie: Sternschnuppen-Hintergrund
+   ========================================================== */
+.night-sky-layer{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .45s ease;
+}
+body.reward-theme-dark .night-sky-layer{
+  opacity:1;
+}
+body.reward-theme-dark .app{
+  position:relative;
+  z-index:1;
+}
+
+.night-shooting-star{
+  position:absolute;
+  width:110px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.25) 18%,rgba(255,255,255,.92) 62%,rgba(255,255,255,0));
+  box-shadow:
+    0 0 8px rgba(255,255,255,.36),
+    0 0 14px rgba(162,193,255,.22);
+  transform:rotate(var(--angle,-28deg));
+  opacity:0;
+  animation:nightShootingStar var(--dur,1.7s) ease-out forwards;
+}
+.night-shooting-star::after{
+  content:"";
+  position:absolute;
+  right:-3px;
+  top:50%;
+  width:8px;
+  height:8px;
+  transform:translateY(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.98) 0 28%,rgba(225,238,255,.85) 36%,rgba(175,205,255,.16) 68%,transparent 75%);
+  box-shadow:0 0 10px rgba(255,255,255,.36);
+}
+@keyframes nightShootingStar{
+  0%{
+    opacity:0;
+    transform:translate3d(0,0,0) rotate(var(--angle,-28deg)) scale(.9);
+  }
+  12%{
+    opacity:.9;
+  }
+  100%{
+    opacity:0;
+    transform:translate3d(var(--dx,-240px),var(--dy,170px),0) rotate(var(--angle,-28deg)) scale(1.02);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .night-sky-layer,
+  .night-shooting-star{
+    display:none!important;
+  }
+}
+
+
+/* ==========================================================
+   KI lernen: guter Kontrast in den dunklen legendären Themes
+   ========================================================== */
+
+/* Hauptbereich und Promptkarten */
+body.reward-theme-dark .ai-shell,
+body.reward-theme-nebula .ai-shell,
+body.reward-theme-dark .prompt-card,
+body.reward-theme-nebula .prompt-card,
+body.reward-theme-dark .ai-access,
+body.reward-theme-nebula .ai-access,
+body.reward-theme-dark .ai-random-card,
+body.reward-theme-nebula .ai-random-card,
+body.reward-theme-dark .ai-competency-modal,
+body.reward-theme-nebula .ai-competency-modal{
+  background:rgba(27,35,48,.58)!important;
+  color:var(--text)!important;
+  border-color:rgba(111,130,156,.46)!important;
+  backdrop-filter:blur(8px) saturate(110%)!important;
+  -webkit-backdrop-filter:blur(8px) saturate(110%)!important;
+}
+
+/* Überschriften und primärer Text */
+body.reward-theme-dark .ai-copy h2,
+body.reward-theme-nebula .ai-copy h2,
+body.reward-theme-dark .prompt-section h3,
+body.reward-theme-nebula .prompt-section h3,
+body.reward-theme-dark .prompt-card-title,
+body.reward-theme-nebula .prompt-card-title,
+body.reward-theme-dark .ai-access h3,
+body.reward-theme-nebula .ai-access h3,
+body.reward-theme-dark .ai-random-card h3,
+body.reward-theme-nebula .ai-random-card h3,
+body.reward-theme-dark .ai-competency-head h2,
+body.reward-theme-nebula .ai-competency-head h2{
+  color:#f1f5fb!important;
+}
+
+/* Sekundärer Text */
+body.reward-theme-dark .ai-copy > p,
+body.reward-theme-nebula .ai-copy > p,
+body.reward-theme-dark .prompt-section-head p,
+body.reward-theme-nebula .prompt-section-head p,
+body.reward-theme-dark .topic-select-wrap label,
+body.reward-theme-nebula .topic-select-wrap label,
+body.reward-theme-dark .ai-competency-head p,
+body.reward-theme-nebula .ai-competency-head p,
+body.reward-theme-dark .ai-mini-access div,
+body.reward-theme-nebula .ai-mini-access div,
+body.reward-theme-dark .ai-access ol,
+body.reward-theme-nebula .ai-access ol{
+  color:#c5cfdd!important;
+}
+
+/* Prompttext: im Screenshot war dieser deutlich zu kontrastarm */
+body.reward-theme-dark .prompt-text,
+body.reward-theme-nebula .prompt-text,
+body.reward-theme-dark .ai-random-card .prompt-text,
+body.reward-theme-nebula .ai-random-card .prompt-text{
+  background:rgba(15,22,32,.68)!important;
+  color:#dce5f1!important;
+  border:1px solid rgba(112,132,160,.28)!important;
+}
+
+/* Select und Formularflächen */
+body.reward-theme-dark .topic-select,
+body.reward-theme-nebula .topic-select{
+  background:rgba(31,42,56,.76)!important;
+  color:#eef3fa!important;
+  border-color:rgba(111,132,160,.52)!important;
+}
+body.reward-theme-dark .topic-select option,
+body.reward-theme-nebula .topic-select option{
+  background:#202a38;
+  color:#eef3fa;
+}
+
+/* Schritt-Ziffern */
+body.reward-theme-dark .ai-rule-no,
+body.reward-theme-nebula .ai-rule-no{
+  background:rgba(112,90,143,.38)!important;
+  color:#eee5fa!important;
+}
+
+/* Buttons und Links */
+body.reward-theme-dark .copy-prompt,
+body.reward-theme-nebula .copy-prompt,
+body.reward-theme-dark .ai-refresh,
+body.reward-theme-nebula .ai-refresh{
+  background:rgba(91,65,121,.36)!important;
+  border-color:rgba(163,136,194,.48)!important;
+  color:#eadff8!important;
+}
+body.reward-theme-dark .ai-link,
+body.reward-theme-nebula .ai-link{
+  background:#735494!important;
+  color:#fff!important;
+}
+body.reward-theme-dark .ai-mini-link,
+body.reward-theme-nebula .ai-mini-link{
+  color:#cdb2ec!important;
+}
+
+/* KI-Pop-up: Schließen-Button und Kopf */
+body.reward-theme-dark .ai-competency-close,
+body.reward-theme-nebula .ai-competency-close{
+  background:rgba(35,45,59,.78)!important;
+  color:#d5deea!important;
+  border-color:rgba(111,132,160,.45)!important;
+}
+body.reward-theme-dark .ai-competency-head,
+body.reward-theme-nebula .ai-competency-head,
+body.reward-theme-dark .ai-modal-actions,
+body.reward-theme-nebula .ai-modal-actions{
+  border-color:rgba(111,132,160,.35)!important;
+}
+
+/* Screenshot im Moin-Zugang nicht mit einer grellen weißen Fläche rahmen */
+body.reward-theme-dark .ai-shot,
+body.reward-theme-nebula .ai-shot,
+body.reward-theme-dark .ai-mini-access img,
+body.reward-theme-nebula .ai-mini-access img{
+  background:rgba(255,255,255,.92)!important;
+  border-color:rgba(155,169,190,.45)!important;
+}
+
+/* Startkarte auf der Homepage */
+body.reward-theme-dark .ai-panel,
+body.reward-theme-nebula .ai-panel{
+  background:rgba(49,38,61,.48)!important;
+  border-color:rgba(139,111,166,.42)!important;
+}
+body.reward-theme-dark .ai-panel-copy h2,
+body.reward-theme-nebula .ai-panel-copy h2{
+  color:#eadff6!important;
+}
+body.reward-theme-dark .ai-panel-copy p,
+body.reward-theme-nebula .ai-panel-copy p{
+  color:#c8bdd2!important;
+}
+body.reward-theme-dark .ai-start,
+body.reward-theme-nebula .ai-start{
+  background:rgba(107,78,137,.50)!important;
+  border-color:rgba(165,137,194,.52)!important;
+  color:#f3eafa!important;
+}
+
+
+/* ==========================================================
+   Kontrast-Fix für Aufgabenansicht:
+   Buttons, Hilfeblöcke, Inputs, Placeholder, Labels
+   ========================================================== */
+
+/* ---------- HELLE THEMES / Standard ---------- */
+button,
+.secondary,
+.backbtn,
+.row-action,
+.copy-prompt,
+.ai-refresh,
+.ai-start,
+.ai-link,
+.ai-mini-link,
+.modal-close,
+.test-close{
+  color:var(--text);
+}
+
+.task input,
+.task textarea,
+.task select,
+.math-input-card input,
+.math-input-card textarea,
+.deep-shell input,
+.deep-shell textarea,
+.test-question input,
+.test-question textarea{
+  color:var(--text)!important;
+  background:var(--surface)!important;
+  border-color:var(--line)!important;
+}
+
+.task input::placeholder,
+.task textarea::placeholder,
+.math-input-card input::placeholder,
+.math-input-card textarea::placeholder,
+.deep-shell input::placeholder,
+.deep-shell textarea::placeholder,
+.test-question input::placeholder,
+.test-question textarea::placeholder{
+  color:rgba(31,41,55,.52)!important;
+}
+
+.deep-shell .hint-toggle,
+.deep-shell details summary,
+.deep-shell .hint-item,
+.deep-shell .help-item,
+.deep-shell .accordion-head,
+.task .hint-toggle,
+.task details summary{
+  color:var(--text)!important;
+  background:rgba(255,255,255,.92)!important;
+  border-color:var(--line)!important;
+}
+
+.deep-shell details,
+.deep-shell .hint-panel,
+.deep-shell .help-panel,
+.task details{
+  color:var(--text)!important;
+}
+
+.deep-shell label,
+.task label,
+.math-input-card label,
+.test-question label{
+  color:var(--muted)!important;
+}
+
+/* Hauptaktionsbuttons im hellen Modus */
+.task button,
+.math-input-card button,
+.deep-shell button,
+.test-question button{
+  color:var(--text)!important;
+}
+
+/* ---------- DUNKLE THEMES: NACHTGENIE + ZAHLENNEBEL ---------- */
+/* Große Interaktionselemente */
+body.reward-theme-dark .task button,
+body.reward-theme-dark .math-input-card button,
+body.reward-theme-dark .deep-shell button,
+body.reward-theme-dark .test-question button,
+body.reward-theme-dark .secondary,
+body.reward-theme-dark .backbtn,
+body.reward-theme-dark .row-action,
+body.reward-theme-dark .copy-prompt,
+body.reward-theme-dark .ai-refresh,
+body.reward-theme-dark .ai-start,
+body.reward-theme-dark .modal-close,
+body.reward-theme-dark .test-close,
+body.reward-theme-nebula .task button,
+body.reward-theme-nebula .math-input-card button,
+body.reward-theme-nebula .deep-shell button,
+body.reward-theme-nebula .test-question button,
+body.reward-theme-nebula .secondary,
+body.reward-theme-nebula .backbtn,
+body.reward-theme-nebula .row-action,
+body.reward-theme-nebula .copy-prompt,
+body.reward-theme-nebula .ai-refresh,
+body.reward-theme-nebula .ai-start,
+body.reward-theme-nebula .modal-close,
+body.reward-theme-nebula .test-close{
+  color:#eef4fb!important;
+  background:rgba(73,91,117,.68)!important;
+  border-color:rgba(129,151,182,.52)!important;
+  box-shadow:none!important;
+}
+
+/* Primäre Buttons etwas klarer hervorheben */
+body.reward-theme-dark .primary,
+body.reward-theme-dark button.primary,
+body.reward-theme-dark .task .primary,
+body.reward-theme-nebula .primary,
+body.reward-theme-nebula button.primary,
+body.reward-theme-nebula .task .primary{
+  background:rgba(139,164,204,.36)!important;
+  color:#f3f7fd!important;
+  border-color:rgba(157,181,219,.54)!important;
+}
+
+/* Disabled Buttons weiterhin lesbar, aber als deaktiviert erkennbar */
+body.reward-theme-dark button:disabled,
+body.reward-theme-dark .secondary:disabled,
+body.reward-theme-dark .backbtn:disabled,
+body.reward-theme-nebula button:disabled,
+body.reward-theme-nebula .secondary:disabled,
+body.reward-theme-nebula .backbtn:disabled{
+  color:rgba(232,239,248,.56)!important;
+  background:rgba(79,92,111,.42)!important;
+  border-color:rgba(120,135,156,.34)!important;
+  opacity:1!important;
+}
+
+/* Hilfeblöcke / Denkanstöße */
+body.reward-theme-dark .deep-shell .hint-toggle,
+body.reward-theme-dark .deep-shell details summary,
+body.reward-theme-dark .deep-shell .hint-item,
+body.reward-theme-dark .deep-shell .help-item,
+body.reward-theme-dark .deep-shell .accordion-head,
+body.reward-theme-dark .task details summary,
+body.reward-theme-nebula .deep-shell .hint-toggle,
+body.reward-theme-nebula .deep-shell details summary,
+body.reward-theme-nebula .deep-shell .hint-item,
+body.reward-theme-nebula .deep-shell .help-item,
+body.reward-theme-nebula .deep-shell .accordion-head,
+body.reward-theme-nebula .task details summary{
+  color:#ecf2fa!important;
+  background:rgba(248,250,253,.88)!important;
+  border-color:rgba(192,205,223,.66)!important;
+}
+
+/* Aufgeklappte Hilfeinhalte */
+body.reward-theme-dark .deep-shell details,
+body.reward-theme-dark .deep-shell .hint-panel,
+body.reward-theme-dark .deep-shell .help-panel,
+body.reward-theme-dark .task details,
+body.reward-theme-nebula .deep-shell details,
+body.reward-theme-nebula .deep-shell .hint-panel,
+body.reward-theme-nebula .deep-shell .help-panel,
+body.reward-theme-nebula .task details{
+  color:#edf3fb!important;
+}
+
+/* Plus-/Chevron-Indikatoren */
+body.reward-theme-dark .deep-shell summary::marker,
+body.reward-theme-nebula .deep-shell summary::marker{
+  color:#edf3fb!important;
+}
+
+/* Eingabefelder, Antwortfelder, Beispielboxen */
+body.reward-theme-dark .task input,
+body.reward-theme-dark .task textarea,
+body.reward-theme-dark .task select,
+body.reward-theme-dark .math-input-card input,
+body.reward-theme-dark .math-input-card textarea,
+body.reward-theme-dark .deep-shell input,
+body.reward-theme-dark .deep-shell textarea,
+body.reward-theme-dark .test-question input,
+body.reward-theme-dark .test-question textarea,
+body.reward-theme-nebula .task input,
+body.reward-theme-nebula .task textarea,
+body.reward-theme-nebula .task select,
+body.reward-theme-nebula .math-input-card input,
+body.reward-theme-nebula .math-input-card textarea,
+body.reward-theme-nebula .deep-shell input,
+body.reward-theme-nebula .deep-shell textarea,
+body.reward-theme-nebula .test-question input,
+body.reward-theme-nebula .test-question textarea{
+  color:#f0f5fb!important;
+  background:rgba(88,102,123,.72)!important;
+  border-color:rgba(147,165,190,.54)!important;
+}
+
+body.reward-theme-dark .task input::placeholder,
+body.reward-theme-dark .task textarea::placeholder,
+body.reward-theme-dark .math-input-card input::placeholder,
+body.reward-theme-dark .math-input-card textarea::placeholder,
+body.reward-theme-dark .deep-shell input::placeholder,
+body.reward-theme-dark .deep-shell textarea::placeholder,
+body.reward-theme-dark .test-question input::placeholder,
+body.reward-theme-dark .test-question textarea::placeholder,
+body.reward-theme-nebula .task input::placeholder,
+body.reward-theme-nebula .task textarea::placeholder,
+body.reward-theme-nebula .math-input-card input::placeholder,
+body.reward-theme-nebula .math-input-card textarea::placeholder,
+body.reward-theme-nebula .deep-shell input::placeholder,
+body.reward-theme-nebula .deep-shell textarea::placeholder,
+body.reward-theme-nebula .test-question input::placeholder,
+body.reward-theme-nebula .test-question textarea::placeholder{
+  color:rgba(232,239,248,.58)!important;
+}
+
+/* Labels, Kleingedrucktes, Hilfstexte */
+body.reward-theme-dark .task label,
+body.reward-theme-dark .math-input-card label,
+body.reward-theme-dark .deep-shell label,
+body.reward-theme-dark .test-question label,
+body.reward-theme-dark .task .muted,
+body.reward-theme-dark .task .hint,
+body.reward-theme-dark .task .subtle,
+body.reward-theme-dark .deep-shell .muted,
+body.reward-theme-dark .deep-shell .hint,
+body.reward-theme-dark .deep-shell .subtle,
+body.reward-theme-nebula .task label,
+body.reward-theme-nebula .math-input-card label,
+body.reward-theme-nebula .deep-shell label,
+body.reward-theme-nebula .test-question label,
+body.reward-theme-nebula .task .muted,
+body.reward-theme-nebula .task .hint,
+body.reward-theme-nebula .task .subtle,
+body.reward-theme-nebula .deep-shell .muted,
+body.reward-theme-nebula .deep-shell .hint,
+body.reward-theme-nebula .deep-shell .subtle{
+  color:#cdd7e6!important;
+}
+
+/* Optional-Bereiche / Begründungsfelder */
+body.reward-theme-dark .task .optional,
+body.reward-theme-nebula .task .optional{
+  color:#dfe7f3!important;
+}
+
+/* Auswahlchips / Antwortoptionen */
+body.reward-theme-dark .answer-mini,
+body.reward-theme-dark .deep-choice,
+body.reward-theme-nebula .answer-mini,
+body.reward-theme-nebula .deep-choice{
+  color:#edf3fb!important;
+  background:rgba(42,52,65,.72)!important;
+  border-color:rgba(125,145,170,.42)!important;
+}
+
+/* ---------- HELLE THEMES: explizite Lesbarkeit ---------- */
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell .hint-toggle,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell details summary,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell .hint-item,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell .help-item,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell .accordion-head{
+  background:#ffffff!important;
+  color:#243142!important;
+  border-color:#cfd8df!important;
+}
+
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .task input,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .task textarea,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .math-input-card input,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .math-input-card textarea,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell input,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell textarea{
+  background:#ffffff!important;
+  color:#1f2937!important;
+}
+
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .task input::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .task textarea::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .math-input-card input::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .math-input-card textarea::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell input::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell textarea::placeholder{
+  color:rgba(31,41,55,.45)!important;
+}
+
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .task button,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .math-input-card button,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-shell button{
+  color:#243142!important;
+}
+
+
+/* ==========================================================
+   Musterlösung: Lesbarkeit in hellen und dunklen Themes
+   ========================================================== */
+
+/* Standard / helle Themes */
+.deep-solution{
+  color:var(--text)!important;
+  background:#f7f8fa!important;
+  border-left-color:#b8c3cf!important;
+}
+.deep-solution strong,
+.deep-solution b{
+  color:var(--text)!important;
+}
+.deep-solution p,
+.deep-solution div,
+.deep-solution span,
+.deep-solution li{
+  color:inherit!important;
+}
+
+/* Dunkle legendäre Themes */
+body.reward-theme-dark .deep-solution,
+body.reward-theme-nebula .deep-solution{
+  color:#eef4fb!important;
+  background:rgba(31,40,54,.68)!important;
+  border-left-color:rgba(149,170,199,.58)!important;
+  backdrop-filter:blur(7px) saturate(110%)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(110%)!important;
+}
+body.reward-theme-dark .deep-solution strong,
+body.reward-theme-dark .deep-solution b,
+body.reward-theme-nebula .deep-solution strong,
+body.reward-theme-nebula .deep-solution b{
+  color:#f5f8fd!important;
+}
+body.reward-theme-dark .deep-solution p,
+body.reward-theme-dark .deep-solution div,
+body.reward-theme-dark .deep-solution span,
+body.reward-theme-dark .deep-solution li,
+body.reward-theme-nebula .deep-solution p,
+body.reward-theme-nebula .deep-solution div,
+body.reward-theme-nebula .deep-solution span,
+body.reward-theme-nebula .deep-solution li{
+  color:#e6eef9!important;
+}
+
+/* Falls mathematische HTML-Elemente oder Bruchdarstellungen genutzt werden */
+body.reward-theme-dark .deep-solution .frac,
+body.reward-theme-dark .deep-solution .math,
+body.reward-theme-dark .deep-solution .math-inline,
+body.reward-theme-nebula .deep-solution .frac,
+body.reward-theme-nebula .deep-solution .math,
+body.reward-theme-nebula .deep-solution .math-inline{
+  color:#f2f6fc!important;
+}
+
+/* Helle Themes: ebenfalls klar */
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-solution .frac,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-solution .math,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .deep-solution .math-inline{
+  color:#1f2937!important;
+}
+
+
+/* ==========================================================
+   Beispiel / Gegenbeispiel: Kontrast in hellen & dunklen Themes
+   ========================================================== */
+
+/* Heller Standard */
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .judge-evidence,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .test-evidence{
+  background:#f8fafb!important;
+  border-color:#dfe5eb!important;
+  color:#1f2937!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .judge-evidence-title,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .test-evidence-prompt{
+  color:#455568!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .judge-evidence .deep-multi-field label,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .test-evidence label{
+  color:#667085!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .judge-evidence input,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .test-evidence input{
+  background:#fff!important;
+  color:#1f2937!important;
+  border-color:#cfd8e2!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .judge-evidence input::placeholder,
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .test-evidence input::placeholder{
+  color:rgba(31,41,55,.44)!important;
+}
+
+/* Nachtgenie + Zahlennebel */
+body.reward-theme-dark .judge-evidence,
+body.reward-theme-nebula .judge-evidence,
+body.reward-theme-dark .test-evidence,
+body.reward-theme-nebula .test-evidence{
+  background:rgba(34,44,58,.66)!important;
+  border-color:rgba(126,148,178,.48)!important;
+  color:#edf3fb!important;
+  backdrop-filter:blur(7px) saturate(108%)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(108%)!important;
+}
+
+body.reward-theme-dark .judge-evidence-title,
+body.reward-theme-nebula .judge-evidence-title,
+body.reward-theme-dark .test-evidence-prompt,
+body.reward-theme-nebula .test-evidence-prompt{
+  color:#e7eef8!important;
+}
+
+body.reward-theme-dark .judge-evidence .deep-multi-field label,
+body.reward-theme-nebula .judge-evidence .deep-multi-field label,
+body.reward-theme-dark .test-evidence label,
+body.reward-theme-nebula .test-evidence label{
+  color:#cbd6e5!important;
+}
+
+body.reward-theme-dark .judge-evidence input,
+body.reward-theme-nebula .judge-evidence input,
+body.reward-theme-dark .test-evidence input,
+body.reward-theme-nebula .test-evidence input{
+  background:rgba(74,89,111,.76)!important;
+  color:#f3f7fc!important;
+  border-color:rgba(151,170,195,.58)!important;
+  caret-color:#fff!important;
+}
+
+body.reward-theme-dark .judge-evidence input::placeholder,
+body.reward-theme-nebula .judge-evidence input::placeholder,
+body.reward-theme-dark .test-evidence input::placeholder,
+body.reward-theme-nebula .test-evidence input::placeholder{
+  color:rgba(235,241,249,.62)!important;
+}
+
+/* Optional-Begründung direkt darunter */
+body.reward-theme-dark .deep-reason-label,
+body.reward-theme-nebula .deep-reason-label{
+  color:#d7e0ed!important;
+}
+body.reward-theme-dark #deepReasonText,
+body.reward-theme-nebula #deepReasonText{
+  background:rgba(45,58,76,.70)!important;
+  color:#f0f5fb!important;
+  border-color:rgba(137,157,185,.52)!important;
+}
+body.reward-theme-dark #deepReasonText::placeholder,
+body.reward-theme-nebula #deepReasonText::placeholder{
+  color:rgba(230,238,248,.56)!important;
+}
+
+
+/* ==========================================================
+   Spielzeit kaufen: Lesbarkeit in Nachtgenie / Zahlennebel
+   ========================================================== */
+
+body.reward-theme-dark .playtime-section,
+body.reward-theme-nebula .playtime-section{
+  border-top-color:rgba(125,145,172,.34)!important;
+}
+
+body.reward-theme-dark .playtime-title,
+body.reward-theme-nebula .playtime-title{
+  color:#eef4fb!important;
+}
+
+body.reward-theme-dark .playtime-btn,
+body.reward-theme-nebula .playtime-btn{
+  background:rgba(45,57,74,.76)!important;
+  color:#edf3fb!important;
+  border-color:rgba(126,148,178,.48)!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+
+body.reward-theme-dark .playtime-btn strong,
+body.reward-theme-nebula .playtime-btn strong{
+  color:#f2f6fc!important;
+}
+
+body.reward-theme-dark .playtime-btn span,
+body.reward-theme-nebula .playtime-btn span{
+  color:#c7d3e3!important;
+}
+
+/* Ausgewählte Dauer: goldener Akzent, aber weiterhin dunkle Fläche */
+body.reward-theme-dark .playtime-btn.selected,
+body.reward-theme-nebula .playtime-btn.selected{
+  background:rgba(109,88,38,.72)!important;
+  border-color:rgba(225,190,92,.72)!important;
+  box-shadow:inset 0 0 0 1px rgba(238,207,117,.14)!important;
+}
+
+body.reward-theme-dark .playtime-btn.selected strong,
+body.reward-theme-nebula .playtime-btn.selected strong{
+  color:#fff3c7!important;
+}
+
+body.reward-theme-dark .playtime-btn.selected span,
+body.reward-theme-nebula .playtime-btn.selected span{
+  color:#f0d98b!important;
+}
+
+/* Deaktiviert bleibt klar lesbar */
+body.reward-theme-dark .playtime-btn:disabled,
+body.reward-theme-nebula .playtime-btn:disabled{
+  background:rgba(45,57,74,.48)!important;
+  color:rgba(237,243,251,.64)!important;
+  border-color:rgba(126,148,178,.30)!important;
+  opacity:1!important;
+}
+
+body.reward-theme-dark .playtime-btn:disabled strong,
+body.reward-theme-nebula .playtime-btn:disabled strong{
+  color:rgba(237,243,251,.68)!important;
+}
+
+body.reward-theme-dark .playtime-btn:disabled span,
+body.reward-theme-nebula .playtime-btn:disabled span{
+  color:rgba(199,211,227,.58)!important;
+}
+
+/* Preis-/DEV-Hinweis unter den Buttons */
+body.reward-theme-dark .activate-game-hint,
+body.reward-theme-nebula .activate-game-hint{
+  color:#c5d0df!important;
+}
+
+body.reward-theme-dark .reward-session-status,
+body.reward-theme-nebula .reward-session-status{
+  color:#c5d0df!important;
+}
+
+body.reward-theme-dark .reward-session-status.ready,
+body.reward-theme-nebula .reward-session-status.ready{
+  color:#9fd6b7!important;
+}
+
+/* Start-/Weiter-Button im selben Bereich */
+body.reward-theme-dark #activateGameBtn,
+body.reward-theme-dark #resumeGameBtn,
+body.reward-theme-nebula #activateGameBtn,
+body.reward-theme-nebula #resumeGameBtn{
+  background:rgba(84,104,132,.74)!important;
+  color:#f2f6fc!important;
+  border-color:rgba(145,166,195,.52)!important;
+}
+
+body.reward-theme-dark #activateGameBtn:disabled,
+body.reward-theme-nebula #activateGameBtn:disabled{
+  background:rgba(63,77,98,.52)!important;
+  color:rgba(235,241,249,.60)!important;
+  border-color:rgba(126,145,171,.30)!important;
+  opacity:1!important;
+}
+
+/* Heller Modus explizit stabil halten */
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn{
+  background:#fff!important;
+  color:#1f2937!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn strong{
+  color:#1f2937!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn span{
+  color:#667085!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn.selected{
+  background:#fff8dd!important;
+  border-color:#c9b25e!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn.selected strong{
+  color:#6f5510!important;
+}
+body:not(.reward-theme-dark):not(.reward-theme-nebula) .playtime-btn.selected span{
+  color:#866a1c!important;
+}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -2679,6 +5377,21 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
       <small>Rationale Zahlen · Basiskompetenzen</small>
     </div>
   </div>
+
+  <div id="topBadgeZone" class="top-badge-zone hidden" aria-label="Gekaufte Abzeichen">
+    <div class="header-badge-side header-badge-side-left">
+      <div id="headerBadgeShelfLeft" class="header-badge-shelf" aria-label="Weitere Abzeichen links"></div>
+    </div>
+    <button id="headerBadgeBtn" class="header-badge-main" type="button" aria-label="Ausgewähltes Abzeichen ändern">
+      <span id="headerBadgeLevel" class="header-badge-main-level">Level 1</span>
+      <span id="headerBadgeIcon" class="header-badge-main-icon" aria-hidden="true">🐣</span>
+      <span id="headerBadgeName" class="header-badge-main-name">Zahlenküken</span>
+    </button>
+    <div class="header-badge-side header-badge-side-right">
+      <div id="headerBadgeShelfRight" class="header-badge-shelf" aria-label="Weitere Abzeichen rechts"></div>
+    </div>
+  </div>
+
   <div class="top-actions">
     <button id="coinBadge" class="coin-badge hidden" type="button" aria-label="Münzstand und Spiele">
       <span class="coin-icon" aria-hidden="true">🪙</span>
@@ -3295,7 +6008,7 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
           <div class="reward-compact-rule">🪙 <span><b>Jede Aufgabe nur einmal:</b> Wiederholen bringt keine neuen Münzen.</span></div>
           <div class="reward-compact-rule">✓ <span><b>Richtig lösen:</b> Basis 1 Münze, Vertiefung 2–3 Münzen.</span></div>
           <div class="reward-compact-rule">💡 <span><b>Denkanstöße sind erlaubt.</b> Die Musterlösung beendet die Münzchance.</span></div>
-          <div class="reward-compact-rule">🎮 <span><b>Ab 15 Münzen</b> kannst du eine kurze Spielzeit freischalten.</span></div>
+          <div class="reward-compact-rule">🎁 <span><b>Münzen einsetzen:</b> für kurze Spielzeit oder dauerhafte Abzeichen.</span></div>
         </div>
 
         <div class="reward-actions">
@@ -3309,7 +6022,13 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
           <div id="rewardSessionStatus" class="reward-session-status"></div>
         </div>
 
-        <div id="gameGallery" class="game-gallery">
+        <div class="reward-shop-tabs" role="tablist" aria-label="Belohnung auswählen">
+          <button id="rewardGamesTab" class="reward-shop-tab active" type="button" role="tab" aria-selected="true">🎮 Spielzeit</button>
+          <button id="rewardBadgesTab" class="reward-shop-tab" type="button" role="tab" aria-selected="false">🏅 Abzeichen</button>
+        </div>
+
+        <div id="rewardGamesView" class="reward-shop-view">
+<div id="gameGallery" class="game-gallery">
           <button class="game-card selected" type="button" data-game="star">
             <div class="game-preview preview-star"><span class="p1">☁️</span><span class="big">⭐</span><span class="p2">☁️</span></div>
             <div class="game-card-title">Sternfänger</div>
@@ -3354,8 +6073,7 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
             <div class="game-card-score">Highscore: <span id="highscore-tower">0</span></div>
           </button>
         </div>
-
-        <div class="playtime-section">
+<div class="playtime-section">
           <div class="playtime-title">Spielzeit freischalten</div>
           <div class="playtime-options">
             <button class="playtime-btn selected" type="button" data-minutes="1"><strong>1 Minute</strong><span>15 🪙</span></button>
@@ -3370,6 +6088,16 @@ h3{font-size:17px;margin-bottom:6px;font-weight:740}
             <button id="activateGameBtn" class="primary" type="button">Spielzeit aktivieren</button>
             <button id="resumeGameBtn" class="resume-btn hidden" type="button">Weiterspielen</button>
           </div>
+        </div>
+        </div>
+
+        <div id="rewardBadgesView" class="reward-shop-view hidden">
+          <div class="badge-shop-head">
+            <strong>Abzeichen</strong>
+            <div id="badgeOwnedCount" class="badge-owned-count">0 / 8</div>
+          </div>
+          <div id="badgeGallery" class="badge-gallery"></div>
+
         </div>
       </div>
     </div>
@@ -3493,6 +6221,9 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Zwischen zwei verschiedenen Dezimalzahlen liegt immer noch eine weitere Dezimalzahl.</strong>",
       answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel an: zwei verschiedene Dezimalzahlen und eine Dezimalzahl, die genau dazwischen liegt.",
+      evidenceLabels:["1. Zahl","2. Zahl","Zahl dazwischen"],
+      evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]-v[1])>1e-9 && v[2]>Math.min(v[0],v[1]) && v[2]<Math.max(v[0],v[1]),
       solution:"Die Aussage ist richtig. Du kannst zum Beispiel die Zahl genau in der Mitte bilden. Zwischen −2,4 und −2,3 liegt etwa −2,35."},
     {id:"K31-06",level:2,kind:"Fehler finden",title:"Links oder rechts?",
       type:"choice",
@@ -3551,11 +6282,17 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Die Gegenzahl einer rationalen Zahl ist immer negativ.</strong>",
       answer:"Falsch",
+      evidencePrompt:"Gib ein Gegenbeispiel an: Wähle eine negative Zahl und trage ihre positive Gegenzahl ein.",
+      evidenceLabels:["Zahl","Gegenzahl"],
+      evidenceCheck:(v)=>v.length===2 && v[0]<0 && v[1]>0 && Math.abs(v[1]+v[0])<1e-9,
       solution:"Die Aussage ist falsch. Die Gegenzahl einer negativen Zahl ist positiv. Außerdem ist die Gegenzahl von 0 wieder 0."},
     {id:"K32-06",level:2,kind:"Gegenbeispiel",title:"Immer verschieden?",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Zahl und Gegenzahl sind stets verschieden.</strong>",
       answer:"Falsch",
+      evidencePrompt:"Gib das Gegenbeispiel an, bei dem Zahl und Gegenzahl gleich sind.",
+      evidenceLabels:["Zahl","Gegenzahl"],
+      evidenceCheck:(v)=>v.length===2 && Math.abs(v[0])<1e-9 && Math.abs(v[1])<1e-9,
       solution:"Ein Gegenbeispiel ist <strong>0</strong>. Die Gegenzahl von 0 ist wieder 0."},
     {id:"K32-07",level:2,kind:"Betrag",title:"Betrag einer Rechnung",
       type:"number",
@@ -3605,11 +6342,17 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Jede negative Zahl ist kleiner als jede positive Zahl.</strong>",
       answer:"Richtig",
+      evidencePrompt:"Gib ein passendes Beispiel mit einer negativen und einer positiven Zahl an.",
+      evidenceLabels:["Negative Zahl","Positive Zahl"],
+      evidenceCheck:(v)=>v.length===2 && v[0]<0 && v[1]>0 && v[0]<v[1],
       solution:"Die Aussage ist richtig. Jede negative Zahl liegt links von 0, jede positive Zahl rechts von 0."},
     {id:"K33-05",level:2,kind:"Gegenbeispiel",title:"Positive Zahlen und Betrag",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Von zwei positiven Zahlen ist diejenige kleiner, die den größeren Betrag hat.</strong>",
       answer:"Falsch",
+      evidencePrompt:"Gib ein Gegenbeispiel mit zwei positiven Zahlen an: Die kleinere Zahl soll auch den kleineren Betrag haben.",
+      evidenceLabels:["Kleinere positive Zahl","Größere positive Zahl"],
+      evidenceCheck:(v)=>v.length===2 && v[0]>0 && v[1]>0 && v[0]<v[1] && Math.abs(v[0])<Math.abs(v[1]),
       solution:"Bei positiven Zahlen stimmt die Reihenfolge mit den Beträgen überein. Zum Beispiel ist 3 &lt; 5, aber |3| &lt; |5|."},
     {id:"K33-06",level:2,kind:"Ordnen",title:"Ausdrücke vergleichen",
       type:"choice",
@@ -3625,11 +6368,17 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn r &lt; s, dann gilt immer |r| &lt; |s|.</strong>",
       answer:"Falsch",
+      evidencePrompt:"Gib ein Gegenbeispiel an: Es soll r < s gelten, aber |r| soll nicht kleiner als |s| sein.",
+      evidenceLabels:["r","s"],
+      evidenceCheck:(v)=>v.length===2 && v[0]<v[1] && Math.abs(v[0])>=Math.abs(v[1])-1e-9,
       solution:"Ein Gegenbeispiel ist r = −10 und s = −2. Es gilt −10 &lt; −2, aber |−10| = 10 &gt; 2 = |−2|."},
     {id:"K33-08",level:2,kind:"Begründen",title:"Was passiert mit den Gegenzahlen?",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn r &lt; s, dann ist die Gegenzahl von r größer als die Gegenzahl von s.</strong>",
       answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel an und trage anschließend auch beide Gegenzahlen ein.",
+      evidenceLabels:["r","s","Gegenzahl von r","Gegenzahl von s"],
+      evidenceCheck:(v)=>v.length===4 && v[0]<v[1] && Math.abs(v[2]+v[0])<1e-9 && Math.abs(v[3]+v[1])<1e-9 && v[2]>v[3],
       solution:"Die Aussage ist richtig. Beim Spiegeln an 0 kehrt sich die Reihenfolge um: Aus r &lt; s folgt −r &gt; −s."},
     {id:"K33-09",level:2,kind:"Lösungsweg",title:"−3,08 oder −3,8?",
       type:"choice",
@@ -3750,11 +6499,17 @@ const deepExercises = {
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Wenn eine Änderung positiv ist, ist auch der Endzustand positiv.</strong>",
       answer:"Falsch",
+      evidencePrompt:"Gib ein Gegenbeispiel an. Trage Ausgangszustand, positive Änderung und Endzustand ein.",
+      evidenceLabels:["Ausgangszustand","Änderung","Endzustand"],
+      evidenceCheck:(v)=>v.length===3 && v[1]>0 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]<=0,
       solution:"Ein Gegenbeispiel: Start −10, Änderung +3. Der Endzustand ist −7 und damit weiterhin negativ."},
     {id:"K35-07",level:2,kind:"Begründen",title:"Was bewirkt eine negative Änderung?",
       type:"judge",
       prompt:"Beurteile die Aussage: <strong>Eine negative Änderung führt immer zu einem kleineren Endwert als dem Startwert.</strong>",
       answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel an. Die Änderung muss negativ sein und der Endzustand kleiner als der Ausgangszustand.",
+      evidenceLabels:["Ausgangszustand","Änderung","Endzustand"],
+      evidenceCheck:(v)=>v.length===3 && v[1]<0 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]<v[0],
       solution:"Eine negative Änderung bedeutet, dass zum Startwert eine negative Zahl addiert wird. Dadurch bewegt man sich auf der Zahlengeraden nach links."},
     {id:"K35-08",level:2,kind:"Rückwärts",title:"Genau auf null kommen",
       type:"number",
@@ -3805,9 +6560,15 @@ const deepExercises = {
       solution:"Innerhalb des Betrags: −2,4 + 7,9 = 5,5. Also −3,5 + |5,5| = −3,5 + 5,5 = <strong>2</strong>."},
     {id:"K41A-08",level:2,kind:"Gegenbeispiel",title:"Keine Null – also Summe nicht null?",
       type:"judge",prompt:"Beurteile: <strong>Wenn keine der addierten Zahlen 0 ist, kann das Ergebnis der Addition nicht 0 sein.</strong>",answer:"Falsch",
+      evidencePrompt:"Gib ein Gegenbeispiel aus zwei von 0 verschiedenen Zahlen an, deren Summe 0 ist.",
+      evidenceLabels:["1. Zahl","2. Zahl","Summe"],
+      evidenceCheck:(v)=>v.length===3 && Math.abs(v[0])>1e-9 && Math.abs(v[1])>1e-9 && Math.abs(v[0]+v[1])<1e-9 && Math.abs(v[2])<1e-9,
       solution:"Gegenbeispiel: <strong>5 + (−5) = 0</strong>. Beide Zahlen sind von 0 verschieden."},
     {id:"K41A-09",level:2,kind:"Begründen",title:"Wann kann eine Summe positiv sein?",
       type:"judge",prompt:"Beurteile: <strong>Damit das Ergebnis einer Addition positiv ist, muss mindestens eine der addierten Zahlen positiv sein.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel mit zwei Summanden und einem positiven Ergebnis an.",
+      evidenceLabels:["1. Zahl","2. Zahl","Summe"],
+      evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]+v[1]-v[2])<1e-9 && v[2]>0 && (v[0]>0 || v[1]>0),
       solution:"Sind alle Zahlen negativ oder 0, kann die Summe nicht positiv werden. Also muss mindestens ein Zahl positiv sein."},
     {id:"K41A-10",level:3,kind:"Knobeln",title:"Zwei besondere Zahlen",
       type:"multiNumberReason",labels:["erste Zahl","zweite Zahl"],
@@ -3850,6 +6611,9 @@ const deepExercises = {
       solution:"6,8 − 2,3 − 1,5 = 3,0. In die Lücke gehört <strong>−3,0</strong>."},
     {id:"K41B-07",level:2,kind:"Begründen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Addition darfst du die Zahlen vertauschen, wenn das Vorzeichen bei der jeweiligen Zahl bleibt.</strong>",answer:"Richtig",
+      evidencePrompt:"Beispiel: Ordne die vorzeichenbehafteten Zahlen +4, −7 und +2 in eine andere Reihenfolge.",
+      evidenceLabels:["1. Zahl","2. Zahl","3. Zahl"],
+      evidenceCheck:(v)=>{if(v.length!==3)return false;const a=[...v].sort((x,y)=>x-y);const same=a.every((x,i)=>Math.abs(x-[-7,2,4][i])<1e-9);const unchanged=Math.abs(v[0]-4)<1e-9&&Math.abs(v[1]+7)<1e-9&&Math.abs(v[2]-2)<1e-9;return same&&!unchanged;},
       solution:"Das ist genau die Regel zum Vertauschen bei vorzeichenbehafteten Zahlen."},
     {id:"K41B-08",level:2,kind:"Sachaufgabe",title:"Rechnung berechnen",
       type:"number",prompt:"Vier Änderungen lauten <strong>+4,8; −1,3; +1,2; −4,7</strong>. Bestimme die Gesamtänderung möglichst geschickt.",expected:0,
@@ -3886,9 +6650,15 @@ const deepExercises = {
       solution:"2,8 − (−6,7) = 2,8 + 6,7 = <strong>9,5 °C</strong> Unterschied."},
     {id:"K42-05",level:2,kind:"Aussage prüfen",title:"Positive Zahl subtrahieren",
       type:"judge",prompt:"Beurteile: <strong>Subtrahiert man von einer Zahl eine positive Zahl, wird das Ergebnis kleiner als die Ausgangszahl.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel an und rechne die Differenz aus.",
+      evidenceLabels:["Ausgangszahl","Subtrahierte positive Zahl","Ergebnis"],
+      evidenceCheck:(v)=>v.length===3 && v[1]>0 && Math.abs(v[0]-v[1]-v[2])<1e-9 && v[2]<v[0],
       solution:"Eine positive Zahl zu subtrahieren bedeutet, auf der Zahlengeraden nach links zu gehen."},
     {id:"K42-06",level:2,kind:"Aussage prüfen",title:"Negative Zahl subtrahieren",
       type:"judge",prompt:"Beurteile: <strong>Subtrahiert man von einer Zahl eine negative Zahl, wird das Ergebnis größer als die Ausgangszahl.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel an, bei dem eine negative Zahl subtrahiert wird.",
+      evidenceLabels:["Ausgangszahl","Subtrahierte negative Zahl","Ergebnis"],
+      evidenceCheck:(v)=>v.length===3 && v[1]<0 && Math.abs(v[0]-v[1]-v[2])<1e-9 && v[2]>v[0],
       solution:"a − (−b) = a + b für b &gt; 0. Man addiert also eine positive Zahl."},
     {id:"K42-07",level:2,kind:"Fehler finden",title:"Minus minus verwechselt",
       type:"choice",prompt:"Mats rechnet <strong>−3,5 − (−1,2) = −4,7</strong>. Wo liegt der Fehler?",
@@ -3900,6 +6670,9 @@ const deepExercises = {
       solution:"Zuerst: −3,2 + 8,7 = 5,5. Der Betrag ist 5,5. Danach: 5,5 − 6,1 = <strong>−0,6</strong>."},
     {id:"K42-09",level:2,kind:"Begründen",title:"Wann ergibt eine Differenz null?",
       type:"judge",prompt:"Beurteile: <strong>a − b = 0 gilt genau dann, wenn a und b gleich sind.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel für a − b = 0 an.",
+      evidenceLabels:["a","b","Ergebnis"],
+      evidenceCheck:(v)=>v.length===3 && Math.abs(v[0]-v[1])<1e-9 && Math.abs(v[0]-v[1]-v[2])<1e-9 && Math.abs(v[2])<1e-9,
       solution:"Ist a = b, dann ist a − b = 0. Umgekehrt muss bei a − b = 0 die subtrahierte Zahl genauso groß wie die Ausgangszahl sein."},
     {id:"K42-10",level:3,kind:"Knobeln",title:"Eine Differenz ist um 1,5 kleiner",
       type:"number",prompt:"Gesucht ist eine Zahl. Wenn du diese Zahl von <strong>4,5</strong> abziehst, ist das Ergebnis genau <strong>1,5 kleiner als die gesuchte Zahl</strong>. Welche Zahl ist gesucht?",expected:3,
@@ -3933,6 +6706,9 @@ const deepExercises = {
       solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre positive Gegenzahl zu addieren."},
     {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Minus vor negativer Zahl",
       type:"judge",prompt:"Beurteile: <strong>Steht ein Minus vor einer negativen Zahlklammer, wird beim Auflösen daraus ein Plus.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein eigenes Beispiel mit einer negativen Zahl in der Klammer an.",
+      evidenceLabels:["Negative Zahl in der Klammer","Ergebnis von −( … )"],
+      evidenceCheck:(v)=>v.length===2 && v[0]<0 && Math.abs(v[1]+v[0])<1e-9 && v[1]>0,
       solution:"Für eine negative Zahl −a gilt: −(−a) = +a."},
     {id:"K43A-08",level:2,kind:"Betrag",title:"Rechnung mit Betrag",
       type:"number",
@@ -3987,6 +6763,9 @@ const deepExercises = {
       solution:"Schreibe die Rechnung als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + 3 + (−2) + 7</strong>. Beim Umordnen bleiben <strong>−8</strong> und <strong>−2</strong> negativ."},
     {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Vorzeichen gehören zur Zahl",
       type:"judge",prompt:"Beurteile: <strong>Beim vorteilhaften Umordnen eines Additions- und Subtraktionsterms muss das Vorzeichen zusammen mit der Zahl verschoben werden.</strong>",answer:"Richtig",
+      evidencePrompt:"Beispiel: Ordne die vorzeichenbehafteten Zahlen −5, +3, −2 und +7 in eine andere Reihenfolge.",
+      evidenceLabels:["1. Zahl","2. Zahl","3. Zahl","4. Zahl"],
+      evidenceCheck:(v)=>{if(v.length!==4)return false;const a=[...v].sort((x,y)=>x-y);const target=[-5,-2,3,7];const same=a.every((x,i)=>Math.abs(x-target[i])<1e-9);const unchanged=Math.abs(v[0]+5)<1e-9&&Math.abs(v[1]-3)<1e-9&&Math.abs(v[2]+2)<1e-9&&Math.abs(v[3]-7)<1e-9;return same&&!unchanged;},
       solution:"Nach dem Umschreiben als Summe vorzeichenbehafteter Zahlen ist jeder Zahl eine Einheit aus Zahl und Vorzeichen."},
     {id:"K43B-07",level:2,kind:"Rückwärts",title:"Fehlenden Rechnung bestimmen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−3,7 + 8,2 − 1,3 + □ = 0</strong>",expected:-3.2,
@@ -4026,9 +6805,15 @@ const deepExercises = {
       solution:"Zum Beispiel <strong>−6 und +4</strong>. Viele weitere Paare sind möglich."},
     {id:"K44A-05",level:2,kind:"Aussage prüfen",title:"Ungerade Zahl negativer Zahlen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine ungerade Anzahl davon negativ ist, ist das Ergebnis negativ.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib drei von 0 verschiedene Faktoren mit einer ungeraden Anzahl negativer Faktoren an und berechne das Produkt.",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg%2===1&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]<0;},
       solution:"Jedes Paar negativer Zahlen liefert ein positives Teilprodukt. Bei ungerader Anzahl bleibt ein negativer Zahl übrig."},
     {id:"K44A-06",level:2,kind:"Aussage prüfen",title:"Gerade Zahl negativer Zahlen",
       type:"judge",prompt:"Beurteile: <strong>Du multiplizierst mehrere Zahlen, keine davon ist 0. Wenn eine gerade Anzahl davon negativ ist, ist das Ergebnis positiv.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib drei von 0 verschiedene Faktoren an, von denen genau zwei negativ sind, und berechne das Produkt.",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg===2&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]>0;},
       solution:"Die negativen Zahlen können paarweise zusammengefasst werden. Jedes Paar ergibt beim Multiplizieren eine positive Zahl."},
     {id:"K44A-07",level:2,kind:"Fehler finden",title:"Drei Minuszeichen",
       type:"choice",prompt:"Lea rechnet <strong>(−4) · (−2) · (−3) = +24</strong>. Welche Korrektur ist richtig?",
@@ -4085,6 +6870,9 @@ const deepExercises = {
       solution:"(−2,5) · 4 = −10. In die Lücke gehört <strong>−10</strong>."},
     {id:"K44B-08",level:2,kind:"Aussage prüfen",title:"Rechnung berechnen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Multiplikation darfst du die Zahlen vertauschen und anders zusammenfassen, ohne das Ergebnis zu verändern.</strong>",answer:"Richtig",
+      evidencePrompt:"Beispiel: Ordne die Faktoren −2, +5 und −3 anders an und gib zusätzlich das Produkt an.",
+      evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Produkt"],
+      evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const a=[...f].sort((x,y)=>x-y);const same=a.every((x,i)=>Math.abs(x-[-3,-2,5][i])<1e-9);const unchanged=Math.abs(f[0]+2)<1e-9&&Math.abs(f[1]-5)<1e-9&&Math.abs(f[2]+3)<1e-9;return same&&!unchanged&&Math.abs(v[3]-30)<1e-9;},
       solution:"Das folgt aus Regeln zum Vertauschen und geschickten Zusammenfassen der Multiplikation."},
     {id:"K44B-09",level:3,kind:"Strategie",title:"Geschickt multiplizieren",
       type:"numberReason",expected:80,
@@ -4112,6 +6900,9 @@ const deepExercises = {
       solution:"7,2 : 0,6 = 12 und Minus durch Plus ergibt Minus: <strong>−12</strong>."},
     {id:"K45A-05",level:2,kind:"Aussage prüfen",title:"Gleiche Vorzeichen",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Division ist die zweite Zahl nicht 0. Haben beide Zahlen dasselbe Vorzeichen, ist das Ergebnis positiv.</strong>",answer:"Richtig",
+      evidencePrompt:"Gib ein Beispiel mit zwei Zahlen gleichen Vorzeichens an und berechne den Quotienten.",
+      evidenceLabels:["Dividend","Divisor","Quotient"],
+      evidenceCheck:(v)=>v.length===3 && Math.abs(v[1])>1e-9 && Math.abs(v[0])>1e-9 && ((v[0]>0&&v[1]>0)||(v[0]<0&&v[1]<0)) && Math.abs(v[0]/v[1]-v[2])<1e-9 && v[2]>0,
       solution:"Plus durch Plus und Minus durch Minus ergeben jeweils ein positives Ergebnis."},
     {id:"K45A-06",level:2,kind:"Knobeln",title:"Durch 0,5 teilen",
       type:"number",prompt:"Berechne und denke über die Größe nach: <strong>−12 : 0,5</strong>.",expected:-24,
@@ -4210,6 +7001,104 @@ const GAME_NAMES={
   tower:"Turmstapler"
 };
 
+const BADGE_TIERS={
+  1:"Starter",
+  2:"Glanz",
+  3:"Spezial",
+  4:"Elite",
+  5:"Legendär"
+};
+
+const BADGES=[
+  /* Starter */
+  {
+    id:"zahlenkueken",level:1,name:"Zahlenküken",icon:"🐣",cost:10,unlockOwned:0,
+    effect:"",effectClass:""
+  },
+  {
+    id:"nullninja",level:1,name:"Nullninja",icon:"🥷",cost:12,unlockOwned:0,
+    effect:"",effectClass:""
+  },
+  {
+    id:"rechenfuchs",level:1,name:"Rechenfuchs",icon:"🦊",cost:14,unlockOwned:0,
+    effect:"",effectClass:""
+  },
+
+  /* Glanz */
+  {
+    id:"daumenprofi",level:2,name:"Daumenprofi",icon:"👍",cost:16,unlockOwned:2,
+    effect:"",effectClass:"reward-effect-thumb"
+  },
+  {
+    id:"betragsboss",level:2,name:"Betrags-Boss",icon:"🧲",cost:18,unlockOwned:2,
+    effect:"",effectClass:"reward-effect-title-plum"
+  },
+  {
+    id:"blitzbirne",level:2,name:"Blitzbirne",icon:"⚡",cost:20,unlockOwned:2,
+    effect:"",effectClass:"reward-effect-sky"
+  },
+
+  /* Spezial */
+  {
+    id:"kantenknacker",level:3,name:"Kantenknacker",icon:"🧱",cost:22,unlockOwned:4,
+    effect:"",effectClass:"reward-effect-square"
+  },
+  {
+    id:"raketenrechner",level:3,name:"Raketenrechner",icon:"🚀",cost:24,unlockOwned:4,
+    effect:"",effectClass:"reward-effect-rocket"
+  },
+  {
+    id:"achsenakrobat",level:3,name:"Achsen-Akrobat",icon:"🧭",cost:26,unlockOwned:4,
+    effect:"",effectClass:"reward-effect-title-cobalt"
+  },
+
+  /* Elite */
+  {
+    id:"goldhirn",level:4,name:"Goldhirn",icon:"👑",cost:30,unlockOwned:7,
+    effect:"",effectClass:"reward-theme-gold"
+  },
+  {
+    id:"waldmeister",level:4,name:"Waldmeister",icon:"🍀",cost:33,unlockOwned:7,
+    effect:"",effectClass:"reward-theme-green"
+  },
+  {
+    id:"vorzeichenvirtuose",level:4,name:"Vorzeichen-Virtuose",icon:"🎭",cost:36,unlockOwned:7,
+    effect:"",effectClass:"reward-theme-violet"
+  },
+
+  /* Legendär */
+  {
+    id:"nachtgenie",level:5,name:"Nachtgenie",icon:"🌙",cost:58,unlockOwned:10,
+    effect:"",effectClass:"reward-theme-dark"
+  },
+  {
+    id:"zahlennebel",level:5,name:"Zahlennebel",icon:"🌌",cost:66,unlockOwned:10,
+    effect:"",effectClass:"reward-theme-nebula"
+  },
+  {
+    id:"koordinatenorbit",level:5,name:"Koordinaten-Orbit",icon:"🪐",cost:74,unlockOwned:10,
+    effect:"",effectClass:"reward-theme-orbit"
+  }
+];
+
+let rewardShopMode="badges";
+
+function badgeById(id){
+  return BADGES.find(b=>b.id===id) || null;
+}
+function badgeRank(badge){
+  return badge ? badge.level*1000+badge.cost : -1;
+}
+function highestOwnedBadgeId(ownedIds=[]){
+  return ownedIds
+    .map(badgeById)
+    .filter(Boolean)
+    .sort((a,b)=>badgeRank(b)-badgeRank(a))[0]?.id || null;
+}
+function badgeUnlocked(badge,state){
+  return state.badgesOwned.length>=badge.unlockOwned;
+}
+
 let selectedRewardGame="star";
 let selectedRewardMinutes=1;
 let rewardTicker=null;
@@ -4220,7 +7109,7 @@ function normalizeRewardState(raw){
   const now=Date.now();
   const state={
     enabled:!!raw.enabled,
-    coins:Number.isFinite(Number(raw.coins)) ? Number(raw.coins) : 0,
+    coins:Number.isFinite(Number(raw.coins)) ? Math.max(0,Math.round(Number(raw.coins))) : 0,
     earned:raw.earned && typeof raw.earned==="object" ? raw.earned : {},
     session:raw.session && typeof raw.session==="object" ? raw.session : null,
     cooldownUntil:Number.isFinite(Number(raw.cooldownUntil)) ? Number(raw.cooldownUntil) : 0,
@@ -4230,8 +7119,21 @@ function normalizeRewardState(raw){
       meteors:Number(raw.highScores?.meteors)||0,
       snake:Number(raw.highScores?.snake)||0,
       tower:Number(raw.highScores?.tower)||0
-    }
+    },
+    badgesOwned:Array.isArray(raw.badgesOwned)
+      ? [...new Set(raw.badgesOwned.filter(id=>!!badgeById(id)))]
+      : [],
+    displayedBadge:typeof raw.displayedBadge==="string" ? raw.displayedBadge : null,
+    badgeDisplayManual:!!raw.badgeDisplayManual
   };
+
+  const highest=highestOwnedBadgeId(state.badgesOwned);
+  if(!state.displayedBadge || !state.badgesOwned.includes(state.displayedBadge)){
+    state.displayedBadge=highest;
+    state.badgeDisplayManual=false;
+  }else if(!state.badgeDisplayManual){
+    state.displayedBadge=highest;
+  }
 
   if(state.session && Number(state.session.endsAt)<=now){
     const plannedEnd=Number(state.session.endsAt)||now;
@@ -4243,9 +7145,22 @@ function normalizeRewardState(raw){
   }
   return state;
 }
+
 function loadRewardState(){
   try{
-    return normalizeRewardState(JSON.parse(localStorage.getItem("kompetenztrainer-reward-v1")) || {});
+    const raw=JSON.parse(localStorage.getItem("kompetenztrainer-reward-v1")) || {};
+
+    // Offensichtliche Testdaten einer früheren internen Fassung nicht übernehmen.
+    const looksLikeInternalTestState=
+      Number(raw.coins)>=900000 ||
+      (raw.session && raw.session.endsAt==null);
+
+    if(looksLikeInternalTestState){
+      localStorage.removeItem("kompetenztrainer-reward-v1");
+      return normalizeRewardState({});
+    }
+
+    return normalizeRewardState(raw);
   }catch{
     return normalizeRewardState({});
   }
@@ -4269,6 +7184,110 @@ function rewardText(coins){
   const state=loadRewardState();
   return state.enabled ? ` <strong>+${coins} 🪙</strong>` : "";
 }
+
+let lastRewardTriggerButton=null;
+document.addEventListener("click",(event)=>{
+  const btn=event.target?.closest?.("button");
+  if(btn) lastRewardTriggerButton=btn;
+},true);
+
+function rewardFxLayer(){
+  let layer=document.querySelector(".coin-fx-layer");
+  if(!layer){
+    layer=document.createElement("div");
+    layer.className="coin-fx-layer";
+    layer.setAttribute("aria-hidden","true");
+    document.body.appendChild(layer);
+  }
+  return layer;
+}
+
+function celebrateCoins(amount,contextEl,sourceButton=null){
+  const coins=Math.max(0,Math.round(Number(amount)||0));
+  if(!coins) return;
+
+  const state=loadRewardState();
+  const source=
+    sourceButton ||
+    (lastRewardTriggerButton && document.body.contains(lastRewardTriggerButton)
+      ? lastRewardTriggerButton
+      : null);
+
+  if(state.enabled && source){
+    source.classList.remove("coin-reward-pop");
+    void source.offsetWidth;
+    source.classList.add("coin-reward-pop");
+
+    const rect=source.getBoundingClientRect();
+    const originX=rect.left+rect.width/2;
+    const originY=rect.top+Math.min(rect.height*.38,20);
+    const layer=rewardFxLayer();
+
+    const party=document.createElement("div");
+    party.className="coin-party";
+    party.style.left=`${originX}px`;
+    party.style.top=`${originY}px`;
+    layer.appendChild(party);
+
+    const puff=document.createElement("div");
+    puff.className="coin-party-puff";
+    party.appendChild(puff);
+
+    // Kleine Konfetti-Fächerung, bewusst kurz und dezent.
+    const confettiColors=["#d7ae2f","#e4c65a","#b9c7d6","#d79c6e","#9eb79f"];
+    const confettiCount=16;
+    for(let i=0;i<confettiCount;i++){
+      const piece=document.createElement("span");
+      piece.className="coin-confetti"+(i%4===0?" dot":"");
+
+      const angle=(-168+(i/(confettiCount-1))*156)*Math.PI/180;
+      const distance=44+Math.random()*38;
+      const cx=Math.cos(angle)*distance;
+      const cy=Math.sin(angle)*distance;
+
+      piece.style.setProperty("--cx",`${cx.toFixed(1)}px`);
+      piece.style.setProperty("--cy",`${cy.toFixed(1)}px`);
+      piece.style.setProperty("--rot",`${Math.round(Math.random()*100-50)}deg`);
+      piece.style.setProperty("--delay",`${Math.round(Math.random()*35)}ms`);
+      piece.style.setProperty("--confetti",confettiColors[i%confettiColors.length]);
+      party.appendChild(piece);
+    }
+
+    // Für jede verdiente Münze eine eigene Münze, leicht aufgefächert.
+    for(let i=0;i<coins;i++){
+      const coin=document.createElement("div");
+      coin.className="coin-party-coin";
+      coin.textContent="🪙";
+
+      const centered=i-(coins-1)/2;
+      const dx=centered*31 + (Math.random()*14-7);
+      const dy=-(78+Math.random()*30);
+
+      coin.style.setProperty("--dx",`${dx.toFixed(1)}px`);
+      coin.style.setProperty("--dy",`${dy.toFixed(1)}px`);
+      coin.style.setProperty("--delay",`${70+i*75}ms`);
+      party.appendChild(coin);
+    }
+
+    setTimeout(()=>party.remove(),1350+coins*75);
+    setTimeout(()=>source.classList.remove("coin-reward-pop"),460);
+  }
+
+  // Der bestehende Glanzeffekt der Aufgabe bleibt parallel erhalten.
+  const target=
+    contextEl?.closest?.(".task") ||
+    contextEl?.closest?.(".deep-task-view") ||
+    contextEl?.closest?.(".test-question") ||
+    contextEl?.closest?.(".test-window") ||
+    (contextEl?.id==="deepFeedback" ? $("#deepTaskView") : null);
+
+  if(target){
+    target.classList.remove("reward-success-glow");
+    void target.offsetWidth;
+    target.classList.add("reward-success-glow");
+    setTimeout(()=>target.classList.remove("reward-success-glow"),1150);
+  }
+}
 function deepCoinValue(ex){
   return Number(ex?.level)>=3 ? 3 : 2;
 }
@@ -4281,20 +7300,652 @@ function fmtCountdown(ms){
 function gameIsAvailable(state=loadRewardState()){
   return !state.session && !state.cooldownUntil && state.coins>=GAME_COST;
 }
+function clearBadgeTheme(){
+  document.body.classList.remove(
+    "reward-effect-thumb",
+    "reward-effect-sky",
+    "reward-effect-rocket",
+    "reward-effect-title-plum",
+    "reward-effect-title-cobalt",
+    "reward-effect-square",
+    "reward-theme-gold",
+    "reward-theme-green",
+    "reward-theme-violet",
+    "reward-theme-dark",
+    "reward-theme-nebula",
+    "reward-theme-orbit"
+  );
+}
+
+let nightSkyLayer=null;
+let nightSkyTimer=null;
+
+function ensureNightSkyBackground(){
+  if(nightSkyLayer && document.body.contains(nightSkyLayer)) return;
+
+  const layer=document.createElement("div");
+  layer.className="night-sky-layer";
+  layer.setAttribute("aria-hidden","true");
+  document.body.insertBefore(layer,document.body.firstChild);
+  nightSkyLayer=layer;
+
+  if(!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+    scheduleNextShootingStar(true);
+  }
+}
+
+function stopNightSkyBackground(){
+  if(nightSkyTimer){
+    clearTimeout(nightSkyTimer);
+    nightSkyTimer=null;
+  }
+  nightSkyLayer?.remove();
+  nightSkyLayer=null;
+}
+
+function spawnShootingStar(){
+  if(!nightSkyLayer || !document.body.classList.contains("reward-theme-dark")) return;
+
+  const star=document.createElement("div");
+  star.className="night-shooting-star";
+
+  // Meist im oberen Bereich starten lassen, damit es wie ein Himmel wirkt.
+  const startX=58 + Math.random()*(innerWidth*0.36);
+  const startY=16 + Math.random()*(innerHeight*0.28);
+
+  const dx=-(150 + Math.random()*150);
+  const dy=(110 + Math.random()*130);
+  const angle=-(24 + Math.random()*14);
+  const dur=1.3 + Math.random()*1.2;
+
+  star.style.left=`${startX}px`;
+  star.style.top=`${startY}px`;
+  star.style.setProperty("--dx",`${dx}px`);
+  star.style.setProperty("--dy",`${dy}px`);
+  star.style.setProperty("--angle",`${angle}deg`);
+  star.style.setProperty("--dur",`${dur}s`);
+
+  nightSkyLayer.appendChild(star);
+  setTimeout(()=>star.remove(),Math.ceil((dur+0.2)*1000));
+}
+
+function scheduleNextShootingStar(first=false){
+  if(!document.body.classList.contains("reward-theme-dark")) return;
+
+  // Nicht häufiger als alle 30s, spätestens nach 60s wieder eine.
+  const delay=first
+    ? 15000 + Math.random()*18000
+    : 30000 + Math.random()*30000;
+
+  nightSkyTimer=setTimeout(()=>{
+    nightSkyTimer=null;
+    if(!document.body.classList.contains("reward-theme-dark")) return;
+    spawnShootingStar();
+    scheduleNextShootingStar(false);
+  },delay);
+}
+
+let nebulaBackgroundLayer=null;
+
+function ensureNebulaBackground(){
+  if(nebulaBackgroundLayer && document.body.contains(nebulaBackgroundLayer)) return;
+
+  const layer=document.createElement("div");
+  layer.className="nebula-space-layer";
+  layer.setAttribute("aria-hidden","true");
+  layer.innerHTML=`
+    <div class="nebula-cloud nebula-cloud-a"></div>
+    <div class="nebula-cloud nebula-cloud-b"></div>
+    <div class="nebula-galaxy-core"></div>
+    <div class="nebula-stars"></div>
+    <div class="nebula-twinkles"></div>`;
+
+  document.body.insertBefore(layer,document.body.firstChild);
+  nebulaBackgroundLayer=layer;
+}
+
+function stopNebulaBackground(){
+  nebulaBackgroundLayer?.remove();
+  nebulaBackgroundLayer=null;
+}
+
+let orbitBackgroundLayer=null;
+let orbitEventTimer=null;
+const orbitEventTimers=new Set();
+let lastOrbitEvent="";
+
+function orbitLater(fn,ms){
+  const timer=setTimeout(()=>{
+    orbitEventTimers.delete(timer);
+    fn();
+  },ms);
+  orbitEventTimers.add(timer);
+  return timer;
+}
+
+function clearOrbitTimers(){
+  if(orbitEventTimer){
+    clearTimeout(orbitEventTimer);
+    orbitEventTimer=null;
+  }
+  orbitEventTimers.forEach(timer=>clearTimeout(timer));
+  orbitEventTimers.clear();
+}
+
+function stopOrbitBackground(){
+  clearOrbitTimers();
+  orbitBackgroundLayer?.remove();
+  orbitBackgroundLayer=null;
+}
+
+function orbitPlanetSpecs(){
+  return [
+    {id:"amber",radius:78,duration:27,size:12,fill:"linear-gradient(145deg,#f0c46e,#bb7634)",glow:"rgba(217,158,72,.28)",phase:-5},
+    {id:"blue",radius:126,duration:39,size:14,fill:"linear-gradient(145deg,#8ab6df,#4e78ad)",glow:"rgba(73,121,181,.25)",phase:-17},
+    {id:"green",radius:178,duration:53,size:15,fill:"linear-gradient(145deg,#88cba3,#4b8d69)",glow:"rgba(70,139,99,.23)",phase:-29},
+    {id:"violet",radius:232,duration:71,size:11,fill:"linear-gradient(145deg,#c0a0d8,#8167a8)",glow:"rgba(130,96,169,.22)",phase:-41}
+  ];
+}
+
+function makeOrbitRunner(spec,{trailIndex=0}={}){
+  const runner=document.createElement("div");
+  runner.className="orbit-runner";
+  runner.dataset.orbitId=spec.id;
+  runner.style.setProperty("--orbit-duration",`${spec.duration}s`);
+
+  // Kleine zeitliche Verschiebung erzeugt eine echte Spur auf derselben Kreisbahn.
+  const phase=spec.phase + trailIndex*(spec.duration*.012);
+  runner.style.setProperty("--orbit-phase",`${phase}s`);
+
+  if(trailIndex===0){
+    const holder=document.createElement("div");
+    holder.className="orbit-planet-holder";
+    holder.style.setProperty("--orbit-radius",`${spec.radius}px`);
+    holder.style.setProperty("--planet-size",`${spec.size}px`);
+
+    const planet=document.createElement("div");
+    planet.className="orbit-planet";
+    planet.dataset.planetId=spec.id;
+    planet.style.setProperty("--planet-fill",spec.fill);
+    planet.style.setProperty("--planet-glow",spec.glow);
+
+    holder.appendChild(planet);
+    runner.appendChild(holder);
+  }else{
+    const dot=document.createElement("div");
+    dot.className="orbit-trail-dot";
+    dot.style.setProperty("--orbit-radius",`${spec.radius}px`);
+    dot.style.setProperty("--trail-size",`${Math.max(2,5-trailIndex)}px`);
+    dot.style.setProperty("--trail-color",spec.glow.replace(".28)",".36)").replace(".25)",".34)").replace(".23)",".32)").replace(".22)",".31)"));
+    dot.style.setProperty("--trail-opacity",String(.30-trailIndex*.055));
+    runner.appendChild(dot);
+  }
+
+  return runner;
+}
+
+function ensureOrbitBackground(){
+  if(orbitBackgroundLayer && document.body.contains(orbitBackgroundLayer)) return;
+
+  const layer=document.createElement("div");
+  layer.className="orbit-space-layer";
+  layer.setAttribute("aria-hidden","true");
+  layer.innerHTML=`
+    <div class="orbit-coordinate-grid"></div>
+    <div class="orbit-axis-x"></div>
+    <div class="orbit-axis-y"></div>
+    <div class="orbit-origin"></div>
+    <div class="orbit-system" id="orbitSystem">
+      <div class="orbit-sun" id="orbitSun"></div>
+    </div>`;
+
+  document.body.insertBefore(layer,document.body.firstChild);
+  orbitBackgroundLayer=layer;
+
+  const system=layer.querySelector("#orbitSystem");
+  orbitPlanetSpecs().forEach(spec=>{
+    // Planet plus drei kleine Spurpunkte – keine sichtbaren Umlaufkreise.
+    for(let i=3;i>=1;i--) system.appendChild(makeOrbitRunner(spec,{trailIndex:i}));
+    system.appendChild(makeOrbitRunner(spec));
+  });
+
+  if(!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+    scheduleNextOrbitEvent(true);
+  }
+}
+
+function orbitViewportPoint(el){
+  const rect=el.getBoundingClientRect();
+  return {x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+}
+
+function orbitRandomPlanet(){
+  if(!orbitBackgroundLayer) return null;
+  const planets=[...orbitBackgroundLayer.querySelectorAll(".orbit-planet:not(.destroyed)")];
+  return planets.length ? planets[Math.floor(Math.random()*planets.length)] : null;
+}
+
+function removeOrbitEvent(el,after=0){
+  orbitLater(()=>el?.remove(),after);
+}
+
+function orbitRocketEvent(){
+  const planet=orbitRandomPlanet();
+  if(!planet || !orbitBackgroundLayer) return;
+
+  const p=orbitViewportPoint(planet);
+  const sx=innerWidth/2,sy=innerHeight/2;
+  let vx=p.x-sx,vy=p.y-sy;
+  const len=Math.hypot(vx,vy)||1;
+  vx/=len;vy/=len;
+
+  const travel=Math.max(innerWidth,innerHeight)*.78;
+  const el=document.createElement("div");
+  el.className="orbit-special-event orbit-event-rocket";
+  el.textContent="🚀";
+  el.style.left=`${p.x}px`;
+  el.style.top=`${p.y}px`;
+  el.style.setProperty("--dx",`${vx*travel}px`);
+  el.style.setProperty("--dy",`${vy*travel}px`);
+  el.style.setProperty("--rocket-angle",`${Math.atan2(vy,vx)*180/Math.PI+45}deg`);
+  orbitBackgroundLayer.appendChild(el);
+  removeOrbitEvent(el,5600);
+}
+
+function orbitSatelliteEvent(){
+  if(!orbitBackgroundLayer) return;
+  const el=document.createElement("div");
+  el.className="orbit-special-event orbit-event-satellite";
+  el.textContent="🛰️";
+  el.style.left="0";
+  el.style.top=`${16+Math.random()*62}%`;
+  el.style.setProperty("--sat-dy",`${Math.round(-60+Math.random()*120)}px`);
+  orbitBackgroundLayer.appendChild(el);
+  removeOrbitEvent(el,9300);
+}
+
+function orbitCometEvent(){
+  if(!orbitBackgroundLayer) return;
+  const el=document.createElement("div");
+  el.className="orbit-special-event orbit-event-comet";
+  el.textContent="☄️";
+  el.style.left="100%";
+  el.style.top=`${Math.round(-5+Math.random()*22)}%`;
+  orbitBackgroundLayer.appendChild(el);
+  removeOrbitEvent(el,7500);
+}
+
+function orbitSolarFlareEvent(){
+  if(!orbitBackgroundLayer) return;
+  const el=document.createElement("div");
+  el.className="orbit-solar-flare";
+  orbitBackgroundLayer.appendChild(el);
+  removeOrbitEvent(el,5000);
+}
+
+function orbitMeteorShowerEvent(){
+  if(!orbitBackgroundLayer) return;
+  for(let i=0;i<6;i++){
+    orbitLater(()=>{
+      if(!orbitBackgroundLayer) return;
+      const streak=document.createElement("div");
+      streak.className="orbit-meteor-streak";
+      streak.style.left=`${62+Math.random()*42}%`;
+      streak.style.top=`${-4+Math.random()*42}%`;
+      orbitBackgroundLayer.appendChild(streak);
+      removeOrbitEvent(streak,4100);
+    },i*260);
+  }
+}
+
+function orbitUfoAttackEvent(){
+  const planet=orbitRandomPlanet();
+  if(!planet || !orbitBackgroundLayer) return;
+
+  const id=planet.dataset.planetId;
+  const related=[...orbitBackgroundLayer.querySelectorAll(`[data-orbit-id="${id}"]`)];
+  related.forEach(el=>el.classList.add("orbit-paused"));
+
+  const target=orbitViewportPoint(planet);
+  const fromLeft=Math.random()<.5;
+  const startX=fromLeft ? -55 : innerWidth+55;
+  const startY=Math.max(35,Math.min(innerHeight-50,target.y-100+Math.random()*200));
+
+  const ufo=document.createElement("div");
+  ufo.className="orbit-special-event orbit-event-ufo";
+  ufo.textContent="🛸";
+  ufo.style.left=`${startX}px`;
+  ufo.style.top=`${startY}px`;
+  orbitBackgroundLayer.appendChild(ufo);
+
+  requestAnimationFrame(()=>{
+    ufo.style.transform=`translate(${target.x-startX}px,${target.y-startY}px)`;
+  });
+
+  orbitLater(()=>{
+    if(!orbitBackgroundLayer || !document.body.contains(planet)) return;
+
+    const now=orbitViewportPoint(planet);
+    const boom=document.createElement("div");
+    boom.className="orbit-special-event orbit-event-explosion";
+    boom.textContent="💥";
+    boom.style.left=`${now.x}px`;
+    boom.style.top=`${now.y}px`;
+    orbitBackgroundLayer.appendChild(boom);
+    removeOrbitEvent(boom,900);
+
+    planet.classList.add("destroyed");
+
+    // Das UFO verschwindet danach wieder aus dem Bild.
+    ufo.classList.add("leaving");
+    const outX=fromLeft ? innerWidth+120 : -innerWidth-120;
+    ufo.style.transform=`translate(${outX}px,${-120+Math.random()*240}px)`;
+    ufo.style.opacity="0";
+
+    // Der Planet kehrt nach einer Weile zurück.
+    orbitLater(()=>{
+      planet.classList.remove("destroyed");
+      related.forEach(el=>el.classList.remove("orbit-paused"));
+    },9000);
+  },3900);
+
+  removeOrbitEvent(ufo,7200);
+}
+
+function runOrbitSpecialEvent(){
+  if(!document.body.classList.contains("reward-theme-orbit") || !orbitBackgroundLayer) return;
+
+  const events=[
+    ["rocket",orbitRocketEvent],
+    ["satellite",orbitSatelliteEvent],
+    ["comet",orbitCometEvent],
+    ["ufo",orbitUfoAttackEvent],
+    ["flare",orbitSolarFlareEvent],
+    ["shower",orbitMeteorShowerEvent]
+  ];
+
+  const candidates=events.filter(([name])=>name!==lastOrbitEvent);
+  const [name,fn]=candidates[Math.floor(Math.random()*candidates.length)];
+  lastOrbitEvent=name;
+  fn();
+}
+
+function scheduleNextOrbitEvent(first=false){
+  if(!document.body.classList.contains("reward-theme-orbit")) return;
+
+  // Erstes Spezialereignis spätestens nach ca. 80 Sekunden.
+  // Danach im Mittel alle 1,5–2,5 Minuten: selten, aber in 10 Minuten klar erlebbar.
+  const delay=first
+    ? 45000+Math.random()*35000
+    : 90000+Math.random()*60000;
+
+  orbitEventTimer=setTimeout(()=>{
+    orbitEventTimer=null;
+    if(!document.body.classList.contains("reward-theme-orbit")) return;
+    runOrbitSpecialEvent();
+    scheduleNextOrbitEvent(false);
+  },delay);
+}
+
+function applyBadgeTheme(state,badge){
+  const nextEffect=state.enabled && badge ? (badge.effectClass || "") : "";
+
+  const allEffects=[
+    "reward-effect-thumb",
+    "reward-effect-sky",
+    "reward-effect-rocket",
+    "reward-effect-title-plum",
+    "reward-effect-title-cobalt",
+    "reward-effect-square",
+    "reward-theme-gold",
+    "reward-theme-green",
+    "reward-theme-violet",
+    "reward-theme-dark",
+    "reward-theme-nebula",
+    "reward-theme-orbit"
+  ];
+
+  allEffects.forEach(effect=>{
+    document.body.classList.toggle(effect,effect===nextEffect);
+  });
+
+  if(nextEffect){
+    document.body.dataset.rewardEffect=nextEffect;
+  }else{
+    delete document.body.dataset.rewardEffect;
+  }
+
+  if(nextEffect==="reward-theme-orbit"){
+    ensureOrbitBackground();
+  }else{
+    stopOrbitBackground();
+  }
+
+  if(nextEffect==="reward-theme-nebula"){
+    ensureNebulaBackground();
+  }else{
+    stopNebulaBackground();
+  }
+
+  if(nextEffect==="reward-theme-dark"){
+    ensureNightSkyBackground();
+  }else{
+    stopNightSkyBackground();
+  }
+}
+
+function renderHeaderBadgeShelf(state,shownBadge){
+  const leftShelf=$("#headerBadgeShelfLeft");
+  const rightShelf=$("#headerBadgeShelfRight");
+  if(!leftShelf || !rightShelf) return;
+
+  leftShelf.innerHTML="";
+  rightShelf.innerHTML="";
+
+  const others=state.badgesOwned
+    .map(badgeById)
+    .filter(Boolean)
+    .filter(badge=>!shownBadge || badge.id!==shownBadge.id)
+    .sort((a,b)=>badgeRank(b)-badgeRank(a));
+
+  const leftBadges=[];
+  const rightBadges=[];
+
+  // Gleichmäßig um das ausgewählte Abzeichen herum verteilen.
+  others.forEach((badge,index)=>{
+    (index%2===0 ? leftBadges : rightBadges).push(badge);
+  });
+
+  let rows=1;
+  let size=28;
+  let iconSize=15;
+  let levelSize=13;
+
+  if(others.length>6){
+    rows=2;
+    size=25;
+    iconSize=14;
+    levelSize=12;
+  }
+  if(others.length>10){
+    rows=3;
+    size=21;
+    iconSize=12;
+    levelSize=10;
+  }
+
+  [leftShelf,rightShelf].forEach(shelf=>{
+    shelf.style.setProperty("--badge-rows",String(rows));
+    shelf.style.setProperty("--badge-mini-size",`${size}px`);
+    shelf.style.setProperty("--badge-mini-font",`${iconSize}px`);
+    shelf.style.setProperty("--badge-level-size",`${levelSize}px`);
+  });
+
+  const makeButton=(badge)=>{
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className=`mini-badge-btn level-${badge.level}`;
+    btn.dataset.badgeTooltip=badge.id;
+    btn.setAttribute("aria-label",`${badge.name}, Level ${badge.level}`);
+    btn.innerHTML=`
+      <span class="mini-badge-icon" aria-hidden="true">${badge.icon}</span>
+      <span class="mini-badge-level">L${badge.level}</span>`;
+    return btn;
+  };
+
+  // Links liegen die hochwertigsten Badges direkt neben der Mitte.
+  [...leftBadges].reverse().forEach(badge=>leftShelf.appendChild(makeButton(badge)));
+  rightBadges.forEach(badge=>rightShelf.appendChild(makeButton(badge)));
+}
+
+let miniBadgeTooltipTimer=null;
+function showMiniBadgeTooltip(button,badge){
+  document.querySelectorAll(".mini-badge-tooltip").forEach(el=>el.remove());
+  if(miniBadgeTooltipTimer) clearTimeout(miniBadgeTooltipTimer);
+
+  const rect=button.getBoundingClientRect();
+  const tip=document.createElement("div");
+  tip.className="mini-badge-tooltip";
+  tip.textContent=badge.name;
+  tip.style.left=`${rect.left+rect.width/2}px`;
+  tip.style.top=`${Math.max(8,rect.top-7)}px`;
+  document.body.appendChild(tip);
+
+  miniBadgeTooltipTimer=setTimeout(()=>tip.remove(),1800);
+}
+
 function updateRewardHeader(){
   const state=loadRewardState();
   const ready=state.enabled && gameIsAvailable(state);
+  const shownBadge=state.enabled ? badgeById(state.displayedBadge) : null;
+  const hasBadges=state.enabled && state.badgesOwned.length>0;
 
   $("#rewardSystemBtn").classList.toggle("hidden",state.enabled);
   $("#coinBadge").classList.toggle("hidden",!state.enabled);
   $("#coinBadge").classList.toggle("ready",ready);
   $("#gameReadyIcon").classList.toggle("hidden",!ready);
   $("#coinCount").textContent=state.coins;
+
+  const badgeZone=$("#topBadgeZone");
+  badgeZone.classList.toggle("hidden",!hasBadges);
+
+  const badgeBtn=$("#headerBadgeBtn");
+  badgeBtn.classList.remove("level-1","level-2","level-3","level-4","level-5");
+
+  if(shownBadge){
+    badgeBtn.classList.add(`level-${shownBadge.level}`);
+    $("#headerBadgeLevel").textContent=`Level ${shownBadge.level}`;
+    $("#headerBadgeIcon").textContent=shownBadge.icon;
+    $("#headerBadgeName").textContent=shownBadge.name;
+    badgeBtn.setAttribute(
+      "aria-label",
+      `${shownBadge.name}, Level ${shownBadge.level}. Klicken, um das angezeigte Abzeichen zu ändern`
+    );
+    badgeBtn.title=`${shownBadge.name} · Level ${shownBadge.level}`;
+  }
+
+  renderHeaderBadgeShelf(state,shownBadge);
+  applyBadgeTheme(state,shownBadge);
 }
+
+function setRewardShopMode(mode){
+  rewardShopMode=mode==="badges" ? "badges" : "games";
+
+  const games=rewardShopMode==="games";
+  $("#rewardGamesTab").classList.toggle("active",games);
+  $("#rewardBadgesTab").classList.toggle("active",!games);
+  $("#rewardGamesTab").setAttribute("aria-selected",String(games));
+  $("#rewardBadgesTab").setAttribute("aria-selected",String(!games));
+  $("#rewardGamesView").classList.toggle("hidden",!games);
+  $("#rewardBadgesView").classList.toggle("hidden",games);
+}
+
+function renderBadgeShop(state){
+  const gallery=$("#badgeGallery");
+  if(!gallery) return;
+
+  $("#badgeOwnedCount").textContent=`${state.badgesOwned.length} / ${BADGES.length}`;
+  gallery.innerHTML="";
+
+  BADGES.forEach(badge=>{
+    const owned=state.badgesOwned.includes(badge.id);
+    const unlocked=badgeUnlocked(badge,state);
+    const displayed=state.displayedBadge===badge.id;
+
+    const card=document.createElement("article");
+    card.className=
+      "badge-card"+
+      (owned?" owned":"")+
+      (displayed?" displayed":"")+
+      (!unlocked&&!owned?" locked":"");
+
+    let action="";
+    if(owned){
+      action=`<button class="badge-show-btn ${displayed?"current":""}" type="button" data-show-badge="${badge.id}" ${displayed?"disabled":""}>
+        ${displayed?"Angezeigt":"Anzeigen"}
+      </button>`;
+    }else if(!unlocked){
+      const needed=Math.max(0,badge.unlockOwned-state.badgesOwned.length);
+      action=`<div class="badge-lock">🔒 Noch ${needed} für ${BADGE_TIERS[badge.level]}.</div>`;
+    }else{
+      const affordable=state.coins>=badge.cost;
+      const shownPrice=`${badge.cost} 🪙`;
+      action=`<button class="badge-buy-btn" type="button" data-buy-badge="${badge.id}" ${affordable?"":"disabled"}>
+        ${affordable?`Kaufen · ${shownPrice}`:`Noch ${badge.cost-state.coins} 🪙`}
+      </button>`;
+    }
+
+    card.innerHTML=`
+      <div class="badge-card-top">
+        <div class="badge-art level-${badge.level}" aria-hidden="true">${badge.icon}</div>
+        <div class="badge-copy">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-tier">${BADGE_TIERS[badge.level]}</div>
+        </div>
+      </div>
+      <div class="badge-card-actions">${action}</div>
+    `;
+    gallery.appendChild(card);
+  });
+}
+
+function buyBadge(id){
+  const badge=badgeById(id);
+  if(!badge) return;
+
+  const state=loadRewardState();
+  if(state.badgesOwned.includes(id)) return;
+  if(!badgeUnlocked(badge,state)) return;
+  if(state.coins<badge.cost) return;
+
+  state.coins-=badge.cost;
+  state.badgesOwned.push(id);
+
+  // Nach einem Kauf wird automatisch das hochwertigste vorhandene Abzeichen angezeigt.
+  state.displayedBadge=highestOwnedBadgeId(state.badgesOwned);
+  state.badgeDisplayManual=false;
+
+  saveRewardState(state);
+  updateRewardHeader();
+  renderRewardModal();
+}
+
+function selectDisplayedBadge(id){
+  const state=loadRewardState();
+  if(!state.badgesOwned.includes(id)) return;
+
+  state.displayedBadge=id;
+  state.badgeDisplayManual=true;
+  saveRewardState(state);
+  updateRewardHeader();
+  renderRewardModal();
+}
+
 function renderRewardModal(){
   const state=loadRewardState();
   $("#rewardModalCoins").textContent=state.coins;
   $("#rewardEnabledSwitch").checked=!!state.enabled;
+  $("#rewardEnabledSwitch").disabled=false;
   $("#rewardSwitchLabel").textContent=state.enabled ? "Ein" : "Aus";
 
   $("#rewardInactive").classList.toggle("hidden",state.enabled);
@@ -4304,11 +7955,14 @@ function renderRewardModal(){
   if(!state.enabled) return;
 
   $("#hubCoinCount").textContent=state.coins;
+  setRewardShopMode(rewardShopMode);
+  renderBadgeShop(state);
 
   Object.keys(GAME_NAMES).forEach(gameId=>{
     const el=$("#highscore-"+gameId);
     if(el) el.textContent=state.highScores?.[gameId] || 0;
   });
+
 
   document.querySelectorAll("[data-game]").forEach(btn=>{
     btn.classList.toggle("selected",btn.dataset.game===selectedRewardGame);
@@ -4355,6 +8009,8 @@ function renderRewardModal(){
   activate.textContent=state.coins<cost ? "Nicht genug Münzen" : "Spielzeit aktivieren";
 }
 function openRewardModal(){
+  const state=loadRewardState();
+  if(state.enabled) rewardShopMode="badges";
   renderRewardModal();
   $("#rewardOverlay").classList.remove("hidden");
   $("#rewardOverlay").setAttribute("aria-hidden","false");
@@ -4504,6 +8160,7 @@ function resumeGameSession(){
 function updateGameSessionTimer(){
   const state=loadRewardState();
   if(!state.session) return;
+
   const remaining=Number(state.session.endsAt)-Date.now();
   if(remaining<=0){
     finishGameSession();
@@ -4565,8 +8222,13 @@ function startMiniGame(gameId){
 function startStarGame(){
   const stage=$("#gameStage");
   stage.innerHTML='<button class="star-target" type="button" aria-label="Stern fangen">⭐</button>';
-  const star=stage.querySelector(".star-target");
+  const target=stage.querySelector(".star-target");
+
   let moveTimer=0;
+  let isTrap=false;
+  let trapShownAt=0;
+
+  const trapSymbols=["💣","🌑","👾","🪨","☠️"];
 
   const difficulty=()=>{
     const size=Math.max(40,64-currentGameScore*.8);
@@ -4574,58 +8236,96 @@ function startStarGame(){
     return {size,delay};
   };
 
+  const shouldShowTrap=()=>{
+    // Erst nach ein paar Treffern und weiterhin nur gelegentlich.
+    if(currentGameScore<3) return false;
+
+    const now=Date.now();
+    if(now-trapShownAt<2600) return false;
+
+    const chance=Math.min(.22,.08+currentGameScore*.004);
+    return Math.random()<chance;
+  };
+
+  const setTargetSymbol=()=>{
+    isTrap=shouldShowTrap();
+
+    if(isTrap){
+      trapShownAt=Date.now();
+      target.textContent=trapSymbols[Math.floor(Math.random()*trapSymbols.length)];
+      target.setAttribute("aria-label","Falsches Symbol – nicht anklicken");
+    }else{
+      target.textContent="⭐";
+      target.setAttribute("aria-label","Stern fangen");
+    }
+  };
+
   const move=()=>{
     const rect=stage.getBoundingClientRect();
     const d=difficulty();
-    star.style.width=d.size+"px";
-    star.style.height=d.size+"px";
-    star.style.fontSize=(d.size*.67)+"px";
+
+    target.style.width=d.size+"px";
+    target.style.height=d.size+"px";
+    target.style.fontSize=(d.size*.67)+"px";
+
     const maxX=Math.max(0,rect.width-d.size-4);
     const maxY=Math.max(0,rect.height-d.size-4);
-    star.style.left=`${Math.random()*maxX}px`;
-    star.style.top=`${Math.random()*maxY}px`;
+    target.style.left=`${Math.random()*maxX}px`;
+    target.style.top=`${Math.random()*maxY}px`;
+
+    setTargetSymbol();
   };
 
   const scheduleMove=()=>{
     clearTimeout(moveTimer);
     moveTimer=setTimeout(()=>{
       move();
-      $("#gameMiniStatus").textContent="Schneller!";
+      $("#gameMiniStatus").textContent=isTrap ? "Nicht alles anklicken …" : "Schneller!";
       scheduleMove();
     },difficulty().delay);
   };
 
-  const showHitFx=()=>{
-    const starRect=star.getBoundingClientRect();
+  const showHitFx=(message="Yeah! +1")=>{
+    const targetRect=target.getBoundingClientRect();
     const stageRect=stage.getBoundingClientRect();
     const fx=document.createElement("div");
     fx.className="star-hit-fx";
-    fx.style.left=`${starRect.left-stageRect.left+starRect.width/2}px`;
-    fx.style.top=`${starRect.top-stageRect.top+starRect.height/2}px`;
+    fx.style.left=`${targetRect.left-stageRect.left+targetRect.width/2}px`;
+    fx.style.top=`${targetRect.top-stageRect.top+targetRect.height/2}px`;
     fx.innerHTML=`
-      <span class="star-hit-text">Yeah! +1</span>
+      <span class="star-hit-text">${message}</span>
       <span class="star-spark s1">✨</span>
       <span class="star-spark s2">⭐</span>
       <span class="star-spark s3">✨</span>
       <span class="star-spark s4">⭐</span>`;
     stage.appendChild(fx);
-    setTimeout(()=>fx.remove(),720);
+    setTimeout(()=>fx.remove(),760);
   };
 
   const hit=()=>{
+    if(isTrap){
+      showHitFx("Falsches Symbol – zurück auf 0!");
+      setGameScore(0);
+      $("#gameMiniStatus").textContent="Neue Runde";
+      isTrap=false;
+      move();
+      scheduleMove();
+      return;
+    }
+
     showHitFx();
     addGameScore(1);
     move();
     scheduleMove();
   };
 
-  star.addEventListener("pointerdown",hit);
+  target.addEventListener("pointerdown",hit);
   move();
   scheduleMove();
 
   currentGameCleanup=()=>{
     clearTimeout(moveTimer);
-    star.removeEventListener("pointerdown",hit);
+    target.removeEventListener("pointerdown",hit);
   };
 }
 
@@ -4855,24 +8555,45 @@ function startMeteorGame(){
   stage.innerHTML=`
     <div class="meteor-stars"></div>
     <div class="meteor-ship" id="meteorShip">🛸</div>
-    <div class="meteor-hint">Bewegen – die Meteore zielen beim Start auf dich!</div>`;
+    <div class="enemy-warning" id="enemyWarning">⚠ Gegnerisches Schiff</div>
+    <div class="meteor-hint">Bewegen – später kommen lenkende Meteore und ein Gegner!</div>`;
 
   const ship=$("#meteorShip");
+  const enemyWarning=$("#enemyWarning");
+
   let shipX=20;
   let shipY=0;
+  let shipAlive=true;
+
   let meteors=[];
-  let raf=0,spawnTimer=0,scoreTimer=0,last=performance.now();
+  let enemyShots=[];
+  let enemy=null;
+
+  let raf=0;
+  let spawnTimer=0;
+  let scoreTimer=0;
+  let enemyTimer=0;
+  let enemyShotTimer=0;
+  let last=performance.now();
   let invulnerableUntil=0;
   let stopped=false;
+  const startedAt=performance.now();
+
+  const elapsedSeconds=()=>Math.max(0,(performance.now()-startedAt)/1000);
 
   const positionShip=(clientX,clientY)=>{
+    if(!shipAlive)return;
     const rect=stage.getBoundingClientRect();
     shipX=Math.max(0,Math.min(rect.width-54,clientX-rect.left-27));
     shipY=Math.max(0,Math.min(rect.height-54,clientY-rect.top-27));
     ship.style.left=shipX+"px";
     ship.style.top=shipY+"px";
   };
-  const move=(e)=>{e.preventDefault();positionShip(e.clientX,e.clientY)};
+
+  const move=(e)=>{
+    e.preventDefault();
+    positionShip(e.clientX,e.clientY);
+  };
   stage.addEventListener("pointerdown",move);
   stage.addEventListener("pointermove",move);
 
@@ -4884,76 +8605,285 @@ function startMeteorGame(){
     ship.style.top=shipY+"px";
   };
 
-  const spawn=()=>{
+  const showShipExplosion=()=>{
+    const fx=document.createElement("div");
+    fx.className="meteor-explosion";
+    fx.style.left=`${shipX+27}px`;
+    fx.style.top=`${shipY+27}px`;
+    fx.innerHTML=`
+      <span class="meteor-explosion-core">💥</span>
+      <span class="meteor-explosion-spark s1">✦</span>
+      <span class="meteor-explosion-spark s2">✧</span>
+      <span class="meteor-explosion-spark s3">✦</span>
+      <span class="meteor-explosion-spark s4">✧</span>
+      <span class="meteor-explosion-spark s5">✦</span>`;
+    stage.appendChild(fx);
+    setTimeout(()=>fx.remove(),680);
+  };
+
+  const damageShip=(label="Treffer! −3")=>{
+    const now=performance.now();
+    if(stopped || !shipAlive || now<invulnerableUntil)return;
+
+    shipAlive=false;
+    invulnerableUntil=now+1500;
+    setGameScore(Math.max(0,currentGameScore-3));
+    $("#gameMiniStatus").textContent=label;
+
+    showShipExplosion();
+    ship.style.opacity="0";
+
+    // Kurze sichtbare Explosion, danach wird das Schiff wieder eingesetzt.
+    setTimeout(()=>{
+      if(stopped)return;
+      resetShip();
+      ship.style.opacity=".42";
+      shipAlive=true;
+
+      setTimeout(()=>{
+        if(!stopped) ship.style.opacity="1";
+      },520);
+    },620);
+  };
+
+  const spawnMeteor=()=>{
     if(stopped)return;
+
     const rect=stage.getBoundingClientRect();
     const side=Math.floor(Math.random()*4);
     let x,y;
 
-    if(side===0){ x=Math.random()*rect.width; y=-40; }               // oben
-    else if(side===1){ x=rect.width+40; y=Math.random()*rect.height; } // rechts
-    else if(side===2){ x=Math.random()*rect.width; y=rect.height+40; } // unten
-    else { x=-40; y=Math.random()*rect.height; }                       // links
+    if(side===0){x=Math.random()*rect.width;y=-42}
+    else if(side===1){x=rect.width+42;y=Math.random()*rect.height}
+    else if(side===2){x=Math.random()*rect.width;y=rect.height+42}
+    else{x=-42;y=Math.random()*rect.height}
 
     const targetX=shipX+27;
     const targetY=shipY+27;
-    let angle=Math.atan2(targetY-y,targetX-x);
+    let angle=Math.atan2(targetY-y,targetX-x)+(Math.random()-.5)*.18;
 
-    // Kleine Ungenauigkeit macht die Bahnen natürlicher, bleibt aber zielgerichtet.
-    angle+=(Math.random()-.5)*.16;
+    const elapsed=elapsedSeconds();
 
-    const speed=Math.min(300,125+currentGameScore*2.4+Math.random()*55);
+    // Spezialmeteore erscheinen erst nach einer Weile.
+    // Ihre Flugbahn lenkt begrenzt zum aktuellen UFO nach,
+    // sodass man sie weiterhin ausmanövrieren kann.
+    const specialChance=
+      elapsed<8 ? 0 :
+      Math.min(.48,.16+(elapsed-8)*.012+currentGameScore*.004);
+    const special=Math.random()<specialChance;
+
+    const speed=special
+      ? Math.min(260,118+elapsed*2.1+Math.random()*38)
+      : Math.min(315,126+currentGameScore*2.2+Math.random()*58);
+
     const el=document.createElement("div");
-    el.className="meteor-object meteor-danger";
-    el.textContent="☄️";
+    el.className="meteor-object meteor-danger"+(special?" meteor-special":"");
+    el.textContent=special?"🌠":"☄️";
 
     const obj={
-      el,x,y,
+      el,x,y,speed,special,
+      angle,
       vx:Math.cos(angle)*speed,
-      vy:Math.sin(angle)*speed
+      vy:Math.sin(angle)*speed,
+      turnRate:special ? .78+Math.random()*.22 : 0
     };
+
     el.style.left=x+"px";
     el.style.top=y+"px";
     el.style.transform=`rotate(${angle*180/Math.PI+135}deg)`;
     stage.appendChild(el);
     meteors.push(obj);
 
-    // Mit höherem Score kommen Meteore häufiger.
-    const nextDelay=Math.max(280,680-currentGameScore*7);
-    spawnTimer=setTimeout(spawn,nextDelay);
+    const nextDelay=Math.max(260,690-currentGameScore*6-elapsed*4);
+    spawnTimer=setTimeout(spawnMeteor,nextDelay);
   };
 
-  const hit=(m)=>{
+  const meteorHit=(m)=>{
+    if(!shipAlive)return false;
     const sx=shipX+27,sy=shipY+27;
     const mx=m.x+17,my=m.y+17;
     return Math.hypot(sx-mx,sy-my)<30;
   };
 
+  const shotHit=(shot)=>{
+    if(!shipAlive)return false;
+    const sx=shipX+27,sy=shipY+27;
+    return Math.hypot(sx-shot.x,sy-shot.y)<25;
+  };
+
+  const removeEnemy=()=>{
+    clearTimeout(enemyShotTimer);
+    enemyShotTimer=0;
+    if(enemy?.el) enemy.el.remove();
+    enemy=null;
+    enemyWarning.classList.remove("show");
+  };
+
+  const fireEnemyShot=()=>{
+    if(stopped || !enemy || !shipAlive)return;
+
+    const targetX=shipX+27;
+    const targetY=shipY+27;
+
+    // Leichte Ungenauigkeit: gezielt, aber ausweichbar.
+    const aimX=targetX+(Math.random()-.5)*36;
+    const aimY=targetY+(Math.random()-.5)*36;
+    const dx=aimX-(enemy.x+29);
+    const dy=aimY-(enemy.y+24);
+    const len=Math.hypot(dx,dy)||1;
+    const speed=175+Math.min(70,elapsedSeconds()*2.1);
+
+    const el=document.createElement("div");
+    el.className="enemy-shot";
+
+    const shot={
+      el,
+      x:enemy.x+29,
+      y:enemy.y+24,
+      vx:dx/len*speed,
+      vy:dy/len*speed
+    };
+
+    el.style.left=(shot.x-5)+"px";
+    el.style.top=(shot.y-5)+"px";
+    stage.appendChild(el);
+    enemyShots.push(shot);
+  };
+
+  const enemyFireLoop=()=>{
+    if(stopped || !enemy)return;
+    fireEnemyShot();
+    const delay=Math.max(560,920-elapsedSeconds()*8);
+    enemyShotTimer=setTimeout(enemyFireLoop,delay);
+  };
+
+  const spawnEnemy=()=>{
+    if(stopped)return;
+
+    // Der Gegner kommt erst später und bleibt nur einige Sekunden.
+    if(elapsedSeconds()<14){
+      enemyTimer=setTimeout(spawnEnemy,2600);
+      return;
+    }
+
+    if(enemy){
+      enemyTimer=setTimeout(spawnEnemy,3000);
+      return;
+    }
+
+    const rect=stage.getBoundingClientRect();
+    const fromLeft=Math.random()<.5;
+    const el=document.createElement("div");
+    el.className="enemy-meteor-ship";
+    el.textContent="👾";
+
+    enemy={
+      el,
+      x:fromLeft?-65:rect.width+65,
+      y:34+Math.random()*Math.max(30,rect.height*.28),
+      vx:fromLeft?42:-42,
+      bornAt:performance.now(),
+      lifetime:6200+Math.random()*1200
+    };
+
+    el.style.left=enemy.x+"px";
+    el.style.top=enemy.y+"px";
+    stage.appendChild(el);
+
+    enemyWarning.classList.add("show");
+    $("#gameMiniStatus").textContent="⚠ Gegnerisches Schiff!";
+    enemyFireLoop();
+
+    // Nächster Gegner erst nach einer Pause.
+    enemyTimer=setTimeout(spawnEnemy,16500);
+  };
+
   const loop=(now)=>{
-    const dt=Math.min(.05,(now-last)/1000);last=now;
+    const dt=Math.min(.05,(now-last)/1000);
+    last=now;
     const rect=stage.getBoundingClientRect();
 
+    // Meteore
     for(let i=meteors.length-1;i>=0;i--){
       const m=meteors[i];
+
+      if(m.special && shipAlive){
+        const targetAngle=Math.atan2((shipY+27)-m.y,(shipX+27)-m.x);
+        let diff=targetAngle-m.angle;
+
+        // Winkel auf -π..π normalisieren.
+        while(diff>Math.PI)diff-=Math.PI*2;
+        while(diff<-Math.PI)diff+=Math.PI*2;
+
+        // Begrenzte Kurvenfähigkeit: kein "magisches" exaktes Folgen.
+        const maxTurn=m.turnRate*dt;
+        m.angle+=Math.max(-maxTurn,Math.min(maxTurn,diff));
+
+        m.vx=Math.cos(m.angle)*m.speed;
+        m.vy=Math.sin(m.angle)*m.speed;
+        m.el.style.transform=`rotate(${m.angle*180/Math.PI+135}deg)`;
+      }
+
       m.x+=m.vx*dt;
       m.y+=m.vy*dt;
       m.el.style.left=m.x+"px";
       m.el.style.top=m.y+"px";
 
-      if(now>invulnerableUntil && hit(m)){
-        setGameScore(Math.max(0,currentGameScore-3));
-        $("#gameMiniStatus").textContent="Treffer! −3";
-        invulnerableUntil=now+450;
-        ship.style.opacity=".35";
-        setTimeout(()=>{if(ship)ship.style.opacity="1"},430);
+      if(now>invulnerableUntil && meteorHit(m)){
+        damageShip(m.special?"Spezialmeteor! −3":"Treffer! −3");
         m.el.remove();
         meteors.splice(i,1);
         continue;
       }
 
-      if(m.x<-80||m.y<-80||m.x>rect.width+80||m.y>rect.height+80){
+      if(m.x<-100||m.y<-100||m.x>rect.width+100||m.y>rect.height+100){
         m.el.remove();
         meteors.splice(i,1);
+      }
+    }
+
+    // Gegnerisches Raumschiff
+    if(enemy){
+      const age=now-enemy.bornAt;
+      const entering=age<900;
+      const leaving=age>enemy.lifetime-1100;
+
+      if(entering){
+        enemy.x+=enemy.vx*dt;
+      }else if(leaving){
+        enemy.x+=enemy.vx*1.65*dt;
+      }else{
+        // Leichtes Patrouillieren, aber kein direktes Rammen.
+        enemy.x+=Math.sin(age/720)*10*dt;
+        enemy.y+=Math.sin(age/510)*5*dt;
+      }
+
+      enemy.el.style.left=enemy.x+"px";
+      enemy.el.style.top=enemy.y+"px";
+
+      if(age>enemy.lifetime){
+        removeEnemy();
+      }
+    }
+
+    // Geschosse
+    for(let i=enemyShots.length-1;i>=0;i--){
+      const shot=enemyShots[i];
+      shot.x+=shot.vx*dt;
+      shot.y+=shot.vy*dt;
+      shot.el.style.left=(shot.x-5)+"px";
+      shot.el.style.top=(shot.y-5)+"px";
+
+      if(now>invulnerableUntil && shotHit(shot)){
+        damageShip("Getroffen! −3");
+        shot.el.remove();
+        enemyShots.splice(i,1);
+        continue;
+      }
+
+      if(shot.x<-40||shot.y<-40||shot.x>rect.width+40||shot.y>rect.height+40){
+        shot.el.remove();
+        enemyShots.splice(i,1);
       }
     }
 
@@ -4961,21 +8891,33 @@ function startMeteorGame(){
   };
 
   resetShip();
-  spawn();
+  spawnMeteor();
+  enemyTimer=setTimeout(spawnEnemy,5000);
+
   scoreTimer=setInterval(()=>{
-    addGameScore(1);
-    $("#gameMiniStatus").textContent="Ausweichen! +1";
+    if(shipAlive){
+      addGameScore(1);
+      $("#gameMiniStatus").textContent="Ausweichen! +1";
+    }
   },1000);
+
   raf=requestAnimationFrame(loop);
 
   currentGameCleanup=()=>{
     stopped=true;
     clearTimeout(spawnTimer);
+    clearTimeout(enemyTimer);
+    clearTimeout(enemyShotTimer);
     clearInterval(scoreTimer);
     cancelAnimationFrame(raf);
+
     stage.removeEventListener("pointerdown",move);
     stage.removeEventListener("pointermove",move);
+
     meteors.forEach(m=>m.el.remove());
+    enemyShots.forEach(s=>s.el.remove());
+    removeEnemy();
+
     stage.classList.remove("meteor-stage");
   };
 }
@@ -5309,7 +9251,8 @@ function selfRatingFor(id){
 }
 function setSelfRating(id,rating){
   const data=loadSelfRatings();
-  data[id]=rating;
+  if(rating) data[id]=rating;
+  else delete data[id];
   saveSelfRatings(data);
 }
 
@@ -5338,18 +9281,224 @@ function deepStatsFor(competencyId){
     advanced:successes.filter(x=>Number(x.level)>=2).length
   };
 }
-function qualifiesVerySecure(id){
-  const base=loadProgress()[id]?.status;
-  if(base!=="good") return false;
+function hasFoundationStatus(id){
+  // „Grundlagen“ gibt es erst, wenn ALLE Aufgaben aus
+  // „Aufgaben & Buchseiten“ mindestens einmal korrekt gelöst wurden.
+  const progress=loadProgress()[id] || {};
+  const total=Number(progress.total) || baseTaskTotalFor(id);
+  const best=Number(progress.bestScore ?? progress.score ?? 0) || 0;
+  return total>0 && best>=total;
+}
+
+function qualifiesSecure(id){
+  // Zwei Haken bauen auf vollständig erreichten Grundlagen auf:
+  // alle Basisaufgaben korrekt + mindestens 3 Vertiefungen,
+  // davon mindestens eine aus Stufe 2 oder 3.
+  if(!hasFoundationStatus(id)) return false;
   const stats=deepStatsFor(id);
   return stats.success>=3 && stats.advanced>=1;
 }
-function statusFor(id){
-  if(qualifiesVerySecure(id)) return "verygood";
-  return loadProgress()[id]?.status || "neutral";
+
+function qualifiesVerySecure(id){
+  if(!qualifiesSecure(id)) return false;
+  return deepStatsFor(id).success>=6;
 }
+
+function qualifiesMedal(id){
+  if(!qualifiesVerySecure(id)) return false;
+  const total=(deepExercises[id] || []).length;
+  return total>0 && deepStatsFor(id).success>=total;
+}
+
+const BASE_TASK_TOTALS={
+  "K3.1":8,
+  "K3.2":6,
+  "K3.3":8,
+  "K3.4":8,
+  "K3.5":3
+};
+
+function baseTaskTotalFor(id){
+  if(BASE_TASK_TOTALS[id]) return BASE_TASK_TOTALS[id];
+  if(typeof k4PracticeData!=="undefined" && k4PracticeData[id]){
+    return k4PracticeData[id].tasks.length;
+  }
+  return 0;
+}
+
+function baseButtonProgress(id){
+  const progress=loadProgress()[id] || {};
+  const total=Number(progress.total) || baseTaskTotalFor(id);
+  const correct=Math.max(
+    0,
+    Math.min(
+      total || 0,
+      Number(progress.bestScore ?? progress.score ?? 0) || 0
+    )
+  );
+  return {
+    correct,
+    total,
+    pct:total ? Math.round(correct/total*1000)/10 : 0
+  };
+}
+
+function deepButtonProgress(id){
+  const total=(deepExercises[id] || []).length;
+  const correct=deepStatsFor(id).success;
+  return {
+    correct:Math.min(correct,total),
+    total,
+    pct:total ? Math.round(Math.min(correct,total)/total*1000)/10 : 0
+  };
+}
+
+function progressButtonMarkup(label,stats){
+  const total=stats.total || 0;
+  const correct=stats.correct || 0;
+  return `<span class="row-action-progress-inner">
+    <span class="row-action-progress-label">${label}</span>
+    <span class="row-action-progress-count">${correct}/${total}</span>
+  </span>`;
+}
+
+function rewardTaskWasCompleted(taskId){
+  const state=loadRewardState();
+  return !!state.earned?.[taskId];
+}
+
+function showPreviousDoneNotice(container,message){
+  if(!container) return;
+
+  container.querySelectorAll(".previously-done-notice").forEach(el=>el.remove());
+
+  const notice=document.createElement("div");
+  notice.className="previously-done-notice";
+  notice.textContent=message;
+  container.prepend(notice);
+}
+
+function addTitleDoneBadge(task){
+  if(!task || task.querySelector(".previously-done-badge")) return;
+  const title=task.querySelector(".task-title");
+  if(!title) return;
+
+  const badge=document.createElement("span");
+  badge.className="previously-done-badge";
+  badge.setAttribute("aria-label","Schon einmal richtig bearbeitet");
+  badge.title="Schon einmal richtig bearbeitet";
+  badge.textContent="✓";
+  title.appendChild(badge);
+  task.classList.add("previously-done-task");
+}
+
+function applyBaseCompletionMarkers(itemId){
+  const map={
+    "K3.1":["a","b"],
+    "K3.2":["a","b"],
+    "K3.3":["a","b","c"],
+    "K3.4":["a","b"],
+    "K3.5":["a"]
+  };
+
+  const practiceId=itemId.replace(".","");
+  const practice=
+    itemId==="K3.1" ? $("#practiceK31") :
+    itemId==="K3.2" ? $("#practiceK32") :
+    itemId==="K3.3" ? $("#practiceK33") :
+    itemId==="K3.4" ? $("#practiceK34") :
+    itemId==="K3.5" ? $("#practiceK35") :
+    $("#practiceK4");
+
+  if(!practice) return;
+
+  practice.querySelectorAll(".previously-done-badge").forEach(el=>el.remove());
+  practice.querySelectorAll(".previously-done-task").forEach(el=>el.classList.remove("previously-done-task"));
+  practice.querySelectorAll(".previously-done-field").forEach(el=>el.classList.remove("previously-done-field"));
+
+  let marked=0;
+
+  if(k4PracticeData[itemId]){
+    const cards=[...practice.querySelectorAll(".math-input-card")];
+    cards.forEach((card,i)=>{
+      if(!rewardTaskWasCompleted(`base:${itemId}:${i}`)) return;
+      marked++;
+      card.classList.add("previously-done-task");
+
+      const input=card.querySelector("input");
+      if(input){
+        const wrap=input.parentElement;
+        if(wrap) wrap.classList.add("previously-done-field");
+      }
+
+      const expression=card.querySelector(".math-expression");
+      if(expression && !expression.querySelector(".previously-done-badge")){
+        const badge=document.createElement("span");
+        badge.className="previously-done-badge";
+        badge.setAttribute("aria-label","Schon einmal richtig bearbeitet");
+        badge.title="Schon einmal richtig bearbeitet";
+        badge.textContent="✓";
+        expression.appendChild(badge);
+      }
+    });
+  }else{
+    const keys=map[itemId] || [];
+    const tasks=[...practice.querySelectorAll(".task")];
+    keys.forEach((part,i)=>{
+      if(!rewardTaskWasCompleted(`base:${itemId}:${part}`)) return;
+      marked++;
+      addTitleDoneBadge(tasks[i]);
+    });
+  }
+
+  if(marked>0){
+    showPreviousDoneNotice(
+      practice,
+      marked===1
+        ? "✓ Eine Aufgabe hast du schon einmal richtig bearbeitet."
+        : `✓ ${marked} Aufgaben hast du schon einmal richtig bearbeitet.`
+    );
+  }
+}
+
+function applyDeepCompletionMarker(ex){
+  const view=$("#deepTaskView");
+  if(!view || !ex) return;
+
+  view.querySelectorAll(".previously-done-badge").forEach(el=>el.remove());
+  view.classList.remove("previously-done-task");
+
+  const progress=loadDeepProgress()[ex.id];
+  if(!progress?.success) return;
+
+  const title=$("#deepTaskTitle");
+  if(title){
+    const badge=document.createElement("span");
+    badge.className="previously-done-badge";
+    badge.setAttribute("aria-label","Schon einmal richtig bearbeitet");
+    badge.title="Schon einmal richtig bearbeitet";
+    badge.textContent="✓";
+    title.appendChild(badge);
+  }
+
+  view.classList.add("previously-done-task");
+  showPreviousDoneNotice(view,"✓ Diese Aufgabe hast du schon einmal richtig bearbeitet.");
+}
+function statusFor(id){
+  if(qualifiesMedal(id)) return "medal";
+  if(qualifiesVerySecure(id)) return "verysecure";
+  if(qualifiesSecure(id)) return "secure";
+  if(hasFoundationStatus(id)) return "foundation";
+  return "neutral";
+}
+
 function statusText(s){
-  return s==="verygood"?"Sehr sicher":s==="good"?"Sicher":s==="warn"?"In Bearbeitung":"Nicht geprüft";
+  if(s==="medal") return "🏅 Medaille";
+  if(s==="verysecure") return "✓✓✓ Sehr sicher";
+  if(s==="secure") return "✓✓ Sicher";
+  if(s==="foundation") return "✓ Grundlagen";
+  if(s==="good" || s==="warn") return "In Bearbeitung";
+  return "Nicht geprüft";
 }
 
 function renderHome(){
@@ -5358,6 +9507,8 @@ function renderHome(){
     grid.innerHTML = "";
     group.items.forEach(item => {
       const s = statusFor(item.id);
+      const baseProgress=baseButtonProgress(item.id);
+      const deepProgress=deepButtonProgress(item.id);
       const btn = document.createElement("div");
       btn.className="card " + (item.active ? "available" : "");
       btn.setAttribute("role","group");
@@ -5367,8 +9518,20 @@ function renderHome(){
           <div class="card-title">${item.title}</div>
         </div>
         <div class="card-actions">
-          <button type="button" class="row-action primary-row" data-action="detail">Aufgaben & Buchseiten</button>
-          <button type="button" class="row-action" data-action="deep">Vertiefende Übungen</button>
+          <button
+            type="button"
+            class="row-action primary-row progress-action ${baseProgress.total>0 && baseProgress.correct===baseProgress.total?"progress-complete":""}"
+            data-action="detail"
+            style="--progress-pct:${baseProgress.pct}%"
+            aria-label="Aufgaben und Buchseiten: ${baseProgress.correct} von ${baseProgress.total} richtig bearbeitet"
+          >${progressButtonMarkup("Aufgaben & Buchseiten",baseProgress)}</button>
+          <button
+            type="button"
+            class="row-action progress-action ${deepProgress.total>0 && deepProgress.correct===deepProgress.total?"progress-complete":""}"
+            data-action="deep"
+            style="--progress-pct:${deepProgress.pct}%"
+            aria-label="Vertiefende Übungen: ${deepProgress.correct} von ${deepProgress.total} richtig bearbeitet"
+          >${progressButtonMarkup("Vertiefende Übungen",deepProgress)}</button>
         </div>
         <div class="card-spacer"></div>
         <span class="status ${s}">${statusText(s)}</span>
@@ -5381,13 +9544,21 @@ function renderHome(){
 
       const savedRating=selfRatingFor(item.id);
       btn.querySelectorAll("[data-self-rating]").forEach(ratingBtn=>{
-        ratingBtn.classList.toggle("selected",ratingBtn.dataset.selfRating===savedRating);
+        const initiallySelected=ratingBtn.dataset.selfRating===savedRating;
+        ratingBtn.classList.toggle("selected",initiallySelected);
+        ratingBtn.setAttribute("aria-pressed",String(initiallySelected));
+
         ratingBtn.addEventListener("click",(e)=>{
           e.stopPropagation();
-          const selected=ratingBtn.dataset.selfRating;
+
+          const turnOff=ratingBtn.classList.contains("selected");
+          const selected=turnOff ? null : ratingBtn.dataset.selfRating;
           setSelfRating(item.id,selected);
+
           btn.querySelectorAll("[data-self-rating]").forEach(b=>{
-            b.classList.toggle("selected",b.dataset.selfRating===selected);
+            const isSelected=selected!==null && b.dataset.selfRating===selected;
+            b.classList.toggle("selected",isSelected);
+            b.setAttribute("aria-pressed",String(isSelected));
           });
         });
       });
@@ -5414,13 +9585,15 @@ function renderHome(){
   if(checked===0){
     $("#summary").textContent="Noch keine Kompetenz geprüft.";
   }else{
-    const verySecure=allItems.filter(i=>statusFor(i.id)==="verygood").length;
-    const secure=allItems.filter(i=>statusFor(i.id)==="good").length;
-    const practice=allItems.filter(i=>statusFor(i.id)==="warn").length;
+    const medals=allItems.filter(i=>statusFor(i.id)==="medal").length;
+    const verySecure=allItems.filter(i=>statusFor(i.id)==="verysecure").length;
+    const secure=allItems.filter(i=>statusFor(i.id)==="secure").length;
+    const foundations=allItems.filter(i=>statusFor(i.id)==="foundation").length;
     const parts=[];
+    if(medals) parts.push(`🏅 ${medals} mit Medaille`);
     if(verySecure) parts.push(`${verySecure} sehr sicher`);
     if(secure) parts.push(`${secure} sicher`);
-    if(practice) parts.push(`${practice} in Bearbeitung`);
+    if(foundations) parts.push(`${foundations} Grundlagen`);
     parts.push(`${checked} geprüft`);
     $("#summary").textContent=parts.join(" · ");
   }
@@ -5478,8 +9651,11 @@ function renderDeepCollection(competencyId){
 
   if(exercises.length){
     $("#deepProgressNote").innerHTML=
-      `<strong>${stats.success} Vertiefungsaufgaben geschafft.</strong> `+
-      `Für „Sehr sicher“ brauchst du eine sichere Basiskompetenz und mindestens 3 richtig gelöste Vertiefungsaufgaben, davon mindestens eine aus Stufe 2 oder 3.`;
+      `<strong>${stats.success} von ${exercises.length} Vertiefungsaufgaben geschafft.</strong> `+
+      `✓ Grundlagen: alle Aufgaben aus „Aufgaben & Buchseiten“ richtig. `+
+      `✓✓ Sicher: Grundlagen erreicht + mindestens 3 richtig gelöste Vertiefungsaufgaben, davon mindestens eine aus Stufe 2 oder 3. `+
+      `✓✓✓ Sehr sicher: mindestens 6 richtig gelöste Vertiefungsaufgaben. `+
+      `🏅 Medaille: alle Vertiefungsaufgaben richtig gelöst.`;
   }else{
     $("#deepProgressNote").textContent="";
   }
@@ -6233,6 +10409,7 @@ function openDeepExercise(ex){
   renderDeepControl(ex);
   resetDeepHelp(ex);
   window.scrollTo({top:0,behavior:"smooth"});
+  applyDeepCompletionMarker(ex);
 }
 
 function renderDeepControl(ex){
@@ -6296,11 +10473,26 @@ function renderDeepControl(ex){
 
   if(ex.type==="judge"){
     const judgeOptions=shuffle(["Richtig","Falsch"]);
+    const evidenceLabels=ex.evidenceLabels || [];
     wrap.innerHTML=`
       <div class="deep-judge">
         ${judgeOptions.map(option=>`<label><input type="radio" name="deepJudge" value="${option}"> ${option}</label>`).join("")}
       </div>
-      <textarea id="deepReasonText" placeholder="Optional: Begründe deine Entscheidung oder notiere ein Gegenbeispiel."></textarea>
+
+      <div class="judge-evidence">
+        <div class="judge-evidence-title">${ex.evidencePrompt || "Gib ein mathematisch passendes Beispiel oder Gegenbeispiel an."}</div>
+        <div class="deep-multi">
+          ${evidenceLabels.map((label,i)=>`
+            <div class="deep-multi-field">
+              <label for="deepJudgeEvidence${i}">${label}</label>
+              <input id="deepJudgeEvidence${i}" type="text" inputmode="decimal" autocomplete="off" placeholder="Zahl eingeben">
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <label class="deep-reason-label" for="deepReasonText">Optional: Deine Begründung</label>
+      <textarea id="deepReasonText" placeholder="Du kannst zusätzlich erklären, warum dein Beispiel zur Aussage passt."></textarea>
     `;
     return;
   }
@@ -6440,22 +10632,40 @@ function checkDeepExercise(){
 
   if(ex.type==="judge"){
     const chosen=document.querySelector('input[name="deepJudge"]:checked');
-    valid=!!chosen;
-    correct=valid && chosen.value===ex.answer;
+    const evidenceValues=(ex.evidenceLabels || []).map((_,i)=>parseRational($("#deepJudgeEvidence"+i)?.value));
+    const evidenceComplete=evidenceValues.length>0 && evidenceValues.every(v=>v.valid);
+    valid=!!chosen && evidenceComplete;
+
+    if(valid){
+      const values=evidenceValues.map(v=>v.value);
+      const evidenceOk=typeof ex.evidenceCheck==="function" && !!ex.evidenceCheck(values);
+      correct=chosen.value===ex.answer && evidenceOk;
+    }
   }
 
   if(!valid){
     feedback.className="deep-feedback show bad";
-    feedback.innerHTML=["judge","choiceReason"].includes(ex.type)
-      ? "<strong>Noch keine Auswahl getroffen.</strong> Wähle zuerst eine Antwort aus."
-      : ["numberReason","multiNumberReason","signReason"].includes(ex.type)
-        ? "<strong>Noch nicht vollständig.</strong> Fülle zuerst die überprüfbaren Felder aus."
-        : "<strong>Noch keine vollständige Antwort.</strong> Bearbeite die Aufgabe zuerst.";
+    if(ex.type==="judge"){
+      const chosen=document.querySelector('input[name="deepJudge"]:checked');
+      feedback.innerHTML=!chosen
+        ? "<strong>Noch keine Auswahl getroffen.</strong> Entscheide zuerst zwischen Richtig und Falsch."
+        : "<strong>Beispiel noch nicht vollständig.</strong> Trage alle Zahlen für dein Beispiel oder Gegenbeispiel ein.";
+    }else{
+      feedback.innerHTML=ex.type==="choiceReason"
+        ? "<strong>Noch keine Auswahl getroffen.</strong> Wähle zuerst eine Antwort aus."
+        : ["numberReason","multiNumberReason","signReason"].includes(ex.type)
+          ? "<strong>Noch nicht vollständig.</strong> Fülle zuerst die überprüfbaren Felder aus."
+          : "<strong>Noch keine vollständige Antwort.</strong> Bearbeite die Aufgabe zuerst.";
+    }
     return;
   }
 
   feedback.className="deep-feedback show "+(correct?"ok":"bad");
-  if(ex.type==="judge" || ex.type==="choiceReason"){
+  if(ex.type==="judge"){
+    feedback.innerHTML=correct
+      ? "<strong>Richtig.</strong> Deine Entscheidung und dein Beispiel bzw. Gegenbeispiel passen mathematisch zusammen."
+      : "<strong>Noch nicht richtig.</strong> Prüfe sowohl deine Entscheidung als auch die eingetragenen Zahlen.";
+  }else if(ex.type==="choiceReason"){
     feedback.innerHTML=correct
       ? "<strong>Deine Auswahl ist richtig.</strong> Eine zusätzliche Begründung kannst du später mit der Musterlösung vergleichen."
       : "<strong>Die Auswahl passt noch nicht.</strong> Nutze bei Bedarf die Denkanstöße und prüfe noch einmal.";
@@ -6466,15 +10676,26 @@ function checkDeepExercise(){
   }
 
   const before=loadDeepProgress()[ex.id] || {};
+  const competencyStatusBefore=currentItem ? statusFor(currentItem.id) : null;
   markDeepProgress(ex,{attempted:true,success:correct});
 
   if(correct && !before.viewed){
     const earnedNow=awardCoins(`deep:${ex.id}`,deepCoinValue(ex));
     feedback.innerHTML+=rewardText(earnedNow);
+    celebrateCoins(earnedNow,feedback);
   }
 
-  if(correct && currentItem && qualifiesVerySecure(currentItem.id)){
-    feedback.innerHTML += " <strong>Dein Status für diese Kompetenz ist jetzt „Sehr sicher“.</strong>";
+  if(correct && currentItem){
+    const competencyStatusAfter=statusFor(currentItem.id);
+    if(competencyStatusAfter!==competencyStatusBefore){
+      if(competencyStatusAfter==="secure"){
+        feedback.innerHTML += " <strong>✓✓ Dein Status ist jetzt „Sicher“.</strong>";
+      }else if(competencyStatusAfter==="verysecure"){
+        feedback.innerHTML += " <strong>✓✓✓ Dein Status ist jetzt „Sehr sicher“.</strong>";
+      }else if(competencyStatusAfter==="medal"){
+        feedback.innerHTML += " <strong>🏅 Du hast alle Vertiefungsaufgaben geschafft und erhältst die Medaille.</strong>";
+      }
+    }
   }
 }
 
@@ -6511,6 +10732,8 @@ function openDetail(item){
   if(item.id==="K3.4") resetK34();
   if(item.id==="K3.5") resetK35();
   if(isK4) renderK4Practice(item.id);
+
+  applyBaseCompletionMarkers(item.id);
   show("detail");
 }
 
@@ -6691,14 +10914,24 @@ function checkK4Practice(){
       "Prüfe die noch fehlerhaften Rechnungen.";
   }
   f.innerHTML+=rewardText(earnedNow);
+  celebrateCoins(earnedNow,f);
 
   const threshold=Math.ceil(total*0.8);
   const status=score>=threshold?"good":"warn";
   const progress=loadProgress();
-  progress[currentItem.id]={status,score,total,updated:Date.now()};
+  progress[currentItem.id]={
+    status,
+    score,
+    bestScore:Math.max(
+      Number(progress[currentItem.id]?.bestScore ?? progress[currentItem.id]?.score ?? 0),
+      score
+    ),
+    total,
+    updated:Date.now()
+  };
   saveProgress(progress);
 
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor(currentItem.id))+".";
   $("#k4OverallResult").className="result show";
   $("#k4OverallHeadline").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#k4OverallText").textContent=`Du hast ${score} von ${total} Aufgaben aus dem Kompetenz-Check richtig bearbeitet. `+
@@ -6944,14 +11177,23 @@ function checkK31(){
   }
 
   fa.innerHTML+=rewardText(earnedA);
+
+  celebrateCoins(earnedA,fa);
   fb.innerHTML+=rewardText(earnedB);
+  celebrateCoins(earnedB,fb);
 
   const total=aScore+bScore;
   const status=total>=7?"good":"warn";
   const p=loadProgress();
-  p["K3.1"]={status,score:total,total:8,updated:Date.now()};
+  p["K3.1"]={
+    status,
+    score:total,
+    bestScore:Math.max(Number(p["K3.1"]?.bestScore ?? p["K3.1"]?.score ?? 0),total),
+    total:8,
+    updated:Date.now()
+  };
   saveProgress(p);
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor("K3.1"))+".";
   $("#overallResult31").className="result show";
   $("#overallHeadline31").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#overallText31").textContent=`Du hast ${total} von 8 Teilanforderungen richtig bearbeitet. `+
@@ -7022,14 +11264,23 @@ function checkK32(){
     : `<strong>${bScore} von 3 Gegenzahlen richtig.</strong> ${bVals.filter(v=>!v.valid).length?"Mindestens eine Eingabe ist keine gültige Zahl. ":""}Prüfe bei jeder Zahl das Vorzeichen.`;
 
   fa.innerHTML+=rewardText(earnedA);
+
+  celebrateCoins(earnedA,fa);
   fb.innerHTML+=rewardText(earnedB);
+  celebrateCoins(earnedB,fb);
 
   const total=aScore+bScore;
   const status=total>=5?"good":"warn";
   const p=loadProgress();
-  p["K3.2"]={status,score:total,total:6,updated:Date.now()};
+  p["K3.2"]={
+    status,
+    score:total,
+    bestScore:Math.max(Number(p["K3.2"]?.bestScore ?? p["K3.2"]?.score ?? 0),total),
+    total:6,
+    updated:Date.now()
+  };
   saveProgress(p);
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor("K3.2"))+".";
   $("#overallResult32").className="result show";
   $("#overallHeadline32").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#overallText32").textContent=`Du hast ${total} von 6 Teilanforderungen richtig bearbeitet. `+
@@ -7287,14 +11538,23 @@ function checkK34(){
     : `<strong>${bScore} von 4 Punkten richtig.</strong> ${missing?`${missing} Punkt${missing===1?" fehlt":"e fehlen"}. `:""}Prüfe die Lage der übrigen Punkte noch einmal.`;
 
   fa.innerHTML+=rewardText(earnedA);
+
+  celebrateCoins(earnedA,fa);
   fb.innerHTML+=rewardText(earnedB);
+  celebrateCoins(earnedB,fb);
 
   const total=aScore+bScore;
   const status=total>=7?"good":"warn";
   const p=loadProgress();
-  p["K3.4"]={status,score:total,total:8,updated:Date.now()};
+  p["K3.4"]={
+    status,
+    score:total,
+    bestScore:Math.max(Number(p["K3.4"]?.bestScore ?? p["K3.4"]?.score ?? 0),total),
+    total:8,
+    updated:Date.now()
+  };
   saveProgress(p);
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor("K3.4"))+".";
   $("#overallResult34").className="result show";
   $("#overallHeadline34").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#overallText34").textContent=`Du hast ${total} von 8 Teilanforderungen richtig bearbeitet. `+
@@ -7361,12 +11621,19 @@ function checkK35(){
       "Beachte Richtung und Länge jedes Pfeils.";
   }
   f.innerHTML+=rewardText(earnedNow);
+  celebrateCoins(earnedNow,f);
 
   const status=score===3?"good":"warn";
   const p=loadProgress();
-  p["K3.5"]={status,score,total:3,updated:Date.now()};
+  p["K3.5"]={
+    status,
+    score,
+    bestScore:Math.max(Number(p["K3.5"]?.bestScore ?? p["K3.5"]?.score ?? 0),score),
+    total:3,
+    updated:Date.now()
+  };
   saveProgress(p);
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor("K3.5"))+".";
   $("#overallResult35").className="result show";
   $("#overallHeadline35").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#overallText35").textContent=`Du hast ${score} von 3 Zustandsänderungen richtig bestimmt. `+
@@ -7374,7 +11641,7 @@ function checkK35(){
 }
 
 
-const testState={items:[],checked:false};
+const testState={items:[],checked:false,runId:null};
 
 function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
@@ -7881,7 +12148,15 @@ function deepExerciseToTest(ex,competencyId){
   }
 
   if(ex.type==="judge"){
-    return {...base,type:"choice",options:["Richtig","Falsch"],answer:ex.answer};
+    return {
+      ...base,
+      type:"judgeEvidence",
+      options:["Richtig","Falsch"],
+      answer:ex.answer,
+      evidencePrompt:ex.evidencePrompt,
+      labels:[...(ex.evidenceLabels||[])],
+      checkEvidence:ex.evidenceCheck
+    };
   }
 
   if(ex.type==="multiNumber"){
@@ -7905,6 +12180,7 @@ function deepTestCandidates(){
       if(!preview) return;
       if(preview.type==="input" && preview.answer===null && !preview.check) return;
       if(preview.type==="multiInput" && !preview.check) return;
+      if(preview.type==="judgeEvidence" && !preview.checkEvidence) return;
 
       candidates.push({
         id:`deep:${ex.id}`,
@@ -7976,6 +12252,7 @@ function buildTest(){
   }));
 
   testState.checked=false;
+  testState.runId=`${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
   renderTest();
 }
 
@@ -8118,6 +12395,18 @@ function renderTest(){
 
     if(q.type==="input"){
       controls=`<input class="test-input" data-test-input="${i}" inputmode="decimal" placeholder="Antwort eingeben">`;
+    }else if(q.type==="judgeEvidence"){
+      const judgeOptions=shuffle(q.options || ["Richtig","Falsch"]);
+      controls=`
+        <div class="test-options">
+          ${judgeOptions.map(opt=>`<label class="test-option"><input type="radio" name="test-${i}" value="${escAttr(opt)}"><span>${opt}</span></label>`).join("")}
+        </div>
+        <div class="test-evidence">
+          <div class="test-evidence-prompt">${q.evidencePrompt || "Gib ein mathematisch passendes Beispiel oder Gegenbeispiel an."}</div>
+          <div class="test-multi-inputs">
+            ${q.labels.map((label,j)=>`<label>${label}<input class="test-input" data-test-evidence="${i}-${j}" inputmode="decimal" placeholder="Zahl"></label>`).join("")}
+          </div>
+        </div>`;
     }else if(q.type==="multiInput"){
       controls=`<div class="test-multi-inputs">${q.labels.map((label,j)=>`
         <label>${label}<input class="test-input" data-test-multi="${i}-${j}" inputmode="decimal" placeholder="Antwort"></label>
@@ -8145,11 +12434,22 @@ function renderTest(){
   $("#testScore").textContent="Noch nicht überprüft.";
   $("#showSolutionsBtn").classList.add("hidden");
   $("#checkTestBtn").classList.remove("hidden");
+  $("#checkTestBtn").disabled=false;
+  $("#checkTestBtn").textContent="Überprüfen";
 }
 function getTestAnswer(q,i){
   if(q.type==="input"){
     const p=parseRational(document.querySelector(`[data-test-input="${i}"]`).value);
     return p.valid?p.value:null;
+  }
+
+  if(q.type==="judgeEvidence"){
+    const choice=document.querySelector(`input[name="test-${i}"]:checked`)?.value??null;
+    const values=q.labels.map((_,j)=>{
+      const p=parseRational(document.querySelector(`[data-test-evidence="${i}-${j}"]`)?.value);
+      return p.valid?p.value:null;
+    });
+    return !choice || values.some(v=>v===null) ? null : {choice,values};
   }
 
   if(q.type==="multiInput"){
@@ -8177,6 +12477,12 @@ function isTestAnswerCorrect(q,ans){
   if(q.type==="input"){
     if(typeof q.check==="function") return !!q.check(ans);
     return Math.abs(ans-q.answer)<1e-9;
+  }
+
+  if(q.type==="judgeEvidence"){
+    return ans.choice===q.answer &&
+      typeof q.checkEvidence==="function" &&
+      !!q.checkEvidence(ans.values);
   }
 
   if(q.type==="multiInput"){
@@ -8210,9 +12516,28 @@ function checkTest(){
         : "<strong>Noch nicht richtig.</strong>";
   });
 
-  $("#testScore").textContent=`${score} von ${testState.items.length} Aufgaben richtig.`;
+  const total=testState.items.length;
+  $("#testScore").textContent=`${score} von ${total} Aufgaben richtig.`;
+
+  let testReward=0;
+  if(score===total) testReward=2;
+  else if(score===total-1) testReward=1;
+
+  if(testReward>0 && testState.runId){
+    const earnedNow=awardCoins(`test:${testState.runId}`,testReward);
+    if(earnedNow){
+      celebrateCoins(earnedNow,$(".test-window"),$("#checkTestBtn"));
+    }
+  }
+
+  testState.checked=true;
   $("#showSolutionsBtn").classList.remove("hidden");
-  $("#checkTestBtn").classList.add("hidden");
+
+  // Button bleibt an exakt derselben Stelle: kein Layoutsprung und kein Hochschrollen.
+  const checkBtn=$("#checkTestBtn");
+  checkBtn.classList.remove("hidden");
+  checkBtn.disabled=true;
+  checkBtn.textContent="Überprüft";
 }
 function showTestSolutions(){testState.items.forEach((_,i)=>$("#testSolution"+i).classList.add("show"))}
 function openTest(){
@@ -8362,16 +12687,26 @@ function checkAll(){
     : `<strong>${cScore} von 3 Angaben richtig.</strong> ${msgs.join(" ")}`;
 
   fa.innerHTML+=rewardText(earnedA);
+
+  celebrateCoins(earnedA,fa);
   fb.innerHTML+=rewardText(earnedB);
+  celebrateCoins(earnedB,fb);
   fc.innerHTML+=rewardText(earnedC);
+  celebrateCoins(earnedC,fc);
 
   const total=aScore+(bCorrect?1:0)+cScore;
   const status=total>=7?"good":"warn";
   const p=loadProgress();
-  p["K3.3"]={status,score:total,total:8,updated:Date.now()};
+  p["K3.3"]={
+    status,
+    score:total,
+    bestScore:Math.max(Number(p["K3.3"]?.bestScore ?? p["K3.3"]?.score ?? 0),total),
+    total:8,
+    updated:Date.now()
+  };
   saveProgress(p);
 
-  $("#statusNote").textContent="Status: "+statusText(status)+".";
+  $("#statusNote").textContent="Status: "+statusText(statusFor("K3.3"))+".";
   const result=$("#overallResult"); result.className="result show";
   $("#overallHeadline").textContent=status==="good"?"Kompetenz sicher":"In Bearbeitung";
   $("#overallText").textContent=`Du hast ${total} von 8 Teilanforderungen richtig bearbeitet. `+
@@ -8653,6 +12988,29 @@ $("#coinBadge").addEventListener("click",openRewardModal);
 $("#rewardCloseBtn").addEventListener("click",closeRewardModal);
 $("#rewardEnableBtn").addEventListener("click",enableRewardSystem);
 $("#rewardEnabledSwitch").addEventListener("change",toggleRewardSystemFromSwitch);
+$("#rewardGamesTab").addEventListener("click",()=>setRewardShopMode("games"));
+$("#rewardBadgesTab").addEventListener("click",()=>setRewardShopMode("badges"));
+$("#headerBadgeBtn").addEventListener("click",()=>{
+  rewardShopMode="badges";
+  openRewardModal();
+});
+$("#topBadgeZone").addEventListener("click",(e)=>{
+  const btn=e.target.closest("[data-badge-tooltip]");
+  if(!btn) return;
+  const badge=badgeById(btn.dataset.badgeTooltip);
+  if(badge) showMiniBadgeTooltip(btn,badge);
+});
+$("#badgeGallery").addEventListener("click",(e)=>{
+  const buy=e.target.closest("[data-buy-badge]");
+  if(buy){
+    buyBadge(buy.dataset.buyBadge);
+    return;
+  }
+  const showBadge=e.target.closest("[data-show-badge]");
+  if(showBadge){
+    selectDisplayedBadge(showBadge.dataset.showBadge);
+  }
+});
 
 document.querySelectorAll("[data-game]").forEach(btn=>{
   btn.addEventListener("click",()=>selectRewardGame(btn.dataset.game));
