@@ -5382,6 +5382,37 @@ body:not(.reward-theme-dark):not(.reward-theme-nebula) #deepCheckBtn:disabled{
   opacity:.72;
 }
 
+
+/* Mehrstufige Vertiefungsaufgaben */
+.deep-stage-group{
+  margin:12px 0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface2);
+}
+.deep-stage-kicker{
+  margin-bottom:3px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.deep-stage-title{
+  margin-bottom:4px;
+  color:var(--text);
+  font-size:14px;
+  font-weight:780;
+}
+.deep-stage-note{
+  margin-bottom:11px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+.deep-stage-group .deep-multi{margin-top:0}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -6624,19 +6655,19 @@ const deepExercises = {
         "−4,8 + 1,2 + 6,2"
       ],
       answer:"4,8 + 1,2 + (−6,2)",
-      solution:"Die erste Zahl ist <strong>−6,2</strong>. Beim Umordnen muss dieses Minus bei der 6,2 bleiben. Korrekt ist daher <strong>4,8 + 1,2 + (−6,2)</strong>."},
+      solution:"Die erste Zahl ist <strong>−6,2</strong>; das − ist ihr negatives Vorzeichen. Beim Umordnen der Summanden bleibt dieses Vorzeichen bei der Zahl. Korrekt ist daher <strong>4,8 + 1,2 + (−6,2)</strong>."},
     {id:"K41B-06",level:2,kind:"Rückwärts",title:"Vier Zahlen ergeben zusammen null",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>6,8 + (−2,3) + (−1,5) + □ = 0</strong>",expected:-3,
       solution:"6,8 − 2,3 − 1,5 = 3,0. In die Lücke gehört <strong>−3,0</strong>."},
     {id:"K41B-07",level:2,kind:"Begründen",title:"Rechnung berechnen",
-      type:"judge",prompt:"Beurteile: <strong>Bei einer Addition darfst du die Zahlen vertauschen, wenn das Vorzeichen bei der jeweiligen Zahl bleibt.</strong>",answer:"Richtig",
+      type:"judge",prompt:"Beurteile: <strong>Bei einer Summe vorzeichenbehafteter Zahlen dürfen die Summanden vertauscht werden; dabei bleibt das Vorzeichen bei der jeweiligen Zahl.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["1. Zahl","2. Zahl","3. Zahl"],
       evidenceCheck:(v)=>{if(v.length!==3)return false;const a=[...v].sort((x,y)=>x-y);const same=a.every((x,i)=>Math.abs(x-[-7,2,4][i])<1e-9);const unchanged=Math.abs(v[0]-4)<1e-9&&Math.abs(v[1]+7)<1e-9&&Math.abs(v[2]-2)<1e-9;return same&&!unchanged;},
-      solution:"Das ist genau die Regel zum Vertauschen bei vorzeichenbehafteten Zahlen."},
+      solution:"Beim Vertauschen ändert sich nur die Reihenfolge der Summanden. Das Vorzeichen gehört weiterhin zur jeweiligen Zahl."},
     {id:"K41B-08",level:2,kind:"Sachaufgabe",title:"Rechnung berechnen",
       type:"number",prompt:"Vier Änderungen lauten <strong>+4,8; −1,3; +1,2; −4,7</strong>. Bestimme die Gesamtänderung möglichst geschickt.",expected:0,
-      solution:"+4,8 + 1,2 = +6,0 und −1,3 − 4,7 = −6,0. Zusammen ergibt das <strong>0</strong>."},
+      solution:"(+4,8) + (+1,2) = +6,0 und (−1,3) + (−4,7) = −6,0. Zusammen ergibt das <strong>0</strong>."},
     {id:"K41B-09",level:3,kind:"Eigenes Beispiel",title:"Erfinde vier passende Zahlen",
       type:"multiNumberReason",labels:["Zahl 1","Zahl 2","Zahl 3","Zahl 4"],
       check:(v)=>{
@@ -6703,7 +6734,7 @@ const deepExercises = {
       type:"choice",prompt:"Welche Rechnung ohne Zahlklammern passt zu <strong>8 + (−3) − (+5)</strong>?",
       options:["8 − 3 − 5","8 + 3 + 5","8 − 3 + 5"],
       answer:"8 − 3 − 5",
-      solution:"+ (−3) wird zu −3 und − (+5) bleibt −5."},
+      solution:"Das <strong>Rechenzeichen +</strong> vor (−3) führt beim Auflösen zum Subtrahieren von 3; das <strong>Rechenzeichen −</strong> vor (+5) bleibt ein Subtrahieren. Daher: 8 − 3 − 5."},
     {id:"K43A-02",level:1,kind:"Grundlage",title:"Drei Zahlklammern",
       type:"number",prompt:"Berechne: <strong>(−8) + (−3) − (+4)</strong>.",expected:-15,
       solution:"−8 − 3 − 4 = <strong>−15</strong>."},
@@ -6717,18 +6748,18 @@ const deepExercises = {
       type:"choice",prompt:"Welche Rechnung ohne Zahlklammern hat denselben Wert wie <strong>−4,2 − (−3,8) + (−1,1)</strong>?",
       options:["−4,2 + 3,8 − 1,1","−4,2 − 3,8 + 1,1","4,2 + 3,8 − 1,1"],
       answer:"−4,2 + 3,8 − 1,1",
-      solution:"−(−3,8) wird zu +3,8; +(−1,1) wird zu −1,1."},
+      solution:"Das Subtrahieren von <strong>(−3,8)</strong> wird zum Addieren von 3,8; das Addieren von <strong>(−1,1)</strong> wird zum Subtrahieren von 1,1."},
     {id:"K43A-06",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Umformung",
       type:"choice",prompt:"Nora formt <strong>5,6 − (−2,4)</strong> zu <strong>5,6 − 2,4</strong> um. Welche Korrektur ist nötig?",
       options:["Es muss 5,6 + 2,4 heißen.","Es muss −5,6 + 2,4 heißen.","Keine; die Umformung stimmt."],
       answer:"Es muss 5,6 + 2,4 heißen.",
       solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre positive Gegenzahl zu addieren."},
     {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Eine Aussage zu Zahlklammern",
-      type:"judge",prompt:"Beurteile: <strong>Steht ein Minus vor einer negativen Zahlklammer, wird beim Auflösen daraus ein Plus.</strong>",answer:"Richtig",
+      type:"judge",prompt:"Beurteile: <strong>Wird eine negative Zahl subtrahiert, kann man stattdessen ihre positive Gegenzahl addieren.</strong>",answer:"Richtig",
       evidencePrompt:"",
-      evidenceLabels:["Zahl in der Klammer","Ergebnis"],
+      evidenceLabels:["Zahl in der Klammer","Zahl nach dem Auflösen"],
       evidenceCheck:(v)=>v.length===2 && v[0]<0 && Math.abs(v[1]+v[0])<1e-9 && v[1]>0,
-      solution:"Für eine negative Zahl −a gilt: −(−a) = +a."},
+      solution:"Für a &gt; 0 gilt zum Beispiel: <strong>x − (−a) = x + a</strong>. Das erste − ist dabei ein Rechenzeichen; das − in (−a) ist das Vorzeichen der negativen Zahl."},
     {id:"K43A-08",level:2,kind:"Betrag",title:"Rechnung mit Betrag",
       type:"number",
       prompt:"Berechne:<br><strong>−4 + |−3 − (+5)|</strong>",
@@ -6755,21 +6786,21 @@ const deepExercises = {
     {id:"K43B-01",level:1,kind:"Rechenidee",title:"Rechnung berechnen",
       type:"choice",prompt:"Welche <strong>korrekte Umordnung</strong> ist für <strong>−2,5 + 3,1 − 1,5 + 1,9</strong> besonders günstig?",
       options:[
-        "(−2,5 − 1,5) + (3,1 + 1,9)",
-        "−2,5 + 3,1 + 1,9 − 1,5",
-        "3,1 − 1,5 + 1,9 − 2,5"
+        "[(−2,5) + (−1,5)] + [(+3,1) + (+1,9)]",
+        "(+3,1) + (−1,5) + (+1,9) + (−2,5)",
+        "(+1,9) + (−2,5) + (+3,1) + (−1,5)"
       ],
-      answer:"(−2,5 − 1,5) + (3,1 + 1,9)",
-      solution:"Alle drei Umordnungen sind mathematisch korrekt. Besonders günstig ist es, die beiden negativen Zahlen zu <strong>−4</strong> und die beiden positiven Zahlen zu <strong>+5</strong> zusammenzufassen. So erhält man schnell <strong>1</strong>."},
+      answer:"[(−2,5) + (−1,5)] + [(+3,1) + (+1,9)]",
+      solution:"Schreibe den Term zuerst als Summe vorzeichenbehafteter Zahlen: <strong>(−2,5) + (+3,1) + (−1,5) + (+1,9)</strong>. Danach dürfen die Summanden umgeordnet werden. Besonders günstig ist (−2,5) + (−1,5) = −4 und (+3,1) + (+1,9) = +5. Ergebnis: <strong>1</strong>."},
     {id:"K43B-02",level:1,kind:"Grundlage",title:"Geschickt rechnen",
       type:"number",prompt:"Rechne vorteilhaft: <strong>7,4 − 2,6 + 0,6 − 5,4</strong>.",expected:0,
-      solution:"7,4 − 5,4 = 2 und −2,6 + 0,6 = −2. Zusammen ergibt das <strong>0</strong>."},
+      solution:"Schreibe zuerst <strong>(+7,4) + (−2,6) + (+0,6) + (−5,4)</strong>. Dann ist (+7,4) + (−5,4) = +2 und (−2,6) + (+0,6) = −2. Zusammen ergibt das <strong>0</strong>."},
     {id:"K43B-03",level:1,kind:"Rückwärts",title:"Rechnung auf null ergänzen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−4,8 + □ + 1,8 = 0</strong>",expected:3,
       solution:"−4,8 + 1,8 = −3. Also muss x = <strong>+3</strong> sein."},
     {id:"K43B-04",level:2,kind:"Strategie",title:"Eine Rechnung mit vier Termen",
       type:"number",prompt:"Rechne geschickt: <strong>−12,5 + 4,8 − 7,5 + 5,2</strong>.",expected:-10,
-      solution:"−12,5 − 7,5 = −20 und 4,8 + 5,2 = 10. Zusammen <strong>−10</strong>."},
+      solution:"Schreibe zuerst <strong>(−12,5) + (+4,8) + (−7,5) + (+5,2)</strong>. Dann ist (−12,5) + (−7,5) = −20 und (+4,8) + (+5,2) = +10. Zusammen <strong>−10</strong>."},
     {id:"K43B-05",level:2,kind:"Fehler finden",title:"Welche Umordnung stimmt?",
       type:"choice",
       prompt:"Welche Umordnung von <strong>−8 + 3 − 2 + 7</strong> ist mathematisch korrekt?",
@@ -6779,36 +6810,84 @@ const deepExercises = {
         "−3 + 7 + 8 − 2"
       ],
       answer:"3 + 7 + (−8) + (−2)",
-      solution:"Schreibe die Rechnung als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + 3 + (−2) + 7</strong>. Beim Umordnen bleiben <strong>−8</strong> und <strong>−2</strong> negativ."},
-    {id:"K43B-06",level:2,kind:"Aussage prüfen",title:"Eine Aussage zum Umordnen",
-      type:"judge",prompt:"Beurteile: <strong>Beim vorteilhaften Umordnen eines Additions- und Subtraktionsterms muss das Vorzeichen zusammen mit der Zahl verschoben werden.</strong>",answer:"Richtig",
-      evidencePrompt:"",
-      evidenceLabels:["1. Zahl","2. Zahl","3. Zahl","4. Zahl"],
-      evidenceCheck:(v)=>{if(v.length!==4)return false;const a=[...v].sort((x,y)=>x-y);const target=[-5,-2,3,7];const same=a.every((x,i)=>Math.abs(x-target[i])<1e-9);const unchanged=Math.abs(v[0]+5)<1e-9&&Math.abs(v[1]-3)<1e-9&&Math.abs(v[2]+2)<1e-9&&Math.abs(v[3]-7)<1e-9;return same&&!unchanged;},
-      solution:"Nach dem Umschreiben als Summe vorzeichenbehafteter Zahlen ist jeder Zahl eine Einheit aus Zahl und Vorzeichen."},
+      solution:"Im Ausgangsterm ist das − am Anfang das Vorzeichen von −8; das − zwischen 3 und 2 ist ein Rechenzeichen. Schreibe zuerst als Summe vorzeichenbehafteter Zahlen: <strong>(−8) + (+3) + (−2) + (+7)</strong>. Danach dürfen die Summanden umgeordnet werden, ohne ihre Vorzeichen zu ändern."},
+    {id:"K43B-06",level:2,kind:"Mehrschrittig",title:"Einen Term umordnen",
+      type:"multiNumberReason",
+      labels:[
+        "1. Summand","2. Summand","3. Summand","4. Summand",
+        "1. Summand nach dem Umordnen","2. Summand nach dem Umordnen","3. Summand nach dem Umordnen","4. Summand nach dem Umordnen",
+        "Ergebnis"
+      ],
+      stageGroups:[
+        {title:"1. Als Summe schreiben",note:"Schreibe −5 + 3 − 2 + 7 als Summe vorzeichenbehafteter Zahlen. Trage die vier Summanden in der ursprünglichen Reihenfolge ein.",count:4},
+        {title:"2. Vorteilhaft umordnen",note:"Ordne genau dieselben vier Summanden so um, dass die beiden positiven und die beiden negativen Summanden jeweils nebeneinander stehen.",count:4},
+        {title:"3. Berechnen",note:"Gib den Wert des Terms an.",count:1}
+      ],
+      showReason:false,
+      check:(v)=>{
+        if(v.length!==9)return false;
+        const first=v.slice(0,4), second=v.slice(4,8), result=v[8];
+        const expected=[-5,3,-2,7];
+        const sameOrder=first.every((x,i)=>Math.abs(x-expected[i])<1e-9);
+        const sortedSecond=[...second].sort((a,b)=>a-b);
+        const sortedExpected=[...expected].sort((a,b)=>a-b);
+        const sameValues=sortedSecond.every((x,i)=>Math.abs(x-sortedExpected[i])<1e-9);
+        const changed=second.some((x,i)=>Math.abs(x-expected[i])>1e-9);
+        const grouped=(second[0]>0&&second[1]>0&&second[2]<0&&second[3]<0)||(second[0]<0&&second[1]<0&&second[2]>0&&second[3]>0);
+        return sameOrder&&sameValues&&changed&&grouped&&Math.abs(result-3)<1e-9;
+      },
+      correctFeedback:"<strong>Richtig.</strong> Du hast den Additions- und Subtraktionsterm zuerst korrekt als Summe vorzeichenbehafteter Zahlen geschrieben und danach genau diese Summanden sinnvoll umgeordnet.",
+      incorrectFeedback:"<strong>Noch nicht richtig.</strong> Prüfe nacheinander: Sind die vier Summanden beim Umschreiben korrekt? Kommen beim Umordnen exakt dieselben vorzeichenbehafteten Zahlen vor? Sind positive und negative Summanden jeweils zusammengefasst? Stimmt das Ergebnis?",
+      prompt:"Bearbeite den Term <strong>−5 + 3 − 2 + 7</strong> in drei Schritten. Achte darauf: Im Ausgangsterm ist das erste − das Vorzeichen der Zahl −5; die Zeichen zwischen den Zahlen sind Rechenzeichen.",
+      solution:"<strong>1.</strong> Als Summe: (−5) + (+3) + (−2) + (+7).<br><strong>2.</strong> Zum Beispiel: (+3) + (+7) + (−5) + (−2).<br><strong>3.</strong> +10 + (−7) = <strong>3</strong>."},
     {id:"K43B-07",level:2,kind:"Rückwärts",title:"Fehlende Zahl bestimmen",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit am Ende 0 herauskommt?<br><strong>−3,7 + 8,2 − 1,3 + □ = 0</strong>",expected:-3.2,
       solution:"−3,7 + 8,2 − 1,3 = 3,2. In die Lücke gehört <strong>−3,2</strong>."},
     {id:"K43B-08",level:2,kind:"Lösungsweg",title:"Welche Strategie ist am günstigsten?",
       type:"choice",prompt:"Für <strong>9,8 − 4,3 − 5,7 + 0,2</strong>: Welche Idee ist besonders günstig?",
-      options:["9,8 + 0,2 und −4,3 − 5,7 jeweils zusammenfassen.","Von links nach rechts alles schriftlich rechnen.","Alle Minuszeichen zunächst ignorieren."],
-      answer:"9,8 + 0,2 und −4,3 − 5,7 jeweils zusammenfassen.",
-      solution:"10 + (−10) = <strong>0</strong>. Die Zahlen sind bewusst so gewählt, dass passende Paare entstehen."},
-    {id:"K43B-09",level:3,kind:"Eigenes Beispiel",title:"Rechnung berechnen",
-      type:"multiNumberReason",labels:["erste Zahl","zweite Zahl (negativ)","dritte Zahl"],
-      check:(v)=>v.length===3 && v.every(Number.isFinite) && v[1]<0,
-      prompt:"Erfinde drei Zahlen. Die zweite Zahl soll negativ sein. Trage die drei Zahlen ein. Erkläre dann mit deinem Beispiel: Wenn du die Reihenfolge beim Addieren änderst, warum muss das Vorzeichen immer bei seiner Zahl bleiben?",
-      solution:"Zum Beispiel 7; −3; 2. Du kannst 7 + (−3) + 2 auch als 7 + 2 + (−3) rechnen. Das Ergebnis bleibt gleich, weil die −3 beim Verschieben negativ bleibt."},
-    {id:"K43B-10",level:3,kind:"Knobeln",title:"Plus und Minus so setzen, dass 0 entsteht",
+      options:["Nach dem Umschreiben (+9,8) + (+0,2) sowie (−4,3) + (−5,7) zusammenfassen.","Von links nach rechts alles schriftlich rechnen.","Die Rechenzeichen − zunächst ignorieren."],
+      answer:"Nach dem Umschreiben (+9,8) + (+0,2) sowie (−4,3) + (−5,7) zusammenfassen.",
+      solution:"Schreibe zuerst als Summe vorzeichenbehafteter Zahlen: <strong>(+9,8) + (−4,3) + (−5,7) + (+0,2)</strong>. Dann ergeben (+9,8) + (+0,2) = +10 und (−4,3) + (−5,7) = −10. Zusammen <strong>0</strong>."},
+    {id:"K43B-09",level:3,kind:"Eigenes Beispiel",title:"Eine eigene Summe umordnen",
+      type:"multiNumberReason",
+      labels:[
+        "1. Summand","2. Summand","3. Summand","4. Summand",
+        "1. Summand nach dem Umordnen","2. Summand nach dem Umordnen","3. Summand nach dem Umordnen","4. Summand nach dem Umordnen",
+        "Ergebnis"
+      ],
+      stageGroups:[
+        {title:"1. Eigene Summanden wählen",note:"Erfinde vier verschiedene von 0 verschiedene rationale Zahlen: genau zwei positive und zwei negative.",count:4},
+        {title:"2. Dieselben Summanden umordnen",note:"Ordne exakt dieselben vier Summanden in einer anderen Reihenfolge. Die beiden positiven und die beiden negativen Summanden sollen jeweils nebeneinander stehen.",count:4},
+        {title:"3. Summe bestimmen",note:"Berechne den Wert deiner Summe.",count:1}
+      ],
+      showReason:false,
+      check:(v)=>{
+        if(v.length!==9)return false;
+        const first=v.slice(0,4), second=v.slice(4,8), result=v[8];
+        const nonZero=first.every(x=>Math.abs(x)>1e-9);
+        const distinct=first.every((x,i)=>first.every((y,j)=>i===j||Math.abs(x-y)>1e-9));
+        const positives=first.filter(x=>x>0).length, negatives=first.filter(x=>x<0).length;
+        const sortedFirst=[...first].sort((a,b)=>a-b), sortedSecond=[...second].sort((a,b)=>a-b);
+        const sameValues=sortedFirst.every((x,i)=>Math.abs(x-sortedSecond[i])<1e-9);
+        const changed=second.some((x,i)=>Math.abs(x-first[i])>1e-9);
+        const grouped=(second[0]>0&&second[1]>0&&second[2]<0&&second[3]<0)||(second[0]<0&&second[1]<0&&second[2]>0&&second[3]>0);
+        const sum=first.reduce((a,b)=>a+b,0);
+        return nonZero&&distinct&&positives===2&&negatives===2&&sameValues&&changed&&grouped&&Math.abs(result-sum)<1e-9;
+      },
+      correctFeedback:"<strong>Richtig.</strong> Du hast eine eigene Summe mit positiven und negativen Summanden konstruiert, exakt dieselben Summanden umgeordnet und den Wert korrekt berechnet.",
+      incorrectFeedback:"<strong>Noch nicht richtig.</strong> Prüfe die Bedingungen: vier verschiedene Zahlen ungleich 0, genau zwei positive und zwei negative; beim Umordnen exakt dieselben Summanden; eine andere Reihenfolge mit gruppierten Vorzeichen; korrektes Ergebnis.",
+      prompt:"Konstruiere selbst eine Summe vorzeichenbehafteter Zahlen und zeige, dass beim Umordnen nur die Reihenfolge der Summanden verändert wird.",
+      solution:"Beispiel: <strong>(+1,5) + (−4) + (+2,5) + (−1)</strong>. Eine passende Umordnung ist <strong>(+1,5) + (+2,5) + (−4) + (−1)</strong>. Es kommen genau dieselben vier Summanden mit denselben Vorzeichen vor. Die Summe ist in beiden Reihenfolgen <strong>−1</strong>."},
+    {id:"K43B-10",level:3,kind:"Knobeln",title:"Rechenzeichen so setzen, dass 0 entsteht",
       type:"signReason",numbers:[6.4,2.6,1.4,7.6],
-      prompt:"Setze zwischen <strong>6,4; 2,6; 1,4; 7,6</strong> jeweils ein Plus- oder Minuszeichen. Am Ende soll <strong>0</strong> herauskommen. Wähle die Zeichen und erkläre danach, wie du die Zahlen geschickt zusammenfasst.",
+      prompt:"Setze zwischen <strong>6,4; 2,6; 1,4; 7,6</strong> jeweils das Rechenzeichen + oder −. Am Ende soll <strong>0</strong> herauskommen. Wähle die Rechenzeichen und erkläre danach, wie du die Zahlen geschickt zusammenfasst.",
       solution:"Eine passende Wahl ist <strong>6,4 + 2,6 − 1,4 − 7,6 = 0</strong>. Denn 6,4 + 2,6 = 9 und 1,4 + 7,6 = 9."}
   ],
 
   "K4.4a":[
     {id:"K44A-01",level:1,kind:"Grundlage",title:"Vorzeichen beim Multiplizieren",
       type:"number",prompt:"Berechne: <strong>(−7) · (+6)</strong>.",expected:-42,
-      solution:"Minus mal Plus ergibt Minus: <strong>−42</strong>."},
+      solution:"Eine negative Zahl mal eine positive Zahl ergibt ein negatives Ergebnis: <strong>−42</strong>."},
     {id:"K44A-02",level:1,kind:"Rückwärts",title:"Welche Zahl fehlt?",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>□ · (−6) = 42</strong>",expected:-7,
       solution:"Damit das Ergebnis positiv wird, muss in der Lücke eine negative Zahl stehen. 42 : (−6) = <strong>−7</strong>."},
@@ -6834,9 +6913,9 @@ const deepExercises = {
       evidenceLabels:["1. Faktor","2. Faktor","3. Faktor","Ergebnis"],
       evidenceCheck:(v)=>{if(v.length!==4)return false;const f=v.slice(0,3);const neg=f.filter(x=>x<0).length;return f.every(x=>Math.abs(x)>1e-9)&&neg===2&&Math.abs(f[0]*f[1]*f[2]-v[3])<1e-9&&v[3]>0;},
       solution:"Die negativen Zahlen können paarweise zusammengefasst werden. Jedes Paar ergibt beim Multiplizieren eine positive Zahl."},
-    {id:"K44A-07",level:2,kind:"Fehler finden",title:"Drei Minuszeichen",
+    {id:"K44A-07",level:2,kind:"Fehler finden",title:"Drei negative Faktoren",
       type:"choice",prompt:"Lea rechnet <strong>(−4) · (−2) · (−3) = +24</strong>. Welche Korrektur ist richtig?",
-      options:["Das Ergebnis ist −24, weil drei negative Zahlen eine ungerade Anzahl sind.","Das Ergebnis ist +24, weil Minus mal Minus immer Plus ist.","Das Ergebnis ist 0."],
+      options:["Das Ergebnis ist −24, weil drei negative Zahlen eine ungerade Anzahl sind.","Das Ergebnis ist +24, weil zwei negative Faktoren zunächst ein positives Teilprodukt ergeben.","Das Ergebnis ist 0."],
       answer:"Das Ergebnis ist −24, weil drei negative Zahlen eine ungerade Anzahl sind.",
       solution:"Die ersten beiden Zahlen ergeben +8; +8 · (−3) = <strong>−24</strong>."},
     {id:"K44A-08",level:2,kind:"Rückwärts",title:"Welche Zahl fehlt?",
@@ -6847,7 +6926,7 @@ const deepExercises = {
       options:["negativ","positiv","nicht bestimmbar"],
       answer:"negativ",
       solution:"17 ist ungerade. Die vier positiven Zahlen ändern das Vorzeichen nicht."},
-    {id:"K44A-10",level:3,kind:"Begründen",title:"Was verraten die Minuszeichen?",
+    {id:"K44A-10",level:3,kind:"Begründen",title:"Vorzeichen des Produkts",
       type:"choiceReason",
       prompt:"Du multiplizierst mehrere Zahlen miteinander. Keine davon ist 0 und das Ergebnis ist <strong>positiv</strong>. Welche Aussage muss stimmen?",
       options:[
@@ -6907,7 +6986,7 @@ const deepExercises = {
   "K4.5a":[
     {id:"K45A-01",level:1,kind:"Grundlage",title:"Vorzeichen bei der Division",
       type:"number",prompt:"Berechne: <strong>(−56) : (+8)</strong>.",expected:-7,
-      solution:"Minus durch Plus ergibt Minus: <strong>−7</strong>."},
+      solution:"Eine negative Zahl geteilt durch eine positive Zahl ergibt ein negatives Ergebnis: <strong>−7</strong>."},
     {id:"K45A-02",level:1,kind:"Rückwärts",title:"Welche Zahl fehlt?",
       type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>□ : (−4) = 3,5</strong>",expected:-14,
       solution:"In die Lücke gehört <strong>−14</strong>, denn −14 : (−4) = 3,5."},
@@ -6916,20 +6995,20 @@ const deepExercises = {
       solution:"18 : (−3) = <strong>−6</strong>. In die Lücke gehört also −3."},
     {id:"K45A-04",level:1,kind:"Grundlage",title:"Durch eine Dezimalzahl teilen",
       type:"number",prompt:"Berechne: <strong>−7,2 : 0,6</strong>.",expected:-12,
-      solution:"7,2 : 0,6 = 12 und Minus durch Plus ergibt Minus: <strong>−12</strong>."},
+      solution:"7,2 : 0,6 = 12. Da −7,2 negativ und 0,6 positiv ist, hat der Quotient ein negatives Vorzeichen: <strong>−12</strong>."},
     {id:"K45A-05",level:2,kind:"Aussage prüfen",title:"Eine Aussage zur Division",
       type:"judge",prompt:"Beurteile: <strong>Bei einer Division ist die zweite Zahl nicht 0. Haben beide Zahlen dasselbe Vorzeichen, ist das Ergebnis positiv.</strong>",answer:"Richtig",
       evidencePrompt:"",
       evidenceLabels:["Dividend","Divisor","Ergebnis"],
       evidenceCheck:(v)=>v.length===3 && Math.abs(v[1])>1e-9 && Math.abs(v[0])>1e-9 && ((v[0]>0&&v[1]>0)||(v[0]<0&&v[1]<0)) && Math.abs(v[0]/v[1]-v[2])<1e-9 && v[2]>0,
-      solution:"Plus durch Plus und Minus durch Minus ergeben jeweils ein positives Ergebnis."},
+      solution:"Haben Dividend und Divisor dasselbe Vorzeichen, ist der Quotient positiv."},
     {id:"K45A-06",level:2,kind:"Knobeln",title:"Durch 0,5 teilen",
       type:"number",prompt:"Berechne und denke über die Größe nach: <strong>−12 : 0,5</strong>.",expected:-24,
       solution:"In −12 passen 24 Halb-Einheiten. Daher ist −12 : 0,5 = <strong>−24</strong>. Durch 0,5 zu teilen verdoppelt den Betrag."},
     {id:"K45A-07",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Division",
       type:"choice",prompt:"Sina rechnet <strong>−15 : (−3) = −5</strong>. Welche Korrektur ist richtig?",
-      options:["Das Ergebnis ist +5, weil Minus durch Minus Plus ergibt.","Das Ergebnis ist −12.","Die Rechnung ist richtig."],
-      answer:"Das Ergebnis ist +5, weil Minus durch Minus Plus ergibt.",
+      options:["Das Ergebnis ist +5, weil Dividend und Divisor dasselbe Vorzeichen haben.","Das Ergebnis ist −12.","Die Rechnung ist richtig."],
+      answer:"Das Ergebnis ist +5, weil Dividend und Divisor dasselbe Vorzeichen haben.",
       solution:"−15 : (−3) = <strong>+5</strong>."},
     {id:"K45A-08",level:2,kind:"Rechenidee",title:"Eine Division überprüfen",
       type:"choice",prompt:"Wie kannst du <strong>−24 : 6 = −4</strong> sicher prüfen?",
@@ -9031,6 +9110,7 @@ function startMeteorGame(){
     // Meteore
     for(let i=meteors.length-1;i>=0;i--){
       const m=meteors[i];
+      if(!m) continue;
 
       if(m.special && shipAlive){
         const targetAngle=Math.atan2((shipY+27)-m.y,(shipX+27)-m.x);
@@ -9053,10 +9133,12 @@ function startMeteorGame(){
       m.el.style.top=m.y+"px";
 
       if(now>invulnerableUntil && meteorHit(m)){
+        // damageShip() entfernt alle Gefahren und leert auch das Meteore-Array.
+        // Deshalb darf diese bereits laufende for-Schleife danach nicht mit
+        // alten Indizes weiterarbeiten. Sonst bricht der RAF-Loop ab.
         damageShip(m.special?"Spezialmeteor! Neustart":"Treffer! Neustart");
-        m.el.remove();
-        meteors.splice(i,1);
-        continue;
+        raf=requestAnimationFrame(loop);
+        return;
       }
 
       if(m.x<-100||m.y<-100||m.x>rect.width+100||m.y>rect.height+100){
@@ -9091,16 +9173,18 @@ function startMeteorGame(){
     // Geschosse
     for(let i=enemyShots.length-1;i>=0;i--){
       const shot=enemyShots[i];
+      if(!shot) continue;
       shot.x+=shot.vx*dt;
       shot.y+=shot.vy*dt;
       shot.el.style.left=(shot.x-5)+"px";
       shot.el.style.top=(shot.y-5)+"px";
 
       if(now>invulnerableUntil && shotHit(shot)){
+        // Auch hier leert damageShip() die Geschossliste vollständig.
+        // Den aktuellen Frame deshalb sofort sauber beenden.
         damageShip("Getroffen! Neustart");
-        shot.el.remove();
-        enemyShots.splice(i,1);
-        continue;
+        raf=requestAnimationFrame(loop);
+        return;
       }
 
       if(shot.x<-40||shot.y<-40||shot.x>rect.width+40||shot.y>rect.height+40){
@@ -10159,7 +10243,7 @@ const deepHintsById = {
   "K35-03": [
     "Hier sind Ausgangszustand und Endzustand direkt im Text genannt.",
     "Die Änderung erhältst du mit: Endzustand − Ausgangszustand.",
-    "Achte beim Rechnen auf das Minus vor −1,4: 0,9 − (−1,4). Trage anschließend alle drei Größen ein."
+    "Achte in 0,9 − (−1,4) auf die beiden verschiedenen Rollen: Das erste − ist ein Rechenzeichen, das zweite − ist das Vorzeichen der Zahl (−1,4). Trage anschließend alle drei Größen ein."
   ],
   "K35-04": [
     "Bearbeite die beiden Änderungen nacheinander.",
@@ -10249,7 +10333,7 @@ const deepHintsById = {
   "K41B-01": [
     "Suche in der Addition nach zwei Zahlen, die zusammen besonders einfach werden.",
     "Betrachte 5,63 und +0,37: Welche glatte Zahl entsteht, wenn du diese beiden zuerst addierst?",
-    "Ordne nur die Zahlen neu – das Minus bei −3,5 bleibt bei dieser Zahl. Rechne danach mit dem einfachen Zwischenergebnis weiter."
+    "Ordne nur die Summanden neu – das negative Vorzeichen gehört weiterhin zur Zahl −3,5. Rechne danach mit dem einfachen Zwischenergebnis weiter."
   ],
   "K41B-02": [
     "Suche zwei Zahlen, die sich zu einer glatten ganzen Zahl ergänzen.",
@@ -10268,7 +10352,7 @@ const deepHintsById = {
   ],
   "K41B-05": [
     "Markiere zuerst die erste Zahl vollständig: Sie lautet −6,2 und nicht +6,2.",
-    "Beim Umordnen darf −6,2 an eine andere Stelle wandern. Das Minus muss aber bei der 6,2 bleiben.",
+    "Beim Umordnen darf −6,2 an eine andere Stelle wandern. Das negative Vorzeichen bleibt dabei bei der Zahl −6,2.",
     "Prüfe bei jeder Antwort, ob genau dieselben drei vorzeichenbehafteten Zahlen vorkommen: −6,2; +4,8; +1,2."
   ],
   "K41B-06": [
@@ -10279,7 +10363,7 @@ const deepHintsById = {
   "K41B-07": [
     "Teste die Aussage an drei Zahlen mit unterschiedlichen Vorzeichen.",
     "Wenn du die Reihenfolge änderst, darf aus einer negativen Zahl nicht plötzlich eine positive werden.",
-    "Entscheidend ist: Die Zahl wird zusammen mit ihrem Vorzeichen verschoben. Prüfe, ob der Wert der Addition dadurch gleich bleibt."
+    "Entscheidend ist: Beim Umordnen wird der ganze Summand einschließlich seines Vorzeichens verschoben. Prüfe, ob der Wert der Addition dadurch gleich bleibt."
   ],
   "K41B-08": [
     "Suche bei den vier Änderungen nach Paaren, die sich besonders einfach ergänzen.",
@@ -10352,8 +10436,8 @@ const deepHintsById = {
     "− (+5) bedeutet: Du ziehst eine positive Zahl ab. Suche die Schreibweise ohne Klammern, die beide Richtungen beibehält."
   ],
   "K43A-02": [
-    "Löse die Zahlklammern gedanklich in einfache Plus- und Minuszeichen auf.",
-    "+ (−3) wird zu einer Bewegung nach links; − (+4) ebenfalls.",
+    "Unterscheide zuerst die Rechenzeichen zwischen den Zahlklammern von den Vorzeichen in den Klammern.",
+    "Bei + (−3) ist + das Rechenzeichen und − das Vorzeichen der Zahl; bei − (+4) ist − das Rechenzeichen und + das Vorzeichen der Zahl.",
     "Du startest bereits bei −8 und gehst danach zweimal weiter nach links. Rechne diese Bewegungen nacheinander."
   ],
   "K43A-03": [
@@ -10362,17 +10446,17 @@ const deepHintsById = {
     "Bestimme den Abstand von −7 bis −2,5 und nutze ihn als fehlende Zahl."
   ],
   "K43A-04": [
-    "Übersetze zuerst jede Zahlklammer in eine Bewegung: plus negativ, minus negativ, plus negativ, minus positiv.",
-    "Das Minus vor −5,1 führt zu einer Bewegung nach rechts.",
+    "Markiere zuerst getrennt: die Rechenzeichen zwischen den Zahlklammern und die Vorzeichen der Zahlen in den Klammern.",
+    "In − (−5,1) ist das erste − das Rechenzeichen und das zweite − das Vorzeichen der Zahl (−5,1). Eine negative Zahl zu subtrahieren führt nach rechts.",
     "Schreibe die Rechnung ohne Zahlklammern auf und fasse anschließend positive und negative Teile geschickt zusammen."
   ],
   "K43A-05": [
     "Löse zuerst nur − (−3,8) auf.",
     "Danach betrachte + (−1,1). Hier bleibt die Bewegung nach links erhalten.",
-    "Vergleiche die angebotenen Rechnungen damit, ob beide Vorzeichenänderungen richtig übernommen wurden."
+    "Vergleiche die angebotenen Rechnungen damit, ob die Rechenzeichen nach dem Auflösen der Zahlklammern richtig sind."
   ],
   "K43A-06": [
-    "Konzentriere dich auf das Zeichen direkt vor der Klammer.",
+    "Unterscheide das Rechenzeichen − vor der Klammer vom negativen Vorzeichen der Zahl (−2,4).",
     "5,6 − (−2,4) bedeutet nicht, dass du 2,4 nach links gehst.",
     "Eine negative Zahl abzuziehen führt nach rechts. Suche die angebotene Rechnung, die diese Richtung zeigt."
   ],
@@ -10394,17 +10478,17 @@ const deepHintsById = {
   "K43A-10": [
     "Zeichne 5 auf einer Zahlengeraden und führe zuerst 5 + (−2) aus.",
     "Starte danach wieder bei 5 und führe 5 − (−2) aus. Achte nur auf die Bewegungsrichtung.",
-    "Vergleiche die beiden Bewegungen und formuliere in eigenen Worten, was ein Plus vor einer negativen Zahl und was ein Minus vor einer negativen Zahl bewirkt."
+    "Vergleiche die beiden Bewegungen und formuliere in eigenen Worten, was das Rechenzeichen + vor einer negativen Zahl und was das Rechenzeichen − vor einer negativen Zahl bewirkt."
   ],
   "K43B-01": [
-    "Suche in der Rechnung nach Zahlen, die sich zu besonders einfachen Ergebnissen zusammenfassen lassen.",
-    "Behalte bei jeder Zahl ihr Vorzeichen. Schau besonders auf −2,5 und −1,5 sowie auf +3,1 und +1,9.",
-    "Fasse zuerst die beiden negativen und die beiden positiven Zahlen getrennt zusammen. Vergleiche danach die beiden einfachen Zwischenergebnisse."
+    "Schreibe den Additions- und Subtraktionsterm zuerst als Summe vorzeichenbehafteter Zahlen.",
+    "Aus −2,5 + 3,1 − 1,5 + 1,9 wird (−2,5) + (+3,1) + (−1,5) + (+1,9).",
+    "Ordne erst jetzt die Summanden: Fasse die beiden negativen und die beiden positiven Zahlen jeweils zusammen."
   ],
   "K43B-02": [
-    "Suche in 7,4 − 2,6 + 0,6 − 5,4 nach Zahlen, die zusammen besonders einfache Ergebnisse geben.",
-    "Das Minus gehört jeweils zur Zahl. Betrachte deshalb +7,4 zusammen mit −5,4 und −2,6 zusammen mit +0,6.",
-    "Rechne diese beiden Paare zuerst. Prüfe danach, ob sich die beiden einfachen Zwischenergebnisse gegenseitig aufheben."
+    "Unterscheide zuerst Rechenzeichen und Vorzeichen: In 7,4 − 2,6 + 0,6 − 5,4 sind die Zeichen zwischen den Zahlen Rechenzeichen.",
+    "Schreibe als Summe vorzeichenbehafteter Zahlen: (+7,4) + (−2,6) + (+0,6) + (−5,4).",
+    "Ordne erst danach die Summanden so, dass einfache Paare entstehen."
   ],
   "K43B-03": [
     "Fasse zuerst die beiden bekannten Zahlen −4,8 und +1,8 zusammen.",
@@ -10412,19 +10496,19 @@ const deepHintsById = {
     "Die Zahl in der Lücke muss gleich weit von 0 entfernt sein wie dein Zwischenwert, aber auf der anderen Seite liegen."
   ],
   "K43B-04": [
-    "Suche zwei negative Zahlen, die zusammen eine glatte ganze Zahl ergeben.",
-    "Suche danach auch bei den positiven Zahlen ein Paar mit einem glatten Ergebnis.",
-    "Wenn du beide Gruppen getrennt zusammenfasst, bleiben nur zwei sehr einfache Zahlen übrig."
+    "Schreibe den Term zuerst als Summe vorzeichenbehafteter Zahlen.",
+    "Dann erkennst du die Summanden (−12,5), (+4,8), (−7,5) und (+5,2).",
+    "Ordne erst danach die negativen bzw. positiven Summanden zu günstigen Paaren."
   ],
   "K43B-05": [
-    "Schreibe die Ausgangsrechnung als vier vorzeichenbehaftete Zahlen: −8; +3; −2; +7.",
-    "Beim Umordnen darf sich nur die Reihenfolge ändern, nicht das Vorzeichen einer Zahl.",
-    "Prüfe deshalb, in welcher Antwort genau −8, +3, −2 und +7 vorkommen."
+    "Im Ausgangsterm ist das − am Anfang das Vorzeichen von −8; das − zwischen 3 und 2 ist zunächst ein Rechenzeichen.",
+    "Schreibe deshalb zuerst: (−8) + (+3) + (−2) + (+7).",
+    "Beim anschließenden Umordnen ändert sich nur die Reihenfolge der Summanden, nicht ihr Vorzeichen."
   ],
   "K43B-06": [
-    "Teste die Aussage an einer kurzen Rechnung wie 8 − 3 + 2.",
-    "Denke an −3 als eine Zahl mit festem Minuszeichen.",
-    "Wenn du die Reihenfolge änderst, verschiebst du die ganze Zahl samt Vorzeichen. Prüfe, ob das Ergebnis dann gleich bleibt."
+    "Im Ausgangsterm −5 + 3 − 2 + 7 ist nur das erste − bereits das Vorzeichen einer Zahl. Die Zeichen zwischen den Zahlen sind Rechenzeichen.",
+    "Schreibe jede Subtraktion als Addition einer negativen Zahl: Aus − 2 wird + (−2). Positive Summanden dürfen mit weggelassenem + eingegeben werden.",
+    "Beim Umordnen müssen exakt dieselben vier Summanden vorkommen. Für eine günstige Reihenfolge kannst du positive Summanden nebeneinander und negative Summanden nebeneinander stellen."
   ],
   "K43B-07": [
     "Fasse zuerst die drei bekannten Zahlen geschickt zusammen.",
@@ -10432,22 +10516,22 @@ const deepHintsById = {
     "Wenn du den Zwischenwert kennst, brauchst du in der Lücke genau die Zahl, die diesen Wert bis 0 ausgleicht."
   ],
   "K43B-08": [
-    "Suche in der Rechnung nach Paaren, die zu glatten ganzen Zahlen werden.",
-    "9,8 und +0,2 passen offensichtlich zusammen. Prüfe nun auch die beiden negativen Zahlen −4,3 und −5,7.",
-    "Der günstigste Lösungsweg nutzt beide einfachen Paare, bevor die beiden Zwischenergebnisse miteinander verrechnet werden."
+    "Schreibe 9,8 − 4,3 − 5,7 + 0,2 zuerst als Summe vorzeichenbehafteter Zahlen.",
+    "Dann stehen dort (+9,8), (−4,3), (−5,7) und (+0,2).",
+    "Ordne erst danach zu den günstigen Paaren (+9,8) + (+0,2) und (−4,3) + (−5,7)."
   ],
   "K43B-09": [
-    "Wähle drei einfache Zahlen, bei denen die zweite negativ ist.",
-    "Rechne deine drei Zahlen einmal in der ursprünglichen Reihenfolge und einmal mit vertauschter Reihenfolge.",
-    "Achte beim Vertauschen darauf, dass das Minus bei der negativen Zahl bleibt. Nutze den Vergleich der beiden Ergebnisse für deine Erklärung."
+    "Wähle vier verschiedene Zahlen ungleich 0. Genau zwei davon müssen positiv und zwei negativ sein.",
+    "In Schritt 2 dürfen keine neuen Zahlen entstehen: Es müssen exakt dieselben vier vorzeichenbehafteten Summanden wie in Schritt 1 sein.",
+    "Ordne die positiven Summanden nebeneinander und die negativen Summanden nebeneinander. Der Wert der Summe ändert sich durch das Umordnen nicht."
   ],
   "K43B-10": [
     "Betrachte zuerst, welche zwei Zahlen zusammen eine glatte ganze Zahl ergeben können.",
     "6,4 und 2,6 ergeben zusammen 9. Suche bei 1,4 und 7,6 nach einem zweiten gleich großen Gesamtbetrag.",
-    "Wenn zwei Teilgruppen denselben Wert haben, kannst du durch die Wahl von Plus und Minus erreichen, dass sie sich gegenseitig aufheben."
+    "Wenn zwei Teilgruppen denselben Wert haben, kannst du durch die Wahl der Rechenzeichen + und − erreichen, dass sie sich gegenseitig aufheben."
   ],
   "K44A-01": [
-    "Bestimme zuerst nur das Vorzeichen: negativ mal positiv.",
+    "Bestimme zuerst die Vorzeichen der Faktoren: Der erste Faktor ist negativ, der zweite positiv.",
     "Danach rechne die Beträge 7 · 6.",
     "Setze das Vorzeichen aus dem ersten Schritt vor dein Zahlenergebnis."
   ],
@@ -10464,7 +10548,7 @@ const deepHintsById = {
   "K44A-04": [
     "Du brauchst ein negatives Ergebnis. Die beiden Zahlen müssen daher verschiedene Vorzeichen haben.",
     "Suche zunächst zwei Beträge, die miteinander multipliziert 24 ergeben.",
-    "Wähle anschließend für genau eine der beiden Zahlen ein Minuszeichen. Prüfe zusätzlich, dass weder +1 noch −1 vorkommt."
+    "Wähle anschließend genau eine der beiden Zahlen negativ. Prüfe zusätzlich, dass weder +1 noch −1 vorkommt."
   ],
   "K44A-05": [
     "Teste die Aussage mit einer kleinen ungeraden Anzahl negativer Zahlen, zum Beispiel einer oder drei.",
@@ -10547,7 +10631,7 @@ const deepHintsById = {
     "Prüfe am Schluss alle Bedingungen einzeln: keine 0, keine ±1, mindestens zwei negative Zahlen und beim Multiplizieren insgesamt 100."
   ],
   "K45A-01": [
-    "Bestimme zuerst nur das Vorzeichen: negativ geteilt durch positiv.",
+    "Bestimme zuerst die Vorzeichen: Der Dividend ist negativ, der Divisor positiv.",
     "Rechne danach die Beträge 56 : 8.",
     "Setze das Vorzeichen aus dem ersten Schritt vor dein Ergebnis."
   ],
@@ -10574,7 +10658,7 @@ const deepHintsById = {
   "K45A-06": [
     "0,5 ist eine Hälfte.",
     "Frage nicht nur „Wie oft passt 0,5 in 12?“, sondern denke in halben Einheiten.",
-    "Wenn eine ganze Einheit aus zwei Hälften besteht, wie verändert sich die Anzahl der Teile beim Teilen durch 0,5? Übertrage danach das Minuszeichen."
+    "Wenn eine ganze Einheit aus zwei Hälften besteht, wie verändert sich die Anzahl der Teile beim Teilen durch 0,5? Da −12 negativ und 0,5 positiv ist, muss der Quotient negativ sein."
   ],
   "K45A-07": [
     "Die beiden Zahlen −15 und −3 haben dasselbe Vorzeichen.",
@@ -10592,7 +10676,7 @@ const deepHintsById = {
     "Teile zuerst den Betrag 18 durch 6 und setze danach das passende Vorzeichen."
   ],
   "K45A-10": [
-    "Teste alle vier Kombinationen aus Plus und Minus für zwei von 0 verschiedene Zahlen.",
+    "Teste alle vier Kombinationen aus positiven und negativen Vorzeichen für zwei von 0 verschiedene Zahlen.",
     "Markiere die Kombinationen, bei denen das Ergebnis negativ wird.",
     "Betrachte danach die Sonderfälle getrennt: Was ergibt 0 geteilt durch eine erlaubte Zahl? Und warum ist eine Division durch 0 nicht möglich?"
   ]
@@ -10602,7 +10686,7 @@ function deepHintsFor(ex){
   return deepHintsById[ex.id] || [
     "Lies die Aufgabe noch einmal genau und markiere, was gegeben ist und was du herausfinden sollst.",
     "Suche einen ersten kleinen Rechenschritt, den du sicher ausführen kannst.",
-    "Prüfe danach, ob dein Zwischenergebnis zur Aufgabe und zu den Vorzeichen passt."
+    "Prüfe danach, ob dein Zwischenergebnis zur Aufgabe passt."
   ];
 }
 
@@ -10766,24 +10850,48 @@ function renderDeepControl(ex){
   }
 
   if(ex.type==="multiNumberReason"){
-    const grid=document.createElement("div");
-    grid.className="deep-multi";
-    ex.labels.forEach((label,i)=>{
+    const makeField=(label,i)=>{
       const field=document.createElement("div");
       field.className="deep-multi-field";
       field.innerHTML=`<label for="deepMulti${i}">${label}</label><input id="deepMulti${i}" type="text" inputmode="decimal" autocomplete="off" placeholder="Zahl eingeben">`;
-      grid.appendChild(field);
-    });
-    wrap.appendChild(grid);
-    const lbl=document.createElement("label");
-    lbl.className="deep-reason-label";
-    lbl.setAttribute("for","deepReasonText");
-    lbl.textContent="Optional: Deine Begründung";
-    wrap.appendChild(lbl);
-    const ta=document.createElement("textarea");
-    ta.id="deepReasonText";
-    ta.placeholder="Erkläre kurz, warum deine Zahlen die Bedingungen erfüllen.";
-    wrap.appendChild(ta);
+      return field;
+    };
+
+    if(Array.isArray(ex.stageGroups)&&ex.stageGroups.length){
+      let fieldIndex=0;
+      ex.stageGroups.forEach((group,stageIndex)=>{
+        const stage=document.createElement("section");
+        stage.className="deep-stage-group";
+        stage.innerHTML=`<div class="deep-stage-kicker">Schritt ${stageIndex+1}</div><div class="deep-stage-title">${group.title||""}</div>${group.note?`<div class="deep-stage-note">${group.note}</div>`:""}`;
+        const grid=document.createElement("div");
+        grid.className="deep-multi";
+        const count=Math.max(0,Number(group.count)||0);
+        for(let j=0;j<count;j++){
+          const label=ex.labels[fieldIndex]||`Eingabe ${fieldIndex+1}`;
+          grid.appendChild(makeField(label,fieldIndex));
+          fieldIndex++;
+        }
+        stage.appendChild(grid);
+        wrap.appendChild(stage);
+      });
+    }else{
+      const grid=document.createElement("div");
+      grid.className="deep-multi";
+      ex.labels.forEach((label,i)=>grid.appendChild(makeField(label,i)));
+      wrap.appendChild(grid);
+    }
+
+    if(ex.showReason!==false){
+      const lbl=document.createElement("label");
+      lbl.className="deep-reason-label";
+      lbl.setAttribute("for","deepReasonText");
+      lbl.textContent="Optional: Deine Begründung";
+      wrap.appendChild(lbl);
+      const ta=document.createElement("textarea");
+      ta.id="deepReasonText";
+      ta.placeholder="Erkläre kurz, warum deine Zahlen die Bedingungen erfüllen.";
+      wrap.appendChild(ta);
+    }
     return;
   }
 
@@ -10930,6 +11038,10 @@ function checkDeepExercise(){
     feedback.innerHTML=correct
       ? "<strong>Deine Auswahl ist richtig.</strong> Eine zusätzliche Begründung kannst du später mit der Musterlösung vergleichen."
       : "<strong>Die Auswahl passt noch nicht.</strong> Nutze bei Bedarf die Denkanstöße und prüfe noch einmal.";
+  }else if(ex.type==="multiNumberReason"&&(ex.correctFeedback||ex.incorrectFeedback)){
+    feedback.innerHTML=correct
+      ? (ex.correctFeedback||"<strong>Richtig.</strong>")
+      : (ex.incorrectFeedback||"<strong>Noch nicht richtig.</strong> Prüfe deinen Ansatz und versuche es erneut.");
   }else{
     feedback.innerHTML=correct
       ? "<strong>Richtig.</strong>"
@@ -12065,7 +12177,7 @@ testGenerators.push(
       "−4,8 + 1,2 + 6,2"
     ],
     answer:"4,8 + 1,2 + (−6,2)",
-    solution:"Das führende Minus gehört zur 6,2. Beim Umordnen muss deshalb −6,2 als ganze vorzeichenbehaftete Zahl erhalten bleiben."
+    solution:"Das − am Anfang von −6,2 ist das negative Vorzeichen dieser Zahl. Beim Umordnen der Summanden bleibt das Vorzeichen bei −6,2."
   }),
   ()=>({
     competency:"K4.3b",level:"Vertiefung",type:"choice",
@@ -12076,11 +12188,11 @@ testGenerators.push(
       "−2,4 + 5,6 + 7,5 − 1,5"
     ],
     answer:"2,4 + 5,6 + (−7,5) + (−1,5)",
-    solution:"Die negativen Zahlen sind −7,5 und −1,5. Beim Umordnen müssen ihre Minuszeichen bei den Zahlen bleiben."
+    solution:"Im Ausgangsterm ist −7,5 die erste negative Zahl; das − zwischen 2,4 und 1,5 ist zunächst ein Rechenzeichen. Schreibe zuerst <strong>(−7,5) + (+2,4) + (−1,5) + (+5,6)</strong>. Erst dann werden die vorzeichenbehafteten Summanden umgeordnet."
   }),
   ()=>({
     competency:"K4.3a",level:"Vertiefung",type:"choice",
-    prompt:"Warum wird aus „− (−6,8)“ beim Auflösen der Zahlklammer „+ 6,8“?",
+    prompt:"Warum kann man <strong>a − (−6,8)</strong> als <strong>a + 6,8</strong> schreiben?",
     options:["Weil das Subtrahieren einer negativen Zahl einer Addition entspricht.","Weil jede Zahl in Klammern positiv wird.","Weil zwei Dezimalzahlen immer addiert werden."],
     answer:"Weil das Subtrahieren einer negativen Zahl einer Addition entspricht.",
     solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre Gegenzahl zu addieren."
@@ -12097,7 +12209,7 @@ testGenerators.push(
     prompt:"Welche Aussage zur Division zweier negativer rationaler Zahlen ist richtig?",
     options:["Das Ergebnis ist positiv.","Das Ergebnis ist negativ.","Das Ergebnis ist immer 0."],
     answer:"Das Ergebnis ist positiv.",
-    solution:"Minus durch Minus ergibt Plus."
+    solution:"Zwei negative Zahlen haben dasselbe Vorzeichen; ihr Quotient ist positiv."
   })
 
 );
