@@ -5413,6 +5413,29 @@ body:not(.reward-theme-dark):not(.reward-theme-nebula) #deepCheckBtn:disabled{
 }
 .deep-stage-group .deep-multi{margin-top:0}
 
+
+/* Zahlklammern: Term-Eingabefelder */
+.deep-expression-label{
+  display:block;
+  margin:0 0 5px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:650;
+}
+.deep-expression-input{
+  width:100%;
+  min-height:50px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  font-size:16px;
+  letter-spacing:.01em;
+}
+.deep-stage-group .deep-expression-input,
+.deep-stage-group #deepExpressionResult,
+.deep-stage-group #deepBracketWay1,
+.deep-stage-group #deepBracketWay2{
+  width:100%;
+}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -6730,56 +6753,55 @@ const deepExercises = {
   ],
 
   "K4.3a":[
-    {id:"K43A-01",level:1,kind:"Rechenidee",title:"Zahlklammer richtig auflösen",
-      type:"choice",prompt:"Welche Rechnung ohne Zahlklammern passt zu <strong>8 + (−3) − (+5)</strong>?",
-      options:["8 − 3 − 5","8 + 3 + 5","8 − 3 + 5"],
-      answer:"8 − 3 − 5",
-      solution:"Das <strong>Rechenzeichen +</strong> vor (−3) führt beim Auflösen zum Subtrahieren von 3; das <strong>Rechenzeichen −</strong> vor (+5) bleibt ein Subtrahieren. Daher: 8 − 3 − 5."},
-    {id:"K43A-02",level:1,kind:"Grundlage",title:"Drei Zahlklammern",
-      type:"number",prompt:"Berechne: <strong>(−8) + (−3) − (+4)</strong>.",expected:-15,
-      solution:"−8 − 3 − 4 = <strong>−15</strong>."},
-    {id:"K43A-03",level:1,kind:"Rückwärts",title:"Welche Zahl gehört in die Klammer?",
-      type:"number",prompt:"Welche Zahl muss in die Lücke, damit die Rechnung stimmt?<br><strong>−7 + (□) = −2,5</strong>",expected:4.5,
-      solution:"Von −7 bis −2,5 fehlen +4,5. In die Lücke gehört also <strong>+4,5</strong>."},
-    {id:"K43A-04",level:2,kind:"Grundlage",title:"Vier Zahlklammern sicher behandeln",
-      type:"number",prompt:"Berechne: <strong>(+2,4) − (−5,1) + (−3,3) − (+1,2)</strong>.",expected:3,
-      solution:"2,4 + 5,1 − 3,3 − 1,2 = 7,5 − 4,5 = <strong>3,0</strong>."},
-    {id:"K43A-05",level:2,kind:"Rechenidee",title:"Welcher klammerfreie Rechnung stimmt?",
-      type:"choice",prompt:"Welche Rechnung ohne Zahlklammern hat denselben Wert wie <strong>−4,2 − (−3,8) + (−1,1)</strong>?",
-      options:["−4,2 + 3,8 − 1,1","−4,2 − 3,8 + 1,1","4,2 + 3,8 − 1,1"],
-      answer:"−4,2 + 3,8 − 1,1",
-      solution:"Das Subtrahieren von <strong>(−3,8)</strong> wird zum Addieren von 3,8; das Addieren von <strong>(−1,1)</strong> wird zum Subtrahieren von 1,1."},
-    {id:"K43A-06",level:2,kind:"Fehler finden",title:"Eine fehlerhafte Umformung",
-      type:"choice",prompt:"Nora formt <strong>5,6 − (−2,4)</strong> zu <strong>5,6 − 2,4</strong> um. Welche Korrektur ist nötig?",
-      options:["Es muss 5,6 + 2,4 heißen.","Es muss −5,6 + 2,4 heißen.","Keine; die Umformung stimmt."],
-      answer:"Es muss 5,6 + 2,4 heißen.",
-      solution:"Eine negative Zahl zu subtrahieren bedeutet, ihre positive Gegenzahl zu addieren."},
-    {id:"K43A-07",level:2,kind:"Aussage prüfen",title:"Eine Aussage zu Zahlklammern",
-      type:"judge",prompt:"Beurteile: <strong>Wird eine negative Zahl subtrahiert, kann man stattdessen ihre positive Gegenzahl addieren.</strong>",answer:"Richtig",
-      evidencePrompt:"",
-      evidenceLabels:["Zahl in der Klammer","Zahl nach dem Auflösen"],
-      evidenceCheck:(v)=>v.length===2 && v[0]<0 && Math.abs(v[1]+v[0])<1e-9 && v[1]>0,
-      solution:"Für a &gt; 0 gilt zum Beispiel: <strong>x − (−a) = x + a</strong>. Das erste − ist dabei ein Rechenzeichen; das − in (−a) ist das Vorzeichen der negativen Zahl."},
-    {id:"K43A-08",level:2,kind:"Betrag",title:"Rechnung mit Betrag",
-      type:"number",
-      prompt:"Berechne:<br><strong>−4 + |−3 − (+5)|</strong>",
-      expected:4,
-      solution:"Innerhalb des Betrags: −3 − (+5) = −8. Dann |−8| = 8. Also −4 + 8 = <strong>4</strong>."},
-    {id:"K43A-09",level:2,kind:"Knobeln",title:"Zwei Schreibweisen vergleichen",
-      type:"choice",prompt:"Welche beiden Rechnungen haben immer denselben Wert?",
-      options:["a − (−b) und a + b","a − (−b) und a − b","a + (−b) und a + b"],
-      answer:"a − (−b) und a + b",
-      solution:"Das Subtrahieren der negativen Zahl −b ist dasselbe wie das Addieren von +b."},
-    {id:"K43A-10",level:3,kind:"Begründen",title:"Zwei Regeln miteinander vergleichen",
-      type:"choiceReason",
-      prompt:"Vergleiche <strong>5 + (−2)</strong> und <strong>5 − (−2)</strong>. Welche Aussage beschreibt beide Rechnungen richtig?",
-      options:[
-        "Bei 5 + (−2) gehst du 2 nach links; bei 5 − (−2) gehst du 2 nach rechts.",
-        "Bei beiden Rechnungen gehst du 2 nach links.",
-        "Bei beiden Rechnungen gehst du 2 nach rechts."
-      ],
-      answer:"Bei 5 + (−2) gehst du 2 nach links; bei 5 − (−2) gehst du 2 nach rechts.",
-      solution:"Bei <strong>5 + (−2)</strong> wird eine negative Zahl addiert: Du gehst 2 nach links. Bei <strong>5 − (−2)</strong> wird eine negative Zahl abgezogen: Du gehst 2 nach rechts."}
+    {id:"K43A-01",level:1,kind:"Zahlklammern auflösen",title:"Zahlklammern auflösen",
+      type:"expandThreeTerm",withoutBrackets:"14 − 6 − 9",expected:-1,
+      prompt:"Gegeben ist <strong>(+14) − (+6) + (−9)</strong>. Schreibe im ersten Feld denselben Term <strong>ohne Zahlklammern</strong>. Berechne anschließend seinen Wert.",
+      solution:"Ohne Zahlklammern: <strong>14 − 6 − 9</strong>. Ergebnis: <strong>−1</strong>."},
+
+    {id:"K43A-02",level:1,kind:"Zahlklammern ergänzen",title:"Zwei Schreibweisen mit Zahlklammern",
+      type:"bracketTwoWays",withoutBrackets:"−15 + 4 + 6",expected:-5,
+      prompt:"Gegeben ist der Term <strong>−15 + 4 + 6</strong>. Berechne zuerst seinen Wert. Gib danach <strong>zwei verschiedene Schreibweisen desselben Terms mit Zahlklammern</strong> an. Die Reihenfolge der drei Zahlen bleibt gleich; in jeder Zahlklammer steht ein Vorzeichen.",
+      solution:"Ergebnis: <strong>−5</strong>.<br>Zum Beispiel <strong>(−15) + (+4) + (+6)</strong> und <strong>(−15) − (−4) − (−6)</strong>."},
+
+    {id:"K43A-03",level:1,kind:"Zahlklammern auflösen",title:"Einen Term ohne Zahlklammern notieren",
+      type:"expandThreeTerm",withoutBrackets:"−7 + 12 + 4",expected:9,
+      prompt:"Gegeben ist <strong>(−7) + (+12) − (−4)</strong>. Notiere denselben Term ohne Zahlklammern und berechne danach das Ergebnis.",
+      solution:"Ohne Zahlklammern: <strong>−7 + 12 + 4</strong>. Ergebnis: <strong>9</strong>."},
+
+    {id:"K43A-04",level:2,kind:"Zahlklammern ergänzen",title:"Zwei gleichwertige Klammerterme",
+      type:"bracketTwoWays",withoutBrackets:"−3,5 − 8,25 − 1,25",expected:-13,
+      prompt:"Gegeben ist <strong>−3,5 − 8,25 − 1,25</strong>. Berechne den Wert und schreibe anschließend zwei verschiedene, gleichwertige Terme mit Zahlklammern. Die Zahlen bleiben in derselben Reihenfolge.",
+      solution:"Ergebnis: <strong>−13</strong>.<br>Zum Beispiel <strong>(−3,5) − (+8,25) − (+1,25)</strong> und <strong>(−3,5) + (−8,25) + (−1,25)</strong>."},
+
+    {id:"K43A-05",level:2,kind:"Zahlklammern auflösen",title:"Dezimalzahlen ohne Zahlklammern",
+      type:"expandThreeTerm",withoutBrackets:"2,75 + 6,4 − 1,15",expected:8,
+      prompt:"Gegeben ist <strong>(+2,75) − (−6,4) − (+1,15)</strong>. Schreibe den Term ohne Zahlklammern und berechne seinen Wert.",
+      solution:"Ohne Zahlklammern: <strong>2,75 + 6,4 − 1,15</strong>. Ergebnis: <strong>8</strong>."},
+
+    {id:"K43A-06",level:2,kind:"Zahlklammern ergänzen",title:"Klammerterme zu einem Dezimalterm",
+      type:"bracketTwoWays",withoutBrackets:"−20 + 7,5 − 2,25",expected:-14.75,
+      prompt:"Gegeben ist <strong>−20 + 7,5 − 2,25</strong>. Berechne den Wert. Gib anschließend zwei verschiedene Schreibweisen mit Zahlklammern an, die beim Auflösen genau diesen Term ergeben.",
+      solution:"Ergebnis: <strong>−14,75</strong>.<br>Zum Beispiel <strong>(−20) + (+7,5) − (+2,25)</strong> und <strong>(−20) − (−7,5) + (−2,25)</strong>."},
+
+    {id:"K43A-07",level:2,kind:"Zahlklammern auflösen",title:"Rechenzeichen und Vorzeichen unterscheiden",
+      type:"expandThreeTerm",withoutBrackets:"−18,5 − 3,25 + 7,75",expected:-14,
+      prompt:"Löse bei <strong>(−18,5) − (+3,25) + (+7,75)</strong> die Zahlklammern auf. Notiere den Term ohne Zahlklammern und berechne danach das Ergebnis.",
+      solution:"Ohne Zahlklammern: <strong>−18,5 − 3,25 + 7,75</strong>. Ergebnis: <strong>−14</strong>."},
+
+    {id:"K43A-08",level:2,kind:"Zahlklammern ergänzen",title:"Zwei Möglichkeiten finden",
+      type:"bracketTwoWays",withoutBrackets:"−0,75 − 9 + 12,5",expected:2.75,
+      prompt:"Gegeben ist <strong>−0,75 − 9 + 12,5</strong>. Berechne den Wert und gib zwei verschiedene Möglichkeiten an, den Term mit Zahlklammern zu schreiben.",
+      solution:"Ergebnis: <strong>2,75</strong>.<br>Zum Beispiel <strong>(−0,75) − (+9) + (+12,5)</strong> und <strong>(−0,75) + (−9) − (−12,5)</strong>."},
+
+    {id:"K43A-09",level:2,kind:"Zahlklammern auflösen",title:"Drei Zahlklammern sicher auflösen",
+      type:"expandThreeTerm",withoutBrackets:"0,8 − 12,6 − 3,4",expected:-15.2,
+      prompt:"Schreibe <strong>(+0,8) + (−12,6) + (−3,4)</strong> ohne Zahlklammern und berechne anschließend den Wert.",
+      solution:"Ohne Zahlklammern: <strong>0,8 − 12,6 − 3,4</strong>. Ergebnis: <strong>−15,2</strong>."},
+
+    {id:"K43A-10",level:3,kind:"Transfer",title:"Rechenzeichen passend setzen",
+      type:"signReason",numbers:[-11,4,9],expectedTarget:-16,showReason:false,
+      prompt:"Setze zwischen den drei Zahlen die <strong>Rechenzeichen + oder −</strong> so ein, dass der Term den Wert <strong>−16</strong> erhält.<br><strong>−11 □ 4 □ 9 = −16</strong>",
+      solution:"Eine passende Lösung ist <strong>−11 + 4 − 9 = −16</strong>. Das − vor der 11 ist das Vorzeichen der ersten Zahl; + und − zwischen den Zahlen sind Rechenzeichen."}
   ],
 
   "K4.3b":[
@@ -10431,54 +10453,54 @@ const deepHintsById = {
     "Wenn deine Zahl größer wird, wird 4,5 minus diese Zahl kleiner, während deine Zahl minus 1,5 größer wird. Suche den Treffpunkt systematisch."
   ],
   "K43A-01": [
-    "Behandle jede Zahlklammer einzeln.",
-    "+ (−3) bedeutet: Du addierst eine negative Zahl. Das entspricht einer Bewegung nach links.",
-    "− (+5) bedeutet: Du ziehst eine positive Zahl ab. Suche die Schreibweise ohne Klammern, die beide Richtungen beibehält."
+    "Unterscheide bei jedem Teil: Das Zeichen außerhalb der Zahlklammer ist ein Rechenzeichen; das Zeichen in der Zahlklammer ist das Vorzeichen der Zahl.",
+    "Beim Auflösen gilt: eine positive Zahl addieren → +; eine negative Zahl addieren → −; eine positive Zahl subtrahieren → −; eine negative Zahl subtrahieren → +.",
+    "Prüfe deinen Term ohne Zahlklammern Zeichen für Zeichen. Berechne seinen Wert erst danach."
   ],
   "K43A-02": [
-    "Unterscheide zuerst die Rechenzeichen zwischen den Zahlklammern von den Vorzeichen in den Klammern.",
-    "Bei + (−3) ist + das Rechenzeichen und − das Vorzeichen der Zahl; bei − (+4) ist − das Rechenzeichen und + das Vorzeichen der Zahl.",
-    "Du startest bereits bei −8 und gehst danach zweimal weiter nach links. Rechne diese Bewegungen nacheinander."
+    "Im gegebenen Term ohne Zahlklammern ist die erste Zahl negativ. Die Zeichen zwischen den folgenden positiven Zahlen sind Rechenzeichen.",
+    "Für + a sind zum Beispiel +(+a) und −(−a) möglich. Für − a sind zum Beispiel −(+a) und +(−a) möglich.",
+    "Die beiden Klammerterme müssen verschieden aussehen, aber beim Auflösen exakt denselben Term ergeben. Reihenfolge und Beträge der drei Zahlen bleiben gleich."
   ],
   "K43A-03": [
-    "Von −7 aus sollst du durch die Zahl in der Lücke bei −2,5 landen.",
-    "Der Zielwert liegt rechts von −7, also muss die Zahl in der Lücke positiv sein.",
-    "Bestimme den Abstand von −7 bis −2,5 und nutze ihn als fehlende Zahl."
+    "Unterscheide bei jedem Teil: Das Zeichen außerhalb der Zahlklammer ist ein Rechenzeichen; das Zeichen in der Zahlklammer ist das Vorzeichen der Zahl.",
+    "Beim Auflösen gilt: eine positive Zahl addieren → +; eine negative Zahl addieren → −; eine positive Zahl subtrahieren → −; eine negative Zahl subtrahieren → +.",
+    "Prüfe deinen Term ohne Zahlklammern Zeichen für Zeichen. Berechne seinen Wert erst danach."
   ],
   "K43A-04": [
-    "Markiere zuerst getrennt: die Rechenzeichen zwischen den Zahlklammern und die Vorzeichen der Zahlen in den Klammern.",
-    "In − (−5,1) ist das erste − das Rechenzeichen und das zweite − das Vorzeichen der Zahl (−5,1). Eine negative Zahl zu subtrahieren führt nach rechts.",
-    "Schreibe die Rechnung ohne Zahlklammern auf und fasse anschließend positive und negative Teile geschickt zusammen."
+    "Im gegebenen Term ohne Zahlklammern ist die erste Zahl negativ. Die Zeichen zwischen den folgenden positiven Zahlen sind Rechenzeichen.",
+    "Für + a sind zum Beispiel +(+a) und −(−a) möglich. Für − a sind zum Beispiel −(+a) und +(−a) möglich.",
+    "Die beiden Klammerterme müssen verschieden aussehen, aber beim Auflösen exakt denselben Term ergeben. Reihenfolge und Beträge der drei Zahlen bleiben gleich."
   ],
   "K43A-05": [
-    "Löse zuerst nur − (−3,8) auf.",
-    "Danach betrachte + (−1,1). Hier bleibt die Bewegung nach links erhalten.",
-    "Vergleiche die angebotenen Rechnungen damit, ob die Rechenzeichen nach dem Auflösen der Zahlklammern richtig sind."
+    "Unterscheide bei jedem Teil: Das Zeichen außerhalb der Zahlklammer ist ein Rechenzeichen; das Zeichen in der Zahlklammer ist das Vorzeichen der Zahl.",
+    "Beim Auflösen gilt: eine positive Zahl addieren → +; eine negative Zahl addieren → −; eine positive Zahl subtrahieren → −; eine negative Zahl subtrahieren → +.",
+    "Prüfe deinen Term ohne Zahlklammern Zeichen für Zeichen. Berechne seinen Wert erst danach."
   ],
   "K43A-06": [
-    "Unterscheide das Rechenzeichen − vor der Klammer vom negativen Vorzeichen der Zahl (−2,4).",
-    "5,6 − (−2,4) bedeutet nicht, dass du 2,4 nach links gehst.",
-    "Eine negative Zahl abzuziehen führt nach rechts. Suche die angebotene Rechnung, die diese Richtung zeigt."
+    "Im gegebenen Term ohne Zahlklammern ist die erste Zahl negativ. Die Zeichen zwischen den folgenden positiven Zahlen sind Rechenzeichen.",
+    "Für + a sind zum Beispiel +(+a) und −(−a) möglich. Für − a sind zum Beispiel −(+a) und +(−a) möglich.",
+    "Die beiden Klammerterme müssen verschieden aussehen, aber beim Auflösen exakt denselben Term ergeben. Reihenfolge und Beträge der drei Zahlen bleiben gleich."
   ],
   "K43A-07": [
-    "Teste die Aussage an einer einfachen Zahl wie −3.",
-    "Was bedeutet zum Beispiel 5 − (−3) auf der Zahlengeraden?",
-    "Wenn du eine negative Zahl abziehst, in welche Richtung gehst du – und welches Rechenzeichen beschreibt diese Richtung ohne Klammer?"
+    "Unterscheide bei jedem Teil: Das Zeichen außerhalb der Zahlklammer ist ein Rechenzeichen; das Zeichen in der Zahlklammer ist das Vorzeichen der Zahl.",
+    "Beim Auflösen gilt: eine positive Zahl addieren → +; eine negative Zahl addieren → −; eine positive Zahl subtrahieren → −; eine negative Zahl subtrahieren → +.",
+    "Prüfe deinen Term ohne Zahlklammern Zeichen für Zeichen. Berechne seinen Wert erst danach."
   ],
   "K43A-08": [
-    "Rechne zuerst vollständig innerhalb der Betragsstriche: −3 − (+5).",
-    "Bilde danach den Betrag des Zwischenergebnisses.",
-    "Erst ganz am Ende addierst du diesen Betrag zu −4."
+    "Im gegebenen Term ohne Zahlklammern ist die erste Zahl negativ. Die Zeichen zwischen den folgenden positiven Zahlen sind Rechenzeichen.",
+    "Für + a sind zum Beispiel +(+a) und −(−a) möglich. Für − a sind zum Beispiel −(+a) und +(−a) möglich.",
+    "Die beiden Klammerterme müssen verschieden aussehen, aber beim Auflösen exakt denselben Term ergeben. Reihenfolge und Beträge der drei Zahlen bleiben gleich."
   ],
   "K43A-09": [
-    "Prüfe die Möglichkeiten mit einer einfachen positiven Zahl anstelle von b, zum Beispiel 2.",
-    "Vergleiche dann a − (−2) mit den angebotenen Schreibweisen.",
-    "Die passende Schreibweise muss dieselbe Bewegung auf der Zahlengeraden beschreiben: eine negative Zahl abziehen heißt nach rechts gehen."
+    "Unterscheide bei jedem Teil: Das Zeichen außerhalb der Zahlklammer ist ein Rechenzeichen; das Zeichen in der Zahlklammer ist das Vorzeichen der Zahl.",
+    "Beim Auflösen gilt: eine positive Zahl addieren → +; eine negative Zahl addieren → −; eine positive Zahl subtrahieren → −; eine negative Zahl subtrahieren → +.",
+    "Prüfe deinen Term ohne Zahlklammern Zeichen für Zeichen. Berechne seinen Wert erst danach."
   ],
   "K43A-10": [
-    "Zeichne 5 auf einer Zahlengeraden und führe zuerst 5 + (−2) aus.",
-    "Starte danach wieder bei 5 und führe 5 − (−2) aus. Achte nur auf die Bewegungsrichtung.",
-    "Vergleiche die beiden Bewegungen und formuliere in eigenen Worten, was das Rechenzeichen + vor einer negativen Zahl und was das Rechenzeichen − vor einer negativen Zahl bewirkt."
+    "Das − vor der 11 ist das Vorzeichen der ersten Zahl. Die beiden freien Stellen zwischen den Zahlen sind Rechenzeichen.",
+    "Probiere die vier möglichen Kombinationen der Rechenzeichen systematisch: + +, + −, − + und − −.",
+    "Berechne jeweils von links nach rechts und vergleiche den Wert mit dem Ziel −16."
   ],
   "K43B-01": [
     "Schreibe den Additions- und Subtraktionsterm zuerst als Summe vorzeichenbehafteter Zahlen.",
@@ -10749,12 +10771,133 @@ function openDeepExercise(ex){
   applyDeepCompletionMarker(ex);
 }
 
+
+function normalizeExerciseExpression(raw){
+  return String(raw ?? "")
+    .replace(/\u2212/g,"-")
+    .replace(/\u2013|\u2014/g,"-")
+    .replace(/\u00a0/g," ")
+    .trim();
+}
+
+function parseNoBracketThreeTerm(raw){
+  const s=normalizeExerciseExpression(raw);
+  if(/[()]/.test(s)) return {valid:false};
+
+  const num='(?:\\d+(?:[\\.,]\\d+)?|[\\.,]\\d+)';
+  const rx=new RegExp(
+    '^\\s*([+-]?)\\s*('+num+')\\s*([+-])\\s*('+num+')\\s*([+-])\\s*('+num+')\\s*$'
+  );
+  const m=s.match(rx);
+  if(!m) return {valid:false};
+
+  const firstMag=Number(m[2].replace(",","."));
+  const n2=Number(m[4].replace(",","."));
+  const n3=Number(m[6].replace(",","."));
+  if(![firstMag,n2,n3].every(Number.isFinite)) return {valid:false};
+
+  const first=(m[1]==="-"?-1:1)*firstMag;
+  const op1=m[3],op2=m[5];
+  const value=first+(op1==="+"?n2:-n2)+(op2==="+"?n3:-n3);
+  return {valid:true,first,op1,n2,op2,n3,value};
+}
+
+function sameNoBracketThreeTerm(a,b){
+  if(!a?.valid||!b?.valid)return false;
+  const eq=(x,y)=>Math.abs(x-y)<1e-9;
+  return eq(a.first,b.first)&&a.op1===b.op1&&eq(a.n2,b.n2)&&a.op2===b.op2&&eq(a.n3,b.n3);
+}
+
+function parseBracketThreeTerm(raw){
+  const s=normalizeExerciseExpression(raw);
+  const num='(?:\\d+(?:[\\.,]\\d+)?|[\\.,]\\d+)';
+  const rx=new RegExp(
+    '^\\s*\\(\\s*([+-])\\s*('+num+')\\s*\\)\\s*([+-])\\s*\\(\\s*([+-])\\s*('+num+')\\s*\\)\\s*([+-])\\s*\\(\\s*([+-])\\s*('+num+')\\s*\\)\\s*$'
+  );
+  const m=s.match(rx);
+  if(!m)return {valid:false};
+
+  const mag1=Number(m[2].replace(",","."));
+  const mag2=Number(m[5].replace(",","."));
+  const mag3=Number(m[8].replace(",","."));
+  if(![mag1,mag2,mag3].every(Number.isFinite))return {valid:false};
+
+  const sign1=m[1]==="-"?-1:1;
+  const sign2=m[4]==="-"?-1:1;
+  const sign3=m[7]==="-"?-1:1;
+  const operator1=m[3],operator2=m[6];
+
+  const first=sign1*mag1;
+  const c2=(operator1==="+"?1:-1)*sign2*mag2;
+  const c3=(operator2==="+"?1:-1)*sign3*mag3;
+
+  return {
+    valid:true,
+    expanded:{
+      valid:true,
+      first,
+      op1:c2>=0?"+":"-",
+      n2:Math.abs(c2),
+      op2:c3>=0?"+":"-",
+      n3:Math.abs(c3),
+      value:first+c2+c3
+    },
+    canonical:`${m[1]}${mag1}|${operator1}${m[4]}${mag2}|${operator2}${m[7]}${mag3}`
+  };
+}
+
+function bracketFormMatchesNoBracket(form,target){
+  return !!form?.valid&&sameNoBracketThreeTerm(form.expanded,target);
+}
+
 function renderDeepControl(ex){
   const wrap=$("#deepTaskControl");
   wrap.innerHTML="";
 
   if(ex.type==="number"){
     wrap.innerHTML='<input id="deepNumberInput" type="text" inputmode="decimal" autocomplete="off" placeholder="Antwort eingeben">';
+    return;
+  }
+
+  if(ex.type==="expandThreeTerm"){
+    wrap.innerHTML=`
+      <section class="deep-stage-group">
+        <div class="deep-stage-kicker">Schritt 1</div>
+        <div class="deep-stage-title">Term ohne Zahlklammern</div>
+        <div class="deep-stage-note">Notiere den vollständigen Term. Nach der ersten Zahl stehen zwischen den folgenden positiven Zahlen nur die Rechenzeichen + oder −.</div>
+        <label class="deep-expression-label" for="deepExpressionInput">Term ohne Zahlklammern</label>
+        <input id="deepExpressionInput" class="deep-expression-input" type="text" autocomplete="off" spellcheck="false" placeholder="z. B. 21,3 + 8 − 0,6">
+      </section>
+      <section class="deep-stage-group">
+        <div class="deep-stage-kicker">Schritt 2</div>
+        <div class="deep-stage-title">Ergebnis</div>
+        <label class="deep-expression-label" for="deepExpressionResult">Wert des Terms</label>
+        <input id="deepExpressionResult" type="text" inputmode="decimal" autocomplete="off" placeholder="Ergebnis">
+      </section>`;
+    return;
+  }
+
+  if(ex.type==="bracketTwoWays"){
+    wrap.innerHTML=`
+      <section class="deep-stage-group">
+        <div class="deep-stage-kicker">Schritt 1</div>
+        <div class="deep-stage-title">Term berechnen</div>
+        <label class="deep-expression-label" for="deepExpressionResult">Wert des gegebenen Terms</label>
+        <input id="deepExpressionResult" type="text" inputmode="decimal" autocomplete="off" placeholder="Ergebnis">
+      </section>
+      <section class="deep-stage-group">
+        <div class="deep-stage-kicker">Schritt 2</div>
+        <div class="deep-stage-title">Erste Schreibweise mit Zahlklammern</div>
+        <div class="deep-stage-note">Alle drei Zahlen stehen in Zahlklammern und haben darin ein geschriebenes Vorzeichen.</div>
+        <label class="deep-expression-label" for="deepBracketWay1">1. Klammerterm</label>
+        <input id="deepBracketWay1" class="deep-expression-input" type="text" autocomplete="off" spellcheck="false" placeholder="z. B. (+17) − (−2,5) + (+11)">
+      </section>
+      <section class="deep-stage-group">
+        <div class="deep-stage-kicker">Schritt 3</div>
+        <div class="deep-stage-title">Zweite, andere Schreibweise</div>
+        <label class="deep-expression-label" for="deepBracketWay2">2. Klammerterm</label>
+        <input id="deepBracketWay2" class="deep-expression-input" type="text" autocomplete="off" spellcheck="false" placeholder="z. B. (−23,4) + (+1,6) − (−8)">
+      </section>`;
     return;
   }
 
@@ -10911,15 +11054,18 @@ function renderDeepControl(ex){
       }
     });
     wrap.appendChild(line);
-    const lbl=document.createElement("label");
-    lbl.className="deep-reason-label";
-    lbl.setAttribute("for","deepReasonText");
-    lbl.textContent="Optional: Deine Begründung";
-    wrap.appendChild(lbl);
-    const ta=document.createElement("textarea");
-    ta.id="deepReasonText";
-    ta.placeholder="Erkläre, welche Zahlen du geschickt zusammenfasst.";
-    wrap.appendChild(ta);
+
+    if(ex.showReason!==false){
+      const lbl=document.createElement("label");
+      lbl.className="deep-reason-label";
+      lbl.setAttribute("for","deepReasonText");
+      lbl.textContent="Optional: Deine Begründung";
+      wrap.appendChild(lbl);
+      const ta=document.createElement("textarea");
+      ta.id="deepReasonText";
+      ta.placeholder="Erkläre, welche Zahlen du geschickt zusammenfasst.";
+      wrap.appendChild(ta);
+    }
     return;
   }
 
@@ -10954,6 +11100,30 @@ function checkDeepExercise(){
     }
   }
 
+  if(ex.type==="expandThreeTerm"){
+    const typed=parseNoBracketThreeTerm($("#deepExpressionInput")?.value);
+    const target=parseNoBracketThreeTerm(ex.withoutBrackets);
+    const result=parseRational($("#deepExpressionResult")?.value);
+    valid=!!typed.valid&&!!target.valid&&!!result.valid;
+    if(valid){
+      correct=sameNoBracketThreeTerm(typed,target)&&Math.abs(result.value-ex.expected)<1e-9;
+    }
+  }
+
+  if(ex.type==="bracketTwoWays"){
+    const target=parseNoBracketThreeTerm(ex.withoutBrackets);
+    const result=parseRational($("#deepExpressionResult")?.value);
+    const way1=parseBracketThreeTerm($("#deepBracketWay1")?.value);
+    const way2=parseBracketThreeTerm($("#deepBracketWay2")?.value);
+    valid=!!target.valid&&!!result.valid&&!!way1.valid&&!!way2.valid;
+    if(valid){
+      correct=Math.abs(result.value-ex.expected)<1e-9&&
+        bracketFormMatchesNoBracket(way1,target)&&
+        bracketFormMatchesNoBracket(way2,target)&&
+        way1.canonical!==way2.canonical;
+    }
+  }
+
   if(ex.type==="multiNumber"){
     const values=ex.labels.map((_,i)=>parseRational($("#deepMulti"+i).value));
     valid=values.every(v=>v.valid);
@@ -10983,7 +11153,8 @@ function checkDeepExercise(){
     for(let i=0;i<signs.length;i++){
       value += (signs[i]==="+"?1:-1)*ex.numbers[i+1];
     }
-    correct=valid && Math.abs(value)<1e-9;
+    const target=Number.isFinite(Number(ex.expectedTarget)) ? Number(ex.expectedTarget) : 0;
+    correct=valid && Math.abs(value-target)<1e-9;
   }
 
   if(ex.type==="choice"){
@@ -11022,9 +11193,13 @@ function checkDeepExercise(){
     }else{
       feedback.innerHTML=ex.type==="choiceReason"
         ? "<strong>Noch keine Auswahl getroffen.</strong> Wähle zuerst eine Antwort aus."
-        : ["numberReason","multiNumberReason","signReason"].includes(ex.type)
-          ? "<strong>Noch nicht vollständig.</strong> Fülle zuerst die überprüfbaren Felder aus."
-          : "<strong>Noch keine vollständige Antwort.</strong> Bearbeite die Aufgabe zuerst.";
+        : ex.type==="expandThreeTerm"
+          ? "<strong>Noch nicht vollständig.</strong> Trage den vollständigen Term ohne Zahlklammern und das Ergebnis ein."
+          : ex.type==="bracketTwoWays"
+            ? "<strong>Noch nicht vollständig.</strong> Trage das Ergebnis und zwei vollständige Klammerterme ein. In jeder Zahlklammer muss ein Vorzeichen stehen."
+            : ["numberReason","multiNumberReason","signReason"].includes(ex.type)
+              ? "<strong>Noch nicht vollständig.</strong> Fülle zuerst die überprüfbaren Felder aus."
+              : "<strong>Noch keine vollständige Antwort.</strong> Bearbeite die Aufgabe zuerst.";
     }
     return;
   }
@@ -11038,6 +11213,14 @@ function checkDeepExercise(){
     feedback.innerHTML=correct
       ? "<strong>Deine Auswahl ist richtig.</strong> Eine zusätzliche Begründung kannst du später mit der Musterlösung vergleichen."
       : "<strong>Die Auswahl passt noch nicht.</strong> Nutze bei Bedarf die Denkanstöße und prüfe noch einmal.";
+  }else if(ex.type==="expandThreeTerm"){
+    feedback.innerHTML=correct
+      ? "<strong>Richtig.</strong> Der Term ohne Zahlklammern und das Ergebnis stimmen."
+      : "<strong>Noch nicht richtig.</strong> Prüfe zuerst, welches Rechenzeichen nach dem Auflösen jeder Zahlklammer entsteht, und danach das Ergebnis.";
+  }else if(ex.type==="bracketTwoWays"){
+    feedback.innerHTML=correct
+      ? "<strong>Richtig.</strong> Beide Klammerterme sind verschieden, ergeben beim Auflösen genau den vorgegebenen Term und haben den richtigen Wert."
+      : "<strong>Noch nicht richtig.</strong> Prüfe das Ergebnis und beide Klammerterme. Beim Auflösen müssen beide exakt den gegebenen Term ohne Zahlklammern ergeben; die zwei Schreibweisen müssen verschieden sein.";
   }else if(ex.type==="multiNumberReason"&&(ex.correctFeedback||ex.incorrectFeedback)){
     feedback.innerHTML=correct
       ? (ex.correctFeedback||"<strong>Richtig.</strong>")
